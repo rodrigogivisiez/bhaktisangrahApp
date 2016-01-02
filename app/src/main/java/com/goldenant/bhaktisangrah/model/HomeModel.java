@@ -3,8 +3,10 @@ package com.goldenant.bhaktisangrah.model;
 /**
  * Created by ankita on 1/2/2016.
  */
-public class HomeModel
+public class HomeModel extends MasterModel
 {
+    private static final long serialVersionUID = 6104048947898684570L;
+
     private String category_id;
     private String category_name;
     private String category_image;

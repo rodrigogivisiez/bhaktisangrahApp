@@ -1,5 +1,6 @@
 package com.goldenant.bhaktisangrah.common.ui;
 
+import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,8 @@ public class MasterActivity extends AppCompatActivity {
     public boolean isInternet;
 
     public static Typeface font;
+
+    ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,5 +49,35 @@ public class MasterActivity extends AppCompatActivity {
     public Typeface getTypeFace() {
         font = Typeface.createFromAsset(getAssets(), "ProximaNova-Light.otf");
         return font;
+    }
+
+    public void showWaitIndicator(boolean state) {
+        showWaitIndicator(state, "");
+    }
+
+    public void showWaitIndicator(boolean state, String message) {
+        try {
+            try {
+
+                if (state) {
+
+                    mProgressDialog = new ProgressDialog(MasterActivity.this,
+                            R.style.TransparentProgressDialog);
+                    mProgressDialog
+                            .setProgressStyle(android.R.style.Widget_ProgressBar_Large);
+                    mProgressDialog.setCancelable(false);
+                    mProgressDialog.show();
+                } else {
+                    mProgressDialog.dismiss();
+                }
+
+            } catch (Exception e) {
+
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
