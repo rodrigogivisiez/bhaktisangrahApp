@@ -7,15 +7,13 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -25,7 +23,12 @@ import android.widget.Toast;
 import com.goldenant.bhaktisangrah.common.ui.DrawerArrowDrawable;
 import com.goldenant.bhaktisangrah.common.ui.DrawerListAdapter;
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
+import com.goldenant.bhaktisangrah.fragment.AboutUs;
+import com.goldenant.bhaktisangrah.fragment.Downloads;
+import com.goldenant.bhaktisangrah.fragment.FeedBack;
 import com.goldenant.bhaktisangrah.fragment.HomeFragment;
+import com.goldenant.bhaktisangrah.fragment.Notification;
+import com.goldenant.bhaktisangrah.fragment.Share;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
 
 import java.util.ArrayList;
@@ -149,50 +152,40 @@ public class MainActivity extends MasterActivity {
 
                 switch (position){
                     case 1:
-
-//                        Fragment homeFragment = new HomeFragment();
-//                        ReplaceFragement(homeFragment);
-
+                        Fragment homeFragment = new HomeFragment();
+                        ReplaceFragement(homeFragment);
                         break;
 
                     case 2:
-
-//                        Fragment yojanaFragment = new Downloads();
-//                        ReplaceFragement(yojanaFragment);
+                        Fragment Downloads = new Downloads();
+                        ReplaceFragement(Downloads);
 
                         break;
 
                     case 3:
-
-//                        Fragment uinFragment = new Notification();
-//                        ReplaceFragement(uinFragment);
-
+                        Fragment uinFragment = new Notification();
+                        ReplaceFragement(uinFragment);
                         break;
 
                     case 4:
-
-                        share(mContext);
+                        Fragment share = new Share();
+                        ReplaceFragement(share);
 
                         break;
 
                     case 5:
-
-
                         rate(mContext);
-
-
                         break;
 
                     case 6:
-
-                        feedback(mContext);
+                        Fragment feedback = new FeedBack();
+                        ReplaceFragement(feedback);
 
                         break;
 
                     case 7:
-
-//                        Fragment aboutus = new AboutUsFragment();
-//                        ReplaceFragement(aboutus);
+                        Fragment aboutus = new AboutUs();
+                        ReplaceFragement(aboutus);
 
                         break;
 

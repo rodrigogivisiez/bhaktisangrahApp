@@ -1,7 +1,6 @@
 package com.goldenant.bhaktisangrah.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,19 +8,24 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.goldenant.bhaktisangrah.R;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
+import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 
 /**
  * Created by ankita on 1/2/2016.
  */
-public class FeedBack extends Fragment
+public class FeedBack extends MasterFragment
 {
     EditText editText_name,editText_mobile,editText_dis;
 
     Button button_submit;
 
+    MasterActivity mContext;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
+        mContext = getMasterActivity();
         return inflater.inflate(R.layout.feedback_fragment, container, false);
     }
 
@@ -29,6 +33,8 @@ public class FeedBack extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+
+        mContext.setTitle("Feedback");
 
         editText_name = (EditText) view.findViewById(R.id.editText_name);
         editText_mobile = (EditText) view.findViewById(R.id.editText_mobile);
