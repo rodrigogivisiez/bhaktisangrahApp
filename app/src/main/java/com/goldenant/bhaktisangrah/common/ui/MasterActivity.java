@@ -1,6 +1,6 @@
 package com.goldenant.bhaktisangrah.common.ui;
 
-import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,6 +15,8 @@ import com.goldenant.bhaktisangrah.common.util.InternetStatus;
 public class MasterActivity extends AppCompatActivity {
 
     public boolean isInternet;
+
+    public static Typeface font;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,4 +43,8 @@ public class MasterActivity extends AppCompatActivity {
         titleTextView.setTextSize(title_text_size);
     }
 
+    public Typeface getTypeFace() {
+        font = Typeface.createFromAsset(getAssets(), "ProximaNova-Light.otf");
+        return font;
+    }
 }
