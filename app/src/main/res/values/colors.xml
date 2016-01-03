@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimaryDark">#C51162</color>
+    <color name="appbg">#FFFFFF</color>
+    <color name="appbg_other">#EFEFEF</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="header">#3E2723</color>
+    <color name="theme_color">#1e5159</color>
+    <color name="font">#676767</color>
+    <color name="transparent">#80FFA000</color>
+    <color name="drawer">#3E2723</color>
+    <color name="add_swipe_color">#80FFA000</color>
+    <color name="remove_swipe_color">#803E2723</color>
+
+    <color name="list_item_header">#f19e28</color>
+    <color name="list_item_text">#0475af</color>
+    <color name="drawer_header">#c69740</color>
+    <color name="new_drawer_header">#1c899d</color>
+    <color name="mantri_name_color">#1c899d</color>
+    <color name="text_hint">#c1c1c1</color>
+
+</resources>

@@ -3,4 +3,27 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="share">share</string>
+    <string name="feedback_sub">feedback_sub</string>
+
+    <string-array name="nav_drawer_title">
+        <item>Home</item>
+        <item>Downloads</item>
+        <item>Notification</item>
+        <item>Invite / Share</item>
+        <item>Rate us</item>
+        <item>Feedback</item>
+        <item>About usે</item>
+    </string-array>
+
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_action_home</item>
+    </array>
+
 </resources>
