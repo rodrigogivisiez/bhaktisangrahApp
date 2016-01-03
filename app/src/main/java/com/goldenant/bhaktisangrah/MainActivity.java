@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -47,10 +48,11 @@ public class MainActivity extends MasterActivity {
     private String[] navMenuTitles;
     private TypedArray navMenuIcons;
     private DrawerListAdapter adapter;
-    private View mHeader;
+//    private View mHeader;
     private Context mContext;
     private ArrayList<NavDrawerItem> navDrawerItems;
     public FragmentManager fragmentManager = getSupportFragmentManager();
+    private Typeface font;
 
     TextView title;
 
@@ -65,11 +67,13 @@ public class MainActivity extends MasterActivity {
         mDrawerList = (ListView) findViewById(R.id.drawer_content);
         resources = getResources();
         mContext = getApplicationContext();
+        this.font = Typeface.createFromAsset(mContext.getAssets(), "ProximaNova-Light.otf");
 
         drawerArrowDrawable = new DrawerArrowDrawable(resources);
         drawerArrowDrawable.setStrokeColor(Color.WHITE);
         imageView.setImageDrawable(drawerArrowDrawable);
         title =(TextView) findViewById(R.id.title_text);
+        title.setTypeface(font);
         title.setText("Home Page");
 
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -77,7 +81,7 @@ public class MainActivity extends MasterActivity {
 
 
         // Custom Header ...
-        mHeader = getLayoutInflater().inflate(
+        /*mHeader = getLayoutInflater().inflate(
                 R.layout.navigation_list_header, mDrawerList, false);
         TextView txtProfileName = (TextView) mHeader
                 .findViewById(R.id.txtProfileName);
@@ -87,7 +91,7 @@ public class MainActivity extends MasterActivity {
                 .findViewById(R.id.imgProfileImage);
 
 
-        mDrawerList.addHeaderView(mHeader);
+        mDrawerList.addHeaderView(mHeader);*/
         // Custom Header End...
 
         navMenuTitles = getResources().getStringArray(

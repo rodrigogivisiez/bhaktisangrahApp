@@ -6,4 +6,9 @@
     <dimen name="elevation_low">1dp</dimen>
     <dimen name="elevation_high">8dp</dimen>
     <dimen name="actionbar_dimen">56dp</dimen>
+
+    <dimen name="user_profile_avatar_size">88dp</dimen>
+    <dimen name="global_menu_avatar_size">64dp</dimen>
+    <dimen name="default_elevation">8dp</dimen>
+
 </resources>

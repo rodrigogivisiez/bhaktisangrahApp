@@ -22,13 +22,13 @@ public class DrawerListAdapter extends BaseAdapter {
 
 	private Context context;
 	private ArrayList<NavDrawerItem> navDrawerItems;
-//    Typeface font;
+    Typeface font;
 
 	public DrawerListAdapter(Context context,
 			ArrayList<NavDrawerItem> navDrawerItems) {
 		this.context = context;
 		this.navDrawerItems = navDrawerItems;
-//        this.font = Typeface.createFromAsset(this.context.getAssets(), "SHRUTI.TTF");
+        this.font = Typeface.createFromAsset(this.context.getAssets(), "ProximaNova-Light.otf");
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class DrawerListAdapter extends BaseAdapter {
 			drawerItem.setBackgroundResource(R.color.header);
 		}
 
-//        txtTitle.setTypeface(font);
+        txtTitle.setTypeface(font);
 		txtTitle.setText(navDrawerItems.get(position).getTitle());
 		imageView.setImageResource(navDrawerItems.get(position).getIcon());
 		return convertView;

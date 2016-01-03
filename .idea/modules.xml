@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/flowingdrawer/flowingdrawer.iml" filepath="$PROJECT_DIR$/flowingdrawer/flowingdrawer.iml" />
       <module fileurl="file://$PROJECT_DIR$/music-app-andriod.iml" filepath="$PROJECT_DIR$/music-app-andriod.iml" />
     </modules>
   </component>

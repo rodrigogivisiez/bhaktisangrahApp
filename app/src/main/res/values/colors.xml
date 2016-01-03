@@ -14,9 +14,9 @@
     <color name="add_swipe_color">#80FFA000</color>
     <color name="remove_swipe_color">#803E2723</color>
 
-    <color name="list_item_header">#f19e28</color>
+    <color name="list_item_header">#1e5159</color>
     <color name="list_item_text">#0475af</color>
-    <color name="drawer_header">#c69740</color>
+    <color name="drawer_header">#091a1d</color>
     <color name="new_drawer_header">#1c899d</color>
     <color name="mantri_name_color">#1c899d</color>
     <color name="text_hint">#c1c1c1</color>

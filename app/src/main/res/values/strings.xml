@@ -13,17 +13,17 @@
         <item>Invite / Share</item>
         <item>Rate us</item>
         <item>Feedback</item>
-        <item>About usે</item>
+        <item>About us</item>
     </string-array>
 
     <array name="nav_drawer_icons">
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
-        <item>@drawable/ic_action_action_home</item>
+        <item>@drawable/ic_action_home</item>
+        <item>@drawable/ic_action_download</item>
+        <item>@drawable/ic_action_notification</item>
+        <item>@drawable/ic_action_share</item>
+        <item>@drawable/ic_action_rateus</item>
+        <item>@drawable/ic_action_feedback</item>
+        <item>@drawable/ic_action_aboutus</item>
     </array>
 
 </resources>
