@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
@@ -14,15 +12,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,15 +24,15 @@ import android.widget.Toast;
 
 import com.goldenant.bhaktisangrah.common.ui.DrawerArrowDrawable;
 import com.goldenant.bhaktisangrah.common.ui.DrawerListAdapter;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.fragment.HomeFragment;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static android.view.Gravity.START;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends MasterActivity {
 
     private DrawerArrowDrawable drawerArrowDrawable;
     private float offset;
@@ -61,6 +55,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         imageView = (ImageView) findViewById(R.id.drawer_indicator);

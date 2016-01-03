@@ -10,13 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.goldenant.bhaktisangrah.R;
+import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 
 import java.util.ArrayList;
 
 /**
  * Created by Ajay on 11-09-2015.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends MasterFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,8 +31,6 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
     }
-
 
 }
