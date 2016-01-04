@@ -2,6 +2,8 @@ package com.goldenant.bhaktisangrah.adapter;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +23,8 @@ import com.goldenant.bhaktisangrah.fragment.Streaming;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
+
+import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -44,9 +48,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     int resource;
 
-    private static String fileName = "god_mantra.mp3";
+    private static String fileName = "god_mantra.mp3",imagename;
 
     private ProgressDialog pDialog;
+
+    int pos;
 
     public CategoryAdapter(MainActivity context, int resource,ArrayList<SubCategoryModel> list)
     {
@@ -109,6 +115,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
             @Override
             public void onClick(View v) {
                 fileName = mItem.get(position).getDownload_name()+".mp3";
+                imagename = mItem.get(position).getDownload_name()+".jpg";
+                pos = position;
                 new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
             }
         });
@@ -137,9 +145,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         /**
          * Downloading file in background thread
          * */
-        protected String doInBackground(String... f_url) {
+        protected String doInBackground(String... f_url)
+        {
             int count;
-            try {
+            try
+            {
                 URL url = new URL(f_url[0]);
                 URLConnection conection = url.openConnection();
                 conection.connect();
@@ -147,19 +157,19 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 int lenghtOfFile = conection.getContentLength();
 
                 // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(),
-                        8192);
+                InputStream input = new BufferedInputStream(url.openStream(),8192);
 
-                String PATH = Environment.getExternalStorageDirectory()
-                    + "/sdcard/Bhakti sagar";
-                Log.v("log_tag", "PATH: " + PATH);
-                File file = new File(PATH);
-                if (!file.exists()) {
-                    file.mkdirs();
+                File myDir = new File("/data/data/"
+                        + mContext.getApplicationContext()
+                        .getPackageName() + "/Bhakti sagar/mp3");
+                myDir.mkdirs();
+
+                if (!myDir.exists()) {
+                    myDir.mkdirs();
                 }
 
                 // Output stream to write file
-                File outputFile = new File(file, fileName);
+                File outputFile = new File(myDir, fileName);
                 OutputStream output = new FileOutputStream(outputFile);
 
                 byte data[] = new byte[1024];
@@ -182,6 +192,37 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 // closing streams
                 output.close();
                 input.close();
+
+
+                //Download image start
+                myDir = new File("/data/data/" + mContext.getApplicationContext()
+                        .getPackageName() + "/Bhakti sagar/images/");
+                myDir.mkdirs();
+
+                try
+                {
+                    File image = new File(myDir, imagename);
+
+                    if (!image.exists())
+                    {
+                        try
+                        {
+                            Bitmap Image = getImage(mItem.get(pos).getItem_image());
+
+                            FileOutputStream out = new FileOutputStream(image);
+                            Image.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                            out.flush();
+                            out.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Error in downloading image:"
+                            + ex.toString());
+                }
+                //End
 
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());
@@ -218,5 +259,29 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
     }
 
 
+    public static Bitmap getImage(String url) {
+        try {
+            URL imageUrl = new URL(url);
+            URLConnection ucon = imageUrl.openConnection();
+
+            InputStream is = ucon.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+
+            ByteArrayBuffer baf = new ByteArrayBuffer(500000);
+            int current = 0;
+            while ((current = bis.read()) != -1) {
+                baf.append((byte) current);
+            }
+
+            System.gc();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(baf.toByteArray(), 0,
+                    baf.toByteArray().length);
+
+            return bitmap;
+        } catch (Exception e) {
+            Log.d("ImageManager", "Error: " + e.toString());
+        }
+        return null;
+    }
     //Download mp3 emd
 }
