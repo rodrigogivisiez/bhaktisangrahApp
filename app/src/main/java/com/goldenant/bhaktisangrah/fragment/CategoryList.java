@@ -52,7 +52,7 @@ public class CategoryList extends MasterFragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mContext.setTitle("Play songs");
+        mContext.setTitle("Play song Or Download");
         mCategoryList = (ListView) view.findViewById(R.id.listView_cat_list);
         bundle = getArguments();
 

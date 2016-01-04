@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
+import com.goldenant.bhaktisangrah.model.HomeModel;
+
+import java.util.ArrayList;
 
 /**
  * Created by Adite on 02-01-2016.
@@ -20,6 +23,8 @@ public class MasterActivity extends AppCompatActivity {
     public static Typeface font;
 
     ProgressDialog mProgressDialog;
+
+    public static ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
