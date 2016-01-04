@@ -11,6 +11,13 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -22,5 +29,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:cardview-v7:22.1.0'
     compile 'com.mcxiaoke.volley:library-aar:1.0.0'
+    compile 'com.squareup.picasso:picasso:2.5.0'
+    compile 'com.github.markushi:circlebutton:1.1'
+    compile 'com.android.support:palette-v7:22.0.0'
 }
