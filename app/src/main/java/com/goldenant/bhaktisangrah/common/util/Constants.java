@@ -37,6 +37,7 @@ public class Constants
     public static final String item_description = "item_description";
     public static final String item_file = "item_file";
     public static final String item_image = "item_image";
+    public static final String download_name = "download_name";
 
     public static final String GCM_ID = "gcm_id";
     public static final String DEVICE_ID = "device_id";

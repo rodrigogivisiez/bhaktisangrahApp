@@ -23,12 +23,14 @@ import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Adite on 03-01-2016.
@@ -43,11 +45,9 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     int resource;
 
-    private static String fileName;
+    private static String fileName = "god_mantra.mp3";
 
     private ProgressDialog pDialog;
-
-    public static final int progress_bar_type = 0;
 
     public CategoryAdapter(MainActivity context, int resource,ArrayList<SubCategoryModel> list)
     {
@@ -109,7 +109,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         {
             @Override
             public void onClick(View v) {
-                fileName = mItem.get(position).getItem_name();
+                fileName = mItem.get(position).getDownload_name()+".mp3";
                 new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
             }
         });
@@ -176,8 +176,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            showDialog(progress_bar_type);
-//            new MyDialogFragment();
+            pDialog = new ProgressDialog(mContext);
+            pDialog.setMessage("Downloading file. Please wait...");
+            pDialog.setIndeterminate(false);
+            pDialog.setMax(100);
+            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            pDialog.setCancelable(true);
+            pDialog.show();
         }
 
         /**
@@ -196,9 +201,17 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 InputStream input = new BufferedInputStream(url.openStream(),
                         8192);
 
+                String PATH = Environment.getExternalStorageDirectory()
+                    + "/sdcard/ANKITA";
+                Log.v("log_tag", "PATH: " + PATH);
+                File file = new File(PATH);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+
                 // Output stream to write file
-                OutputStream output = new FileOutputStream("/sdcard/ANKITA/"
-                        + fileName);
+                File outputFile = new File(file, fileName);
+                OutputStream output = new FileOutputStream(outputFile);
 
                 byte data[] = new byte[1024];
 
@@ -242,7 +255,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after the file was downloaded
-//            dismissDialog(progress_bar_type);
+            pDialog.dismiss();
 
             // Displaying downloaded image into image view
             // Reading image path from sdcard
@@ -251,8 +264,28 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
             Log.d("File downloaded and saved to directory==>",""+imagePath);
+            Log.d("Size",""+getSD().size());
         }
 
+    }
+
+    private List<String> getSD() {
+        List<String> item = new ArrayList<String>();
+        File f = new File(Environment.getExternalStorageDirectory()
+                + File.separator
+                + "ANKITA" //folder name
+        );
+//        File f = new File("/mnt/sdcard/.ANKITA");
+        File[] files = f.listFiles();
+
+        for(int i=0; i < files.length; i++) {
+            File file = files[i];
+            //take the file name only
+            String myfile = file.getPath().substring(file.getPath().lastIndexOf("/")+1,file.getPath().length()).toLowerCase();
+            item.add(myfile);
+        }
+
+        return item;
     }
 
 //    private static class MyDialogFragment extends DialogFragment
