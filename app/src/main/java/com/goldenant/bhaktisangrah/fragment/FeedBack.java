@@ -1,15 +1,17 @@
 package com.goldenant.bhaktisangrah.fragment;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
-import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 
 /**
  * Created by ankita on 1/2/2016.
@@ -20,12 +22,12 @@ public class FeedBack extends MasterFragment
 
     Button button_submit;
 
-    MasterActivity mContext;
+    MainActivity mContext;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
-        mContext = getMasterActivity();
+        mContext = (MainActivity) getMasterActivity();
         return inflater.inflate(R.layout.feedback_fragment, container, false);
     }
 
@@ -41,5 +43,88 @@ public class FeedBack extends MasterFragment
         editText_dis = (EditText) view.findViewById(R.id.editText_dis);
 
         button_submit = (Button) view.findViewById(R.id.button_submit);
+
+        editText_name.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    //check if the right key was pressed
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        onResume();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        editText_mobile.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    //check if the right key was pressed
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        onResume();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        editText_dis.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    //check if the right key was pressed
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        onResume();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        button_submit.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if(editText_name.getText().toString().length() == 0)
+                {
+                    ToastUtil.showLongToastMessage(mContext,"Please enter your name");
+                }
+                else if(editText_mobile.getText().toString().length() == 0)
+                {
+                    ToastUtil.showLongToastMessage(mContext,"Please enter your mobile number");
+                }
+                else if(editText_dis.getText().toString().length() == 0)
+                {
+                    ToastUtil.showLongToastMessage(mContext,"Please enter proper discription");
+                }
+                else
+                {
+                    mContext.feedback(mContext,editText_name.getText().toString(),editText_mobile.getText().toString(),
+                            editText_dis.getText().toString());
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                    HomeFragment home = new HomeFragment();
+                    mContext.ReplaceFragement(home);
+                }
+                return false;
+            }
+        });
     }
 }

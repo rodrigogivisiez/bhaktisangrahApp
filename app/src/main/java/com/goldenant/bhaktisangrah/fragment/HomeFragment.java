@@ -1,10 +1,13 @@
 package com.goldenant.bhaktisangrah.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -131,4 +134,48 @@ public class HomeFragment extends MasterFragment {
             mContext.showWaitIndicator(false);
         }
     };
+
+    @Override
+    public void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+
+            private boolean doubleBackToExitPressedOnce;
+
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_UP
+                        && keyCode == KeyEvent.KEYCODE_BACK) {
+
+                    if (doubleBackToExitPressedOnce) {
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        System.exit(1);
+                    }
+
+                    this.doubleBackToExitPressedOnce = true;
+                    ToastUtil.showLongToastMessage(mContext,getString(R.string.exit_title));
+
+                    new Handler().postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            doubleBackToExitPressedOnce = false;
+                        }
+                    }, 2000);
+
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 }

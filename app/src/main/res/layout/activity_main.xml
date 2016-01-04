@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/actionbar_dimen"
         android:layout_gravity="center_vertical"
-        android:background="@color/theme_color" >
+        android:background="#263845" >
 
         <ImageView
             android:id="@+id/drawer_indicator"
@@ -30,8 +30,7 @@
             android:text="TITLE"
             android:textSize="20sp"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/white" />
-
+            android:textColor="@color/white"/>
     </FrameLayout>
 
     <!-- Content -->
@@ -53,22 +52,19 @@
             android:layout_width="260dp"
             android:layout_height="match_parent"
             android:layout_gravity="left"
-            android:background="@color/list_item_header" >
+            android:background="@drawable/drawer_bg" >
 
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="2dp"
-                android:background="@drawable/divider"/>
 
             <ListView
                 android:id="@+id/drawer_content"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:divider="@drawable/divider"
-                android:dividerHeight="1dp"
+                android:dividerHeight="0.50dp"
                 android:gravity="center"
                 android:listSelector="@color/drawer_header"
                 android:scrollbars="none"
+                android:layout_marginLeft="20dp"
                 android:text="drawer_hint"
                 android:headerDividersEnabled="false"
                 android:textColor="@color/new_drawer_header" />

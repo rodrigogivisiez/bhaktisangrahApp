@@ -1,1 +1,1 @@
-include ':app', ':flowingdrawer'
+include ':flowingdrawer', ':app'

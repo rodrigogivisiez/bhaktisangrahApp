@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:background="@drawable/panal"
+            android:background="@drawable/cat_item_bg"
             android:gravity="center"
             android:orientation="vertical">
 
