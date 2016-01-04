@@ -96,6 +96,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
             @Override
             public void onClick(View v) {
 
+//                Fragment investProgramDetail = new Streaming();
+//
+//                Bundle bundle = new Bundle();
+//                bundle.putString("item_file", mItem.get(position).getItem_file());
+//                investProgramDetail.setArguments(bundle);
+//                mContext.ReplaceFragement(investProgramDetail);
+
                 Fragment investProgramDetail = new Streaming();
 
                 Bundle bundle = new Bundle();
