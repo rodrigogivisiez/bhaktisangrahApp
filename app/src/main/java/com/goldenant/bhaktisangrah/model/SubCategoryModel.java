@@ -10,6 +10,7 @@ public class SubCategoryModel extends MasterModel
     private String item_name;
     private String item_description;
     private String item_file;
+    private String download_name;
     private String item_image;
 
     public String getItem_id() {
@@ -50,5 +51,13 @@ public class SubCategoryModel extends MasterModel
 
     public void setItem_image(String item_image) {
         this.item_image = item_image;
+    }
+
+    public String getDownload_name() {
+        return download_name;
+    }
+
+    public void setDownload_name(String download_name) {
+        this.download_name = download_name;
     }
 }

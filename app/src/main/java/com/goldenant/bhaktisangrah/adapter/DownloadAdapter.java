@@ -23,6 +23,7 @@ import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 /**
  * Created by Adite on 03-01-2016.
  */
-public class CategoryAdapter extends ArrayAdapter<HomeModel>
+public class DownloadAdapter extends ArrayAdapter<HomeModel>
 {
     private LayoutInflater layoutInflater;
 
@@ -47,9 +48,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     private ProgressDialog pDialog;
 
-    public static final int progress_bar_type = 0;
-
-    public CategoryAdapter(MainActivity context, int resource,ArrayList<SubCategoryModel> list)
+    public DownloadAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list)
     {
         super(context, resource);
         mContext = context;
@@ -94,21 +93,14 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
-//                Fragment investProgramDetail = new Streaming();
-//
-//                Bundle bundle = new Bundle();
-//                bundle.putString("item_file", mItem.get(position).getItem_file());
-//                investProgramDetail.setArguments(bundle);
-//                mContext.ReplaceFragement(investProgramDetail);
-
-                Fragment investProgramDetail = new Streaming();
+            public void onClick(View v)
+            {
+                Fragment streaming = new Streaming();
 
                 Bundle bundle = new Bundle();
                 bundle.putString("item_file", mItem.get(position).getItem_file());
-                investProgramDetail.setArguments(bundle);
-                mContext.ReplaceFragement(investProgramDetail);
+                streaming.setArguments(bundle);
+                mContext.ReplaceFragement(streaming);
             }
         });
 
@@ -116,7 +108,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         {
             @Override
             public void onClick(View v) {
-                fileName = mItem.get(position).getItem_name();
+                fileName = mItem.get(position).getDownload_name()+".mp3";
                 new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
             }
         });
@@ -125,56 +117,6 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
     }
 
     //Download mp3 start
-//    @Override
-//    protected Dialog onCreateDialog(int id) {
-//        switch (id) {
-//            case progress_bar_type:
-//                pDialog = new ProgressDialog(mContext);
-//                pDialog.setMessage("Downloading file. Please wait...");
-//                pDialog.setIndeterminate(false);
-//                pDialog.setMax(100);
-//                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//                pDialog.setCancelable(true);
-//                pDialog.show();
-//                return pDialog;
-//            default:
-//                return null;
-//        }
-//    }
-
-//    public void downloadStreams() {
-//        try {
-//            URL url = new URL(mItem.get(position).getItem_file());
-//            HttpURLConnection c = (HttpURLConnection) url.openConnection();
-//            c.setRequestMethod("GET");
-//            c.setDoOutput(true);
-//            c.connect();
-//
-//            String PATH = Environment.getExternalStorageDirectory()
-//                    + "/download/";
-//            Log.v("log_tag", "PATH: " + PATH);
-//            File file = new File(PATH);
-//            if (!file.exists()) {
-//                file.mkdirs();
-//            }
-//            File outputFile = new File(file, fileName);
-//            FileOutputStream fos = new FileOutputStream(outputFile);
-//
-//            InputStream is = c.getInputStream();
-//
-//            byte[] buffer = new byte[1024];
-//            int len1 = 0;
-//            while ((len1 = is.read(buffer)) != -1) {
-//                fos.write(buffer, 0, len1);
-//            }
-//            fos.close();
-//            is.close();
-//        } catch (IOException e) {
-//            Log.e("log_tag", "Error: " + e);
-//        }
-//        Log.v("log_tag", "Check: ");
-//    }
-
     class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
         /**
@@ -183,8 +125,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            showDialog(progress_bar_type);
-//            new MyDialogFragment();
+            pDialog = new ProgressDialog(mContext);
+            pDialog.setMessage("Downloading file. Please wait...");
+            pDialog.setIndeterminate(false);
+            pDialog.setMax(100);
+            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            pDialog.setCancelable(true);
+            pDialog.show();
         }
 
         /**
@@ -203,9 +150,17 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 InputStream input = new BufferedInputStream(url.openStream(),
                         8192);
 
+                String PATH = Environment.getExternalStorageDirectory()
+                    + "/sdcard/Bhakti sagar";
+                Log.v("log_tag", "PATH: " + PATH);
+                File file = new File(PATH);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+
                 // Output stream to write file
-                OutputStream output = new FileOutputStream("/sdcard/ANKITA/"
-                        + fileName);
+                File outputFile = new File(file, fileName);
+                OutputStream output = new FileOutputStream(outputFile);
 
                 byte data[] = new byte[1024];
 
@@ -249,7 +204,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after the file was downloaded
-//            dismissDialog(progress_bar_type);
+            pDialog.dismiss();
 
             // Displaying downloaded image into image view
             // Reading image path from sdcard
@@ -257,18 +212,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                     .toString() + fileName;
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
-            Log.d("File downloaded and saved to directory==>",""+imagePath);
+            Log.d("Path_of_file==>",""+imagePath);
         }
 
     }
 
-//    private static class MyDialogFragment extends DialogFragment
-//    {
-//        @NonNull
-//        @Override
-//        public Dialog onCreateDialog(Bundle savedInstanceState) {
-//            return super.onCreateDialog(savedInstanceState);
-//        }
-//    }
+
     //Download mp3 emd
 }

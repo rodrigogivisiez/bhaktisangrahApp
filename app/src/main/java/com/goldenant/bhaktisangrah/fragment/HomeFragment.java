@@ -17,6 +17,7 @@ import android.widget.ListView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.HomeAdapter;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
@@ -53,18 +54,28 @@ public class HomeFragment extends MasterFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mContext.setTitle("Home");
+        mContext.setTitle("Categories");
 
         listView_category = (ListView) view.findViewById(R.id.listView_category);
 
-        if(mContext.isInternet == true)
+        if(MasterActivity.CatArray.size() > 0)
         {
-            getCategory();
+            HomeAdapter Adapter = new HomeAdapter(mContext,R.layout.category_item, MasterActivity.CatArray);
+            listView_category.setAdapter(Adapter);
         }
         else
         {
-            ToastUtil.showLongToastMessage(mContext,"No internet connection found");
+            if(mContext.isInternet == true)
+            {
+                getCategory();
+            }
+            else
+            {
+                ToastUtil.showLongToastMessage(mContext,"No internet connection found");
+            }
         }
+
+
 
         listView_category.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -119,6 +130,8 @@ public class HomeFragment extends MasterFragment {
 
                         CatArray.add(home);
                     }
+
+                    MasterActivity.CatArray = CatArray;
 
                     HomeAdapter Adapter = new HomeAdapter(mContext,R.layout.category_item, CatArray);
                     listView_category.setAdapter(Adapter);

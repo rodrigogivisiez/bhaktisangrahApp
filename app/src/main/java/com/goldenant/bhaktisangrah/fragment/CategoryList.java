@@ -52,7 +52,7 @@ public class CategoryList extends MasterFragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mContext.setTitle("Play songs");
+        mContext.setTitle("Play song Or Download");
         mCategoryList = (ListView) view.findViewById(R.id.listView_cat_list);
         bundle = getArguments();
 
@@ -114,6 +114,7 @@ public class CategoryList extends MasterFragment
                             categoryModel.setItem_description(data.getJSONObject(i).getString(Constants.item_description));
                             categoryModel.setItem_file(data.getJSONObject(i).getString(Constants.item_file));
                             categoryModel.setItem_image(data.getJSONObject(i).getString(Constants.item_image));
+                            categoryModel.setDownload_name(data.getJSONObject(i).getString(Constants.download_name));
 
                             CatListItem.add(categoryModel);
                         }
