@@ -1,14 +1,25 @@
 package com.goldenant.bhaktisangrah.fragment;
 
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
+import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
-import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.goldenant.bhaktisangrah.common.util.FUtils;
+import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 
 /**
  * Created by ankita on 1/2/2016.
@@ -17,12 +28,15 @@ public class Share extends MasterFragment
 {
     LinearLayout llFacebook,llEmail,llWhatsapp;
 
-    MasterActivity mContext;
+    MainActivity mContext;
+
+    CallbackManager callbackManager;
+    ShareDialog shareDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
-        mContext = getMasterActivity();
+        mContext = (MainActivity) getMasterActivity();
         return inflater.inflate(R.layout.share_fragment, container, false);
     }
 
@@ -37,24 +51,88 @@ public class Share extends MasterFragment
         llEmail  = (LinearLayout) view.findViewById(R.id.llEmail);
         llWhatsapp = (LinearLayout) view.findViewById(R.id.llWhatsapp);
 
+        FacebookSdk.sdkInitialize(mContext);
+        callbackManager = CallbackManager.Factory.create();
+        shareDialog = new ShareDialog(this);
+
+        FUtils.getAppPackageAppHash(mContext);
+
         llFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ShareDialog.canShow(ShareLinkContent.class)) {
+                    ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                            .setContentTitle("Bhakti Sagar")
+                            .setContentDescription(
+                                    "This is a test message")
+                            .setContentUrl(Uri.parse("http://www.india-daily.com/wp-content/uploads/2015/04/a3.jpg"))
+                            .build();
 
+                    shareDialog.show(linkContent);
+                }
             }
         });
 
         llEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (mContext.isInternet)
+                {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri
+                            .fromParts("mailto", "shethconstructiongroup@gmail.com", null));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sagar");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, "Test Bhakti Sagar");
+                    startActivity(Intent.createChooser(emailIntent, "Send email..."));
+                }
+                else
+                {
+                    ToastUtil.showLongToastMessage(mContext, "No internet connection found");
+                }
             }
         });
 
         llWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try
+                {
+                    PackageManager pm= mContext.getPackageManager();
+                    Intent waIntent = new Intent(Intent.ACTION_SEND);
+                    waIntent.setType("text/plain");
+                    String text = "Bhakti Sagar testing";
 
+                    PackageInfo info=pm.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
+                    //Check if package exists or not. If not then code
+                    //in catch block will be called
+                    waIntent.setPackage("com.whatsapp");
+
+                    waIntent.putExtra(Intent.EXTRA_TEXT, text);
+                    startActivity(Intent.createChooser(waIntent, "Share with"));
+
+                }
+                catch (PackageManager.NameNotFoundException e)
+                {
+                    ToastUtil.showLongToastMessage(mContext, "WhatsApp not Installed");
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                    HomeFragment home = new HomeFragment();
+                    mContext.ReplaceFragement(home);
+                }
+                return false;
             }
         });
     }

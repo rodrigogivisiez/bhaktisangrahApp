@@ -3,6 +3,7 @@ package com.goldenant.bhaktisangrah.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +12,6 @@ import android.widget.ListView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.CategoryAdapter;
-import com.goldenant.bhaktisangrah.adapter.HomeAdapter;
-import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
@@ -134,4 +133,24 @@ public class CategoryList extends MasterFragment
             mContext.showWaitIndicator(false);
         }
     };
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK)
+                {
+                    HomeFragment home = new HomeFragment();
+                    mContext.ReplaceFragement(home);
+                }
+                return false;
+            }
+        });
+    }
 }

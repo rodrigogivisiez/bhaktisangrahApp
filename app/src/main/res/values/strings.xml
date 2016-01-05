@@ -5,15 +5,18 @@
     <string name="action_settings">Settings</string>
     <string name="share">share</string>
     <string name="feedback_sub">feedback_sub</string>
+    <string name="exit_title">Press Back Key Once More To Exit The App.</string>
+
+    <string name="fb_app_id">903723256364055</string>
 
     <string-array name="nav_drawer_title">
-        <item>Home</item>
-        <item>Downloads</item>
-        <item>Notification</item>
-        <item>Invite / Share</item>
-        <item>Rate us</item>
-        <item>Feedback</item>
-        <item>About us</item>
+        <item>HOME</item>
+        <item>DOWNLOADS</item>
+        <item>NOTIFICATION</item>
+        <item>INVITE / SHARE</item>
+        <item>RATE US</item>
+        <item>FEEDBACK</item>
+        <item>ABOUT US</item>
     </string-array>
 
     <array name="nav_drawer_icons">
