@@ -3,6 +3,7 @@ package com.goldenant.bhaktisangrah.fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -26,6 +27,7 @@ import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;*/
 import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 /*import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -50,8 +53,8 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;*/
-import com.goldenant.bhaktisangrah.common.ui.BlurBuilder;
 import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
+import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -66,16 +69,15 @@ import wseemann.media.FFmpegMediaPlayer;
 /**
  * Created by Adite on 03-01-2016.
  */
-public class Streaming extends Fragment
-{
+public class Streaming extends MasterFragment {
     // views
     private View rootView;
-//    private android.support.v7.app.ActionBar actionBar;
+    //    private android.support.v7.app.ActionBar actionBar;
     private ImageView backgroundImageView;
     private TextView artistNameView;
     private TextView albumNameView;
     private ImageView trackImageView;
-//    private ImageView youTubeButtonView;
+    //    private ImageView youTubeButtonView;
     private TextView trackNameView;
     private TextView currentDuration;
     private CircularSeekBar seekBarView;
@@ -86,11 +88,11 @@ public class Streaming extends Fragment
 //    private ProgressBar spinner;
 
     private Boolean isPlaying;
-//    private int songPosition;
+    //    private int songPosition;
     String imageUrl;
     private Bundle bundle;
     protected static FFmpegMediaPlayer freePlayer;
-
+    MainActivity mContext;
 //    protected static Player premiumPlayer;
 //
 //    private YouTube youtube;
@@ -104,6 +106,7 @@ public class Streaming extends Fragment
                              Bundle savedInstanceState) {
 
         // get root view
+        mContext = (MainActivity) getMasterActivity();
         rootView = inflater.inflate(R.layout.streaming_player, container, false);
 
         // initialize ui elements
@@ -133,14 +136,14 @@ public class Streaming extends Fragment
         }*/
 
         // Progress Bar to display loading while everything is being set up
-      //  spinner.setVisibility(View.VISIBLE);
+        //  spinner.setVisibility(View.VISIBLE);
 
         // get song number from list of songs
 //        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // setup ui
-        setUi();
 
+        setUi();
         prepareMusic();
 
 
@@ -169,76 +172,75 @@ public class Streaming extends Fragment
 //        Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.ic_album).fit().centerCrop().into(backgroundImageView);
 
 
-        Picasso.with(rootView.getContext()).load(imageUrl).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-
-                // blur and set background image with animation
-                Bitmap backgroundBitmap = bitmap;
-                backgroundBitmap = BlurBuilder.blur(getActivity(), bitmap);
-
-                backgroundImageView.setImageBitmap(backgroundBitmap);
-                AlphaAnimation alpha = new AlphaAnimation(1, 0.5F);
-                alpha.setDuration(1000);
-                alpha.setFillAfter(true);
-                backgroundImageView.startAnimation(alpha);
-
-                backgroundImageView.setImageBitmap(bitmap);
-
-                // set track image
-                trackImageView.setImageBitmap(bitmap);
-
-                // update ui elements based on average color of track image
-                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-                    @Override
-                    public void onGenerated(Palette palette) {
-
-                        int color = palette.getMutedColor(android.R.color.black);
-                        int alphaColor = Color.argb(Math.round(Color.alpha(color) * 0.9f), Color.red(color), Color.green(color), Color.blue(color));
-
-                        // action bar
-//                        actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
-
-                        // status bar
-//                        getActivity().getWindow().setStatusBarColor(alphaColor);
-//                        getActivity().getWindow();
-
-                        // navigation bar
-//                        getActivity().getWindow().setNavigationBarColor(alphaColor);
-
-                        // playback buttons
-//                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
-//                        playButton.setColor(palette.getMutedColor(android.R.color.black));
-//                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
-
-                        // seek bar
-                       // seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
-                        // TODO: Add change color of thumb
-                    }
-                });
-
-                /*// search and link music video on youtube
-                // TODO: Disable youtube linkage on freeplayer
-                youTubeButtonView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        SearchVideoId searchVideoId = new SearchVideoId();
-                        searchVideoId.execute(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
-                    }
-                });*/
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                // try again
-                setUi();
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-            }
-        });
+//            Picasso.with(getActivity()).load(bundle.getString("item_image")).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
+//                @Override
+//                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//
+//                    // blur and set background image with animation
+//                    Bitmap backgroundBitmap = bitmap;
+//                    backgroundBitmap = BlurBuilder.blur(getActivity(), bitmap);
+//
+//                    backgroundImageView.setImageBitmap(backgroundBitmap);
+//                    AlphaAnimation alpha = new AlphaAnimation(1, 0.5F);
+//                    alpha.setDuration(1000);
+//                    alpha.setFillAfter(true);
+//                    backgroundImageView.startAnimation(alpha);
+//
+//
+//                    // set track image
+//                    trackImageView.setImageBitmap(bitmap);
+//
+//                    // update ui elements based on average color of track image
+//                    Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+//                        @Override
+//                        public void onGenerated(Palette palette) {
+//
+//                            int color = palette.getMutedColor(android.R.color.black);
+//                            int alphaColor = Color.argb(Math.round(Color.alpha(color) * 0.9f), Color.red(color), Color.green(color), Color.blue(color));
+//
+//                            // action bar
+////                        actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
+//
+//                            // status bar
+////                        getActivity().getWindow().setStatusBarColor(alphaColor);
+////                        getActivity().getWindow();
+//
+//                            // navigation bar
+////                        getActivity().getWindow().setNavigationBarColor(alphaColor);
+//
+//                            // playback buttons
+////                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
+////                        playButton.setColor(palette.getMutedColor(android.R.color.black));
+////                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
+//
+//                            // seek bar
+//                            // seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
+//                            // TODO: Add change color of thumb
+//                        }
+//                    });
+//
+//                /*// search and link music video on youtube
+//                // TODO: Disable youtube linkage on freeplayer
+//                youTubeButtonView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//
+//                        SearchVideoId searchVideoId = new SearchVideoId();
+//                        searchVideoId.execute(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+//                    }
+//                });*/
+//                }
+//
+//                @Override
+//                public void onBitmapFailed(Drawable errorDrawable) {
+//                    // try again
+//                    setUi();
+//                }
+//
+//                @Override
+//                public void onPrepareLoad(Drawable placeHolderDrawable) {
+//                }
+//            });
 
 
         // track Name
@@ -254,6 +256,7 @@ public class Streaming extends Fragment
 
                     if (freePlayer != null) {
                         freePlayer.seekTo(progress);
+                        seekBarView.setProgress(progress);
                     }
                 }
             }
@@ -273,8 +276,10 @@ public class Streaming extends Fragment
         currentDuration.setText("00:00");
 
         // set end duration of track
+
+
         //freePlayer.getDuration()
-        String duration = String.valueOf(73000);
+        String duration = String.valueOf(730000);
         int seconds = ((Integer.parseInt(duration) / 1000) % 60);
         int minutes = ((Integer.parseInt(duration) / 1000) / 60);
         if (seconds < 10) {
@@ -295,65 +300,81 @@ public class Streaming extends Fragment
         // free user
         if (userType.equals("free")) {*/
 
-            // get preview track
+        // get preview track
 
-        String trackUrl = null;
-        if(bundle != null){
+        String item_description = null, trackUrl = null, item_id = null, item_image = null, item_name = null;
 
-            trackUrl =  bundle.getString("item_file");
+        if (bundle != null) {
+            item_description = bundle.getString("item_description");
+            trackUrl = bundle.getString("item_file");
+            item_id = bundle.getString("item_id");
+            item_image = bundle.getString("item_image");
+            item_name = bundle.getString("item_name");
+
+            trackNameView.setText(item_name);
+            albumNameView.setText(item_description);
+
+            Log.d("selected trackUrl... ", trackUrl);
+
+            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.ic_album).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.ic_album).fit().into(trackImageView);
+
         }
+
+
+        try {
 
             freePlayer = new FFmpegMediaPlayer();
             freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-            try {
-                freePlayer.setDataSource(trackUrl);
-                freePlayer.prepareAsync();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            freePlayer.setDataSource(trackUrl);
+            freePlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            // initially not playing
-            isPlaying = false;
+        // initially not playing
+        isPlaying = false;
 
-            // disable until prepared
-            playButton.setClickable(false);
-            playButton.setImageResource(R.drawable.ic_stop);
+        // disable until prepared
+        playButton.setClickable(false);
+        playButton.setImageResource(R.drawable.stop);
 
-            freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(FFmpegMediaPlayer mp) {
+        freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(FFmpegMediaPlayer mp) {
 //                    spinner.setVisibility(View.GONE);
 
-                    // restore button
-                    playButton.setClickable(true);
-                    playButton.setImageResource(R.drawable.pause);
+                // restore button
+                playButton.setClickable(true);
+                playButton.setImageResource(R.drawable.pause);
 
-                    freePlayer.start();
-                    setSeekBar();
+                freePlayer.start();
+                seekUpdation();
+//                setSeekBar();
 
-                    isPlaying = true;
+                isPlaying = true;
 
-                    // play/pause
-                    playButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!isPlaying) {
-                                freePlayer.start();
-                                playButton.setImageResource(R.drawable.pause);
-                                isPlaying = true;
-                            } else {
-                                freePlayer.pause();
-                                isPlaying = false;
-                                playButton.setImageResource(R.drawable.play);
-                            }
+                // play/pause
+                playButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!isPlaying) {
+                            freePlayer.start();
+                            playButton.setImageResource(R.drawable.pause);
+                            isPlaying = true;
+                        } else {
+                            freePlayer.pause();
+                            isPlaying = false;
+                            playButton.setImageResource(R.drawable.play);
                         }
-                    });
+                    }
+                });
 
-                    // prev button on click listener
-                    prevButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                // prev button on click listener
+                prevButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 //                spinner.setVisibility(View.VISIBLE);
 //                songPosition = songPosition - 1;
 //                if (songPosition < 0) {
@@ -365,13 +386,13 @@ public class Streaming extends Fragment
 //                    freePlayer.reset();
 //                }
 //                prepareMusic();
-                        }
-                    });
+                    }
+                });
 
-                    // next button on click listener
-                    nextButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
+                // next button on click listener
+                nextButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 //                spinner.setVisibility(View.VISIBLE);
 //                songPosition = songPosition + 1;
 //                if (songPosition > TopTenTracksActivityFragment.topTenTrackList.size() - 1) {
@@ -383,30 +404,67 @@ public class Streaming extends Fragment
 //                    freePlayer.reset();
 //                }
 //                prepareMusic();
-                        }
-                    });
-                }
-            });
-        }
+                    }
+                });
+            }
+        });
+    }
 //    }
 
     // set up seek bar properties and also update current and max duration
-    private void setSeekBar() {
+//    private void setSeekBar() {
+//
+//        Log.d("Duration " ,  freePlayer.getDuration() + "");
+//
+//        if (freePlayer != null) {
+//            seekBarView.setProgress(730000);
+//        }
+//
+//        // ping for updated position every second
+//        seekHandler.postDelayed(run, 1000);
+//    }
+//
+//    // seperate thread for pinging seekbar position
+//    Runnable run = new Runnable() {
+//        @Override
+//        public void run() {
+//            setSeekBar();
+//        }
+//    };
 
-        if (freePlayer != null) {
-            seekBarView.setProgress(freePlayer.getDuration());
-        }
-
-        // ping for updated position every second
-        seekHandler.postDelayed(run, 1000);
-    }
-
-    // seperate thread for pinging seekbar position
     Runnable run = new Runnable() {
         @Override
         public void run() {
-            setSeekBar();
+            seekUpdation();
         }
     };
+
+    public void seekUpdation() {
+
+        if (freePlayer != null) {
+
+            seekBarView.setProgress(freePlayer.getCurrentPosition());
+        }
+
+        seekHandler.postDelayed(run, 1000);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                    HomeFragment home = new HomeFragment();
+                    mContext.ReplaceFragement(home);
+                }
+                return false;
+            }
+        });
+    }
 
 }
