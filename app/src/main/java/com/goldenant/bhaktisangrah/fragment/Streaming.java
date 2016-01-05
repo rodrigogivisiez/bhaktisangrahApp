@@ -50,6 +50,8 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;*/
+import com.goldenant.bhaktisangrah.common.ui.BlurBuilder;
+import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -76,12 +78,12 @@ public class Streaming extends Fragment
 //    private ImageView youTubeButtonView;
     private TextView trackNameView;
     private TextView currentDuration;
-    private SeekBar seekBarView;
+    private CircularSeekBar seekBarView;
     private TextView finalDuration;
-    private at.markushi.ui.CircleButton prevButton;
-    private at.markushi.ui.CircleButton playButton;
-    private at.markushi.ui.CircleButton nextButton;
-    private ProgressBar spinner;
+    private ImageButton prevButton;
+    private ImageButton playButton;
+    private ImageButton nextButton;
+//    private ProgressBar spinner;
 
     private Boolean isPlaying;
 //    private int songPosition;
@@ -107,18 +109,18 @@ public class Streaming extends Fragment
         // initialize ui elements
 //        actionBar = PlayerActivity.actionBar;
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
-        artistNameView = (TextView) rootView.findViewById(R.id.artistName);
+//        artistNameView = (TextView) rootView.findViewById(R.id.artistName);
         albumNameView = (TextView) rootView.findViewById(R.id.albumName);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
 //        youTubeButtonView = (ImageButton) rootView.findViewById(R.id.youTubeButton);
         trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
-        seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
+        seekBarView = (CircularSeekBar) rootView.findViewById(R.id.seekBar);
         finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
-        prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
-        playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
-        nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
-        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
+        prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
+        playButton = (ImageButton) rootView.findViewById(R.id.playButton);
+        nextButton = (ImageButton) rootView.findViewById(R.id.nextButton);
+//        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
         bundle = getArguments();
 
@@ -131,7 +133,7 @@ public class Streaming extends Fragment
         }*/
 
         // Progress Bar to display loading while everything is being set up
-        spinner.setVisibility(View.VISIBLE);
+      //  spinner.setVisibility(View.VISIBLE);
 
         // get song number from list of songs
 //        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
@@ -162,18 +164,26 @@ public class Streaming extends Fragment
 
         // get image url
         imageUrl = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackImageLarge;*/
+
+
+//        Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.ic_album).fit().centerCrop().into(backgroundImageView);
+
+
         Picasso.with(rootView.getContext()).load(imageUrl).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
                 // blur and set background image with animation
                 Bitmap backgroundBitmap = bitmap;
-                backgroundBitmap = blurImage(backgroundBitmap, 25.0f);
+                backgroundBitmap = BlurBuilder.blur(getActivity(), bitmap);
+
                 backgroundImageView.setImageBitmap(backgroundBitmap);
                 AlphaAnimation alpha = new AlphaAnimation(1, 0.5F);
                 alpha.setDuration(1000);
                 alpha.setFillAfter(true);
                 backgroundImageView.startAnimation(alpha);
+
+                backgroundImageView.setImageBitmap(bitmap);
 
                 // set track image
                 trackImageView.setImageBitmap(bitmap);
@@ -190,19 +200,19 @@ public class Streaming extends Fragment
 //                        actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
 
                         // status bar
-                        getActivity().getWindow().setStatusBarColor(alphaColor);
-                        getActivity().getWindow();
+//                        getActivity().getWindow().setStatusBarColor(alphaColor);
+//                        getActivity().getWindow();
 
                         // navigation bar
-                        getActivity().getWindow().setNavigationBarColor(alphaColor);
+//                        getActivity().getWindow().setNavigationBarColor(alphaColor);
 
                         // playback buttons
-                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
-                        playButton.setColor(palette.getMutedColor(android.R.color.black));
-                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
+//                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
+//                        playButton.setColor(palette.getMutedColor(android.R.color.black));
+//                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
 
                         // seek bar
-                        seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
+                       // seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
                         // TODO: Add change color of thumb
                     }
                 });
@@ -236,9 +246,10 @@ public class Streaming extends Fragment
 
         // seekbar setup and progress listener
         seekBarView.setMax(730000);
-        seekBarView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(CircularSeekBar circularSeekBar, int progress, boolean fromUser) {
                 if (fromUser) {
 
                     if (freePlayer != null) {
@@ -248,12 +259,12 @@ public class Streaming extends Fragment
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public void onStopTrackingTouch(CircularSeekBar seekBar) {
 
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onStartTrackingTouch(CircularSeekBar seekBar) {
 
             }
         });
@@ -262,7 +273,8 @@ public class Streaming extends Fragment
         currentDuration.setText("00:00");
 
         // set end duration of track
-        String duration = String.valueOf(freePlayer.getDuration());
+        //freePlayer.getDuration()
+        String duration = String.valueOf(73000);
         int seconds = ((Integer.parseInt(duration) / 1000) % 60);
         int minutes = ((Integer.parseInt(duration) / 1000) / 60);
         if (seconds < 10) {
@@ -311,11 +323,11 @@ public class Streaming extends Fragment
             freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(FFmpegMediaPlayer mp) {
-                    spinner.setVisibility(View.GONE);
+//                    spinner.setVisibility(View.GONE);
 
                     // restore button
                     playButton.setClickable(true);
-                    playButton.setImageResource(R.drawable.ic_pause);
+                    playButton.setImageResource(R.drawable.pause);
 
                     freePlayer.start();
                     setSeekBar();
@@ -328,12 +340,12 @@ public class Streaming extends Fragment
                         public void onClick(View v) {
                             if (!isPlaying) {
                                 freePlayer.start();
-                                playButton.setImageResource(R.drawable.ic_pause);
+                                playButton.setImageResource(R.drawable.pause);
                                 isPlaying = true;
                             } else {
                                 freePlayer.pause();
                                 isPlaying = false;
-                                playButton.setImageResource(R.drawable.ic_play);
+                                playButton.setImageResource(R.drawable.play);
                             }
                         }
                     });
@@ -397,28 +409,4 @@ public class Streaming extends Fragment
         }
     };
 
-
-
-    // for blurring image
-    private Bitmap blurImage(Bitmap src, float r) {
-
-        Bitmap bitmap = Bitmap.createBitmap(
-                src.getWidth(), src.getHeight(),
-                Bitmap.Config.ARGB_8888);
-
-        RenderScript renderScript = RenderScript.create(getActivity());
-
-        Allocation blurInput = Allocation.createFromBitmap(renderScript, src);
-        Allocation blurOutput = Allocation.createFromBitmap(renderScript, bitmap);
-
-        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(renderScript,
-                Element.U8_4(renderScript));
-        blur.setInput(blurInput);
-        blur.setRadius(r);
-        blur.forEach(blurOutput);
-
-        blurOutput.copyTo(bitmap);
-        renderScript.destroy();
-        return bitmap;
-    }
 }

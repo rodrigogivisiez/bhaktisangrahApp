@@ -8,14 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
-import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
-import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
@@ -80,6 +77,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+//                Fragment investProgramDetail = new Streaming();
+//
+//                Bundle bundle = new Bundle();
+//                bundle.putString("item_file", mItem.get(position).getItem_file());
+//                investProgramDetail.setArguments(bundle);
+//                mContext.ReplaceFragement(investProgramDetail);
 
                 Fragment investProgramDetail = new Streaming();
 
