@@ -84,7 +84,6 @@ public class MainActivity extends MasterActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         imageView = (ImageView) findViewById(R.id.drawer_indicator);
         mDrawerList = (ListView) findViewById(R.id.drawer_content);
@@ -404,10 +403,12 @@ public class MainActivity extends MasterActivity {
                 getGCMData(), GCMCallback);
     }
 
-    private List<NameValuePair> getGCMData() {
+    private List<NameValuePair> getGCMData()
+    {
         List<NameValuePair> gcmDATA = new ArrayList<NameValuePair>();
 
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d("deviceId",""+deviceId);
 
         gcmDATA.add(new BasicNameValuePair(Constants.GCM_ID, loadPrefs()));
         gcmDATA.add(new BasicNameValuePair(Constants.DEVICE_ID, deviceId));

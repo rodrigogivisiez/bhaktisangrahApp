@@ -2,6 +2,8 @@ package com.goldenant.bhaktisangrah.adapter;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,13 +24,20 @@ import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
 
+import org.apache.http.util.ByteArrayBuffer;
+
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Adite on 03-01-2016.
@@ -43,11 +52,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     int resource;
 
-    private static String fileName;
+    private static String fileName,imagename;
 
     private ProgressDialog pDialog;
 
-    public static final int progress_bar_type = 0;
+    int pos;
 
     public CategoryAdapter(MainActivity context, int resource,ArrayList<SubCategoryModel> list)
     {
@@ -116,7 +125,9 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         {
             @Override
             public void onClick(View v) {
-                fileName = mItem.get(position).getItem_name();
+                fileName = mItem.get(position).getDownload_name()+".mp3";
+                imagename = mItem.get(position).getDownload_name()+".jpg";
+                pos = position;
                 new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
             }
         });
@@ -125,56 +136,6 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
     }
 
     //Download mp3 start
-//    @Override
-//    protected Dialog onCreateDialog(int id) {
-//        switch (id) {
-//            case progress_bar_type:
-//                pDialog = new ProgressDialog(mContext);
-//                pDialog.setMessage("Downloading file. Please wait...");
-//                pDialog.setIndeterminate(false);
-//                pDialog.setMax(100);
-//                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//                pDialog.setCancelable(true);
-//                pDialog.show();
-//                return pDialog;
-//            default:
-//                return null;
-//        }
-//    }
-
-//    public void downloadStreams() {
-//        try {
-//            URL url = new URL(mItem.get(position).getItem_file());
-//            HttpURLConnection c = (HttpURLConnection) url.openConnection();
-//            c.setRequestMethod("GET");
-//            c.setDoOutput(true);
-//            c.connect();
-//
-//            String PATH = Environment.getExternalStorageDirectory()
-//                    + "/download/";
-//            Log.v("log_tag", "PATH: " + PATH);
-//            File file = new File(PATH);
-//            if (!file.exists()) {
-//                file.mkdirs();
-//            }
-//            File outputFile = new File(file, fileName);
-//            FileOutputStream fos = new FileOutputStream(outputFile);
-//
-//            InputStream is = c.getInputStream();
-//
-//            byte[] buffer = new byte[1024];
-//            int len1 = 0;
-//            while ((len1 = is.read(buffer)) != -1) {
-//                fos.write(buffer, 0, len1);
-//            }
-//            fos.close();
-//            is.close();
-//        } catch (IOException e) {
-//            Log.e("log_tag", "Error: " + e);
-//        }
-//        Log.v("log_tag", "Check: ");
-//    }
-
     class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
         /**
@@ -183,16 +144,23 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            showDialog(progress_bar_type);
-//            new MyDialogFragment();
+            pDialog = new ProgressDialog(mContext);
+            pDialog.setMessage("Downloading file. Please wait...");
+            pDialog.setIndeterminate(false);
+            pDialog.setMax(100);
+            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            pDialog.setCancelable(true);
+            pDialog.show();
         }
 
         /**
          * Downloading file in background thread
          * */
-        protected String doInBackground(String... f_url) {
+        protected String doInBackground(String... f_url)
+        {
             int count;
-            try {
+            try
+            {
                 URL url = new URL(f_url[0]);
                 URLConnection conection = url.openConnection();
                 conection.connect();
@@ -200,33 +168,177 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 int lenghtOfFile = conection.getContentLength();
 
                 // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(),
-                        8192);
+                InputStream input = new BufferedInputStream(url.openStream(),8192);
 
-                // Output stream to write file
-                OutputStream output = new FileOutputStream("/sdcard/ANKITA/"
-                        + fileName);
+                File myDir = new File("/data/data/"
+                        + mContext.getApplicationContext()
+                        .getPackageName() + "/Bhakti sagar/mp3");
+                myDir.mkdirs();
 
-                byte data[] = new byte[1024];
-
-                long total = 0;
-
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // publishing the progress....
-                    // After this onProgressUpdate will be called
-                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
-
-                    // writing data to file
-                    output.write(data, 0, count);
+                if (!myDir.exists()) {
+                    myDir.mkdirs();
                 }
 
-                // flushing output
-                output.flush();
+                // Output stream to write file
+                File outputFile = new File(myDir, fileName);
 
-                // closing streams
-                output.close();
-                input.close();
+//                if(!outputFile.exists())
+//                {
+                    OutputStream output = new FileOutputStream(outputFile);
+
+                    byte data[] = new byte[1024];
+
+                    long total = 0;
+
+                    while ((count = input.read(data)) != -1) {
+                        total += count;
+                        // publishing the progress....
+                        // After this onProgressUpdate will be called
+                        publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+
+                        // writing data to file
+                        output.write(data, 0, count);
+                    }
+
+                    // flushing output
+                    output.flush();
+
+                    // closing streams
+                    output.close();
+                    input.close();
+//                }
+//                else
+//                {
+//                    ToastUtil.showLongToastMessage(mContext,"You have already download this file");
+//                }
+
+
+                //Download image start
+                myDir = new File("/data/data/" + mContext.getApplicationContext()
+                        .getPackageName() + "/Bhakti sagar/images/");
+                myDir.mkdirs();
+
+                try
+                {
+                    File image = new File(myDir, imagename);
+
+                    if (!image.exists())
+                    {
+                        try
+                        {
+                            Bitmap Image = getImage(mItem.get(pos).getItem_image());
+
+                            FileOutputStream out = new FileOutputStream(image);
+                            Image.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                            out.flush();
+                            out.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Error in downloading image:"
+                            + ex.toString());
+                }
+                //End
+
+                //Writing name into file start
+                try {
+                    //Write path of song name
+                    File myFile = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagar.txt");
+
+
+                    if(!myFile.exists())
+                    {
+                        myFile.createNewFile();
+                    }
+
+                    String aDataRow = mItem.get(pos).getItem_name();
+
+                    Scanner scanner = new Scanner(myFile);
+                    List<String> list=new ArrayList<>();
+                    while(scanner.hasNextLine())
+                    {
+                        list.add(scanner.nextLine());
+                    }
+
+                    if(!list.contains(aDataRow))
+                    {
+                        String aBuffer = "";
+                        FileWriter fileWritter = new FileWriter(myFile,true);
+                        BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+                        aBuffer += aDataRow + "\n";
+                        bufferWritter.write(aBuffer);
+                        bufferWritter.close();
+                    }
+
+
+                    //Write path of image
+                    File file = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagarImage.txt");
+
+                    if(!file.exists())
+                    {
+                        file.createNewFile();
+                    }
+
+                    String DataRow = "/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/images/"+imagename;
+
+                    Scanner scanner1 = new Scanner(myFile);
+                    List<String> list1 = new ArrayList<>();
+                    while(scanner1.hasNextLine())
+                    {
+                        list1.add(scanner1.nextLine());
+                    }
+
+                    if(!list1.contains(DataRow))
+                    {
+                        String Buffer = "";
+                        FileWriter filewritter = new FileWriter(file,true);
+                        BufferedWriter bufferwritter = new BufferedWriter(filewritter);
+                        Buffer += DataRow + "\n";
+                        bufferwritter.write(Buffer);
+                        bufferwritter.close();
+                    }
+
+
+                    //Write path of songs
+                    File fileSong = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagarSongs.txt");
+
+                    if(!fileSong.exists())
+                    {
+                        fileSong.createNewFile();
+                    }
+
+                    String DataRowSongs = "/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/mp3/"+fileName;
+
+                    Scanner scanner2 = new Scanner(myFile);
+                    List<String> list2 = new ArrayList<>();
+                    while(scanner2.hasNextLine())
+                    {
+                        list2.add(scanner2.nextLine());
+                    }
+
+                    if(!list2.contains(DataRowSongs))
+                    {
+                        String BufferSongs = "";
+                        FileWriter filewritterSong = new FileWriter(fileSong,true);
+                        BufferedWriter bufferwritterSong = new BufferedWriter(filewritterSong);
+                        BufferSongs += DataRowSongs + "\n";
+                        bufferwritterSong.write(BufferSongs);
+                        bufferwritterSong.close();
+                    }
+
+
+                } catch (Exception e) {
+                    Log.d("ERROR", "" + e.getMessage());
+                }
+                //End
 
             } catch (Exception e) {
                 Log.e("Error: ", e.getMessage());
@@ -249,7 +361,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
         @Override
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after the file was downloaded
-//            dismissDialog(progress_bar_type);
+            pDialog.dismiss();
 
             // Displaying downloaded image into image view
             // Reading image path from sdcard
@@ -257,18 +369,35 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                     .toString() + fileName;
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
-            Log.d("File downloaded and saved to directory==>",""+imagePath);
+            Log.d("Path_of_file==>",""+imagePath);
         }
 
     }
 
-//    private static class MyDialogFragment extends DialogFragment
-//    {
-//        @NonNull
-//        @Override
-//        public Dialog onCreateDialog(Bundle savedInstanceState) {
-//            return super.onCreateDialog(savedInstanceState);
-//        }
-//    }
+
+    public static Bitmap getImage(String url) {
+        try {
+            URL imageUrl = new URL(url);
+            URLConnection ucon = imageUrl.openConnection();
+
+            InputStream is = ucon.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+
+            ByteArrayBuffer baf = new ByteArrayBuffer(500000);
+            int current = 0;
+            while ((current = bis.read()) != -1) {
+                baf.append((byte) current);
+            }
+
+            System.gc();
+            Bitmap bitmap = BitmapFactory.decodeByteArray(baf.toByteArray(), 0,
+                    baf.toByteArray().length);
+
+            return bitmap;
+        } catch (Exception e) {
+            Log.d("ImageManager", "Error: " + e.toString());
+        }
+        return null;
+    }
     //Download mp3 emd
 }

@@ -6,11 +6,11 @@ package com.goldenant.bhaktisangrah.common.util;
 public class Constants
 {
     ///mantra/api/v1/get_about_us
-    // /mantra/api/v1/gcm_register?gcm_id=1&device_id=1
+    // http://goldenant.in/BhagtiSagar/api/v1/get_category
 
     //http://192.168.0.106/BhagtiSagar/api/
     //http://goldenant.in/mantra/api/
-    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/mantra/api/";
+    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";
     private final static String API_FOLDER = "v1/";
 
     //Base Url
