@@ -2,7 +2,6 @@ package com.goldenant.bhaktisangrah;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Window;
 
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
@@ -32,13 +31,10 @@ public class SplashActivity extends MasterActivity {
                 } finally
 
                 {
-
-                        Intent i = new Intent();
-                        i.setClass(sPlashScreen,MainActivity.class);
-                        startActivity(i);
-                        finish();
-
-
+                    Intent i = new Intent();
+                    i.setClass(sPlashScreen,MainActivity.class);
+                    startActivity(i);
+                    finish();
                 }
             }
         };

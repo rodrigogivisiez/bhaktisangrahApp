@@ -27,8 +27,10 @@ import com.squareup.picasso.Picasso;
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -221,6 +223,68 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 } catch (Exception ex) {
                     System.out.println("Error in downloading image:"
                             + ex.toString());
+                }
+                //End
+
+                //Writing name into file start
+                try {
+                    //Write path of song name
+                    File myFile = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagar.txt");
+
+
+                    if(!myFile.exists())
+                    {
+                        myFile.createNewFile();
+                    }
+
+                    String aDataRow = mItem.get(pos).getItem_name();
+                    String aBuffer = "";
+                    FileWriter fileWritter = new FileWriter(myFile,true);
+                    BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+                    aBuffer += aDataRow + "\n";
+                    bufferWritter.write(aBuffer);
+                    bufferWritter.close();
+
+                    //Write path of image
+                    File file = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagarImage.txt");
+
+                    if(!file.exists())
+                    {
+                        file.createNewFile();
+                    }
+
+                    String DataRow = "/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/images/"+imagename;
+                    String Buffer = "";
+                    FileWriter filewritter = new FileWriter(file,true);
+                    BufferedWriter bufferwritter = new BufferedWriter(filewritter);
+                    Buffer += DataRow + "\n";
+                    bufferwritter.write(Buffer);
+                    bufferwritter.close();
+
+                    //Write path of songs
+                    File fileSong = new File("/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/BhaktiSagarSongs.txt");
+
+                    if(!fileSong.exists())
+                    {
+                        fileSong.createNewFile();
+                    }
+
+                    String DataRowSongs = "/data/data/" + mContext.getApplicationContext()
+                            .getPackageName() + "/Bhakti sagar/mp3/"+fileName;
+                    String BufferSongs = "";
+                    FileWriter filewritterSong = new FileWriter(fileSong,true);
+                    BufferedWriter bufferwritterSong = new BufferedWriter(filewritterSong);
+                    BufferSongs += DataRowSongs + "\n";
+                    bufferwritterSong.write(BufferSongs);
+                    bufferwritterSong.close();
+
+                } catch (Exception e)
+                {
+                    Log.d("ERROR", "" + e.getMessage());
                 }
                 //End
 

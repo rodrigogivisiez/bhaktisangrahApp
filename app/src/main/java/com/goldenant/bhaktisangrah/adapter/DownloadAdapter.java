@@ -2,9 +2,10 @@ package com.goldenant.bhaktisangrah.adapter;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,27 +19,19 @@ import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
-import com.goldenant.bhaktisangrah.model.HomeModel;
-import com.goldenant.bhaktisangrah.model.SubCategoryModel;
-import com.squareup.picasso.Picasso;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 
 /**
  * Created by Adite on 03-01-2016.
  */
-public class DownloadAdapter extends ArrayAdapter<HomeModel>
+public class DownloadAdapter extends ArrayAdapter<String>
 {
     private LayoutInflater layoutInflater;
 
-    public ArrayList<SubCategoryModel> mItem = new ArrayList<SubCategoryModel>();
+    public ArrayList<String> mItem = new ArrayList<String>();
+    public ArrayList<String> mItemImage = new ArrayList<String>();
+    public ArrayList<String> mItemSongPath = new ArrayList<String>();
 
     public MainActivity mContext;
 
@@ -48,13 +41,17 @@ public class DownloadAdapter extends ArrayAdapter<HomeModel>
 
     private ProgressDialog pDialog;
 
-    public DownloadAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list)
+    public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs)
     {
         super(context, resource);
         mContext = context;
         this.mItem = list;
+        mItemImage = listImage;
+        mItemSongPath = listSongs;
         this.resource = resource;
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        Log.d("Adapter Call","Size: "+mItem.size());
     }
 
     public int getCount() {
@@ -70,153 +67,46 @@ public class DownloadAdapter extends ArrayAdapter<HomeModel>
     {
         View rootView = convertView;
 
-        rootView = layoutInflater.inflate(R.layout.subcategory_list_item,null, true);
+        rootView = layoutInflater.inflate(R.layout.downloads_list_item,null, true);
 
-        CircularImageView cat_image = (CircularImageView) rootView.findViewById(R.id.image);
+        CircularImageView cat_image = (CircularImageView) rootView.findViewById(R.id.image_download);
 
-        ImageButton play = (ImageButton) rootView.findViewById(R.id.play);
-        ImageButton download = (ImageButton) rootView.findViewById(R.id.download);
+        ImageButton play = (ImageButton) rootView.findViewById(R.id.play_download);
 
-        TextView tv_title = (TextView) rootView.findViewById(R.id.tv_title);
-        TextView tv_desc = (TextView) rootView.findViewById(R.id.tv_desc);
-        TextView tv_duration = (TextView) rootView.findViewById(R.id.tv_duration);
+        TextView tv_title = (TextView) rootView.findViewById(R.id.tv_title_download);
 
         tv_title.setTypeface(mContext.getTypeFace());
-        tv_desc.setTypeface(mContext.getTypeFace());
-        tv_duration.setTypeface(mContext.getTypeFace());
 
-        tv_title.setText(mItem.get(position).getItem_name());
-        tv_desc.setText(mItem.get(position).getItem_description());
-//        tv_duration.setText(mItem.get(position).getIte);
+        tv_title.setText(mItem.get(position));
 
-        Picasso.with(mContext).load(mItem.get(position).getItem_image()).into(cat_image);
+        try
+        {
+            Bitmap bitmap = BitmapFactory.decodeFile( mItemImage.get(position));
+
+            BitmapDrawable d = new BitmapDrawable(bitmap);
+            cat_image.setImageBitmap(bitmap);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
             {
+                Log.d("SONG_PATH",""+mItemSongPath.get(position));
+
                 Fragment streaming = new Streaming();
 
                 Bundle bundle = new Bundle();
-                bundle.putString("item_file", mItem.get(position).getItem_file());
+                bundle.putString("item_file", mItemSongPath.get(position));
                 streaming.setArguments(bundle);
                 mContext.ReplaceFragement(streaming);
             }
         });
 
-        download.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                fileName = mItem.get(position).getDownload_name()+".mp3";
-                new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
-            }
-        });
 
         return  rootView;
     }
-
-    //Download mp3 start
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
-
-        /**
-         * Before starting background thread Show Progress Bar Dialog
-         * */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(mContext);
-            pDialog.setMessage("Downloading file. Please wait...");
-            pDialog.setIndeterminate(false);
-            pDialog.setMax(100);
-            pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pDialog.setCancelable(true);
-            pDialog.show();
-        }
-
-        /**
-         * Downloading file in background thread
-         * */
-        protected String doInBackground(String... f_url) {
-            int count;
-            try {
-                URL url = new URL(f_url[0]);
-                URLConnection conection = url.openConnection();
-                conection.connect();
-                // getting file length
-                int lenghtOfFile = conection.getContentLength();
-
-                // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(),
-                        8192);
-
-                String PATH = Environment.getExternalStorageDirectory()
-                    + "/sdcard/Bhakti sagar";
-                Log.v("log_tag", "PATH: " + PATH);
-                File file = new File(PATH);
-                if (!file.exists()) {
-                    file.mkdirs();
-                }
-
-                // Output stream to write file
-                File outputFile = new File(file, fileName);
-                OutputStream output = new FileOutputStream(outputFile);
-
-                byte data[] = new byte[1024];
-
-                long total = 0;
-
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // publishing the progress....
-                    // After this onProgressUpdate will be called
-                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
-
-                    // writing data to file
-                    output.write(data, 0, count);
-                }
-
-                // flushing output
-                output.flush();
-
-                // closing streams
-                output.close();
-                input.close();
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-            }
-
-            return null;
-        }
-
-        /**
-         * Updating progress bar
-         * */
-        protected void onProgressUpdate(String... progress) {
-            // setting progress percentage
-            pDialog.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        /**
-         * After completing background task Dismiss the progress dialog
-         * **/
-        @Override
-        protected void onPostExecute(String file_url) {
-            // dismiss the dialog after the file was downloaded
-            pDialog.dismiss();
-
-            // Displaying downloaded image into image view
-            // Reading image path from sdcard
-            String imagePath = Environment.getExternalStorageDirectory()
-                    .toString() + fileName;
-            // setting downloaded into image view
-            // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
-            Log.d("Path_of_file==>",""+imagePath);
-        }
-
-    }
-
-
-    //Download mp3 emd
 }

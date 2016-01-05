@@ -26,6 +26,7 @@ public class MasterActivity extends AppCompatActivity {
 
     public static ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

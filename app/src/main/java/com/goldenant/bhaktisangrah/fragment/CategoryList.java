@@ -18,6 +18,8 @@ import com.goldenant.bhaktisangrah.common.util.InternetStatus;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -54,6 +56,11 @@ public class CategoryList extends MasterFragment
 
         mContext.setTitle("Play song Or Download");
         mCategoryList = (ListView) view.findViewById(R.id.listView_cat_list);
+
+        AdView mAdView = (AdView) view.findViewById(R.id.adView_cat);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         bundle = getArguments();
 
         if(bundle != null){
