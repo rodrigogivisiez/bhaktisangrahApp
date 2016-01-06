@@ -23,6 +23,8 @@ import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,6 +60,10 @@ public class HomeFragment extends MasterFragment {
 
         listView_category = (ListView) view.findViewById(R.id.listView_category);
 
+        AdView mAdView = (AdView) view.findViewById(R.id.adView_home);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         if(MasterActivity.CatArray.size() > 0)
         {
             HomeAdapter Adapter = new HomeAdapter(mContext,R.layout.category_item, MasterActivity.CatArray);
@@ -74,8 +80,6 @@ public class HomeFragment extends MasterFragment {
                 ToastUtil.showLongToastMessage(mContext,"No internet connection found");
             }
         }
-
-
 
         listView_category.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
