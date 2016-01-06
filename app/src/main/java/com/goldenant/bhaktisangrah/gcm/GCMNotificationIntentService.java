@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.goldenant.bhaktisangrah.R;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -39,6 +40,8 @@ public class GCMNotificationIntentService extends IntentService {
 			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE
 					.equals(messageType)) {
 
+				Log.d("EXTRAS",""+extras.toString());
+
 				String msg = extras.get(ApplicationConstants.MSG_KEY)
 						.toString();
 
@@ -61,7 +64,7 @@ public class GCMNotificationIntentService extends IntentService {
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 		mNotifyBuilder = new NotificationCompat.Builder(this)
-				.setContentTitle("MLA")
+				.setContentTitle("Bhakti Sagar")
 				.setContentText("You've received new message.")
 				.setSmallIcon(R.drawable.ic_launcher);
 		// Set pending intent
