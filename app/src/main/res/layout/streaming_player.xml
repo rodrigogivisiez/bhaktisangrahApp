@@ -6,6 +6,10 @@
     tools:context="com.plusgaurav.spotifystreamer.PlayerActivityFragment">
 
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></RelativeLayout>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -127,6 +131,7 @@
                     android:id="@+id/albumName"
                     android:padding="5dp"
                     android:textColor="#fff3a8" />
+
             </LinearLayout>
 
         </LinearLayout>
@@ -185,7 +190,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/playButton"
                 android:background="@drawable/play"
-
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
 
@@ -195,13 +199,19 @@
                 android:id="@+id/seekBar"
                 android:layout_alignParentTop="false"
                 android:layout_centerInParent="true"
-                app:pointer_color="#007ea5"
-                app:pointer_alpha_ontouch="100"
-                app:pointer_radius="10dp"
-                app:circle_color="@color/white"
+                android:thumb="@drawable/seekbar"
+                android:progressDrawable="@drawable/seekbar_progress"
                 />
 
         </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar3"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
 
     </RelativeLayout>
 

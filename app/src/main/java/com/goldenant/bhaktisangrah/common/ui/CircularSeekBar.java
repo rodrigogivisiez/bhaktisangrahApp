@@ -36,7 +36,7 @@ public class CircularSeekBar extends View {
     protected static final float DEFAULT_CIRCLE_X_RADIUS = 30f;
     protected static final float DEFAULT_CIRCLE_Y_RADIUS = 30f;
     protected static final float DEFAULT_POINTER_RADIUS = 7f;
-    protected static final float DEFAULT_POINTER_HALO_WIDTH = 6f;
+    protected static final float DEFAULT_POINTER_HALO_WIDTH = 0f;
     protected static final float DEFAULT_POINTER_HALO_BORDER_WIDTH = 2f;
     protected static final float DEFAULT_CIRCLE_STROKE_WIDTH = 5f;
     protected static final float DEFAULT_START_ANGLE = 270f; // Geometric (clockwise, relative to 3 o'clock)
@@ -46,8 +46,7 @@ public class CircularSeekBar extends View {
     protected static final int DEFAULT_CIRCLE_COLOR = Color.DKGRAY;
     protected static final int DEFAULT_CIRCLE_PROGRESS_COLOR = Color.argb(235, 74, 138, 255);
     protected static final int DEFAULT_POINTER_COLOR = Color.argb(235, 74, 138, 255);
-    protected static final int DEFAULT_POINTER_HALO_COLOR = Color.argb(135, 74, 138, 255);
-    protected static final int DEFAULT_POINTER_HALO_COLOR_ONTOUCH = Color.argb(135, 74, 138, 255);
+    protected static final int DEFAULT_POINTER_HALO_COLOR = Color.argb(0, 0, 0, 0);
     protected static final int DEFAULT_CIRCLE_FILL_COLOR = Color.TRANSPARENT;
     protected static final int DEFAULT_POINTER_ALPHA = 135;
     protected static final int DEFAULT_POINTER_ALPHA_ONTOUCH = 100;
@@ -155,7 +154,7 @@ public class CircularSeekBar extends View {
     /**
      * Holds the color value for {@code mPointerHaloPaint} before the {@code Paint} instance is created.
      */
-    protected int mPointerHaloColorOnTouch = DEFAULT_POINTER_HALO_COLOR_ONTOUCH;
+//    protected int mPointerHaloColorOnTouch = DEFAULT_POINTER_HALO_COLOR_ONTOUCH;
 
     /**
      * Holds the color value for {@code mCirclePaint} before the {@code Paint} instance is created.
@@ -354,7 +353,7 @@ public class CircularSeekBar extends View {
 
         mPointerColor = attrArray.getColor(R.styleable.CircularSeekBar_pointer_color, DEFAULT_POINTER_COLOR);
         mPointerHaloColor = attrArray.getColor(R.styleable.CircularSeekBar_pointer_halo_color, DEFAULT_POINTER_HALO_COLOR);
-        mPointerHaloColorOnTouch = attrArray.getColor(R.styleable.CircularSeekBar_pointer_halo_color_ontouch, DEFAULT_POINTER_HALO_COLOR_ONTOUCH);
+//        mPointerHaloColorOnTouch = attrArray.getColor(R.styleable.CircularSeekBar_pointer_halo_color_ontouch, DEFAULT_POINTER_HALO_COLOR_ONTOUCH);
         mCircleColor = attrArray.getColor(R.styleable.CircularSeekBar_circle_color, DEFAULT_CIRCLE_COLOR);
         mCircleProgressColor = attrArray.getColor(R.styleable.CircularSeekBar_circle_progress_color, DEFAULT_CIRCLE_PROGRESS_COLOR);
         mCircleFillColor = attrArray.getColor(R.styleable.CircularSeekBar_circle_fill, DEFAULT_CIRCLE_FILL_COLOR);
@@ -665,7 +664,7 @@ public class CircularSeekBar extends View {
                     lastCWDistanceFromStart = cwDistanceFromStart;
                     mIsMovingCW = true;
                     mPointerHaloPaint.setAlpha(mPointerAlphaOnTouch);
-                    mPointerHaloPaint.setColor(mPointerHaloColorOnTouch);
+//                    mPointerHaloPaint.setColor(mPointerHaloColorOnTouch);
                     recalculateAll();
                     invalidate();
                     if (mOnCircularSeekBarChangeListener != null) {
@@ -682,7 +681,7 @@ public class CircularSeekBar extends View {
                     lastCWDistanceFromStart = cwDistanceFromStart;
                     mIsMovingCW = true;
                     mPointerHaloPaint.setAlpha(mPointerAlphaOnTouch);
-                    mPointerHaloPaint.setColor(mPointerHaloColorOnTouch);
+//                    mPointerHaloPaint.setColor(mPointerHaloColorOnTouch);
                     recalculateAll();
                     invalidate();
                     if (mOnCircularSeekBarChangeListener != null) {
@@ -831,7 +830,7 @@ public class CircularSeekBar extends View {
         state.putInt("mCircleProgressColor", mCircleProgressColor);
         state.putInt("mPointerColor", mPointerColor);
         state.putInt("mPointerHaloColor", mPointerHaloColor);
-        state.putInt("mPointerHaloColorOnTouch", mPointerHaloColorOnTouch);
+//        state.putInt("mPointerHaloColorOnTouch", mPointerHaloColorOnTouch);
         state.putInt("mPointerAlpha", mPointerAlpha);
         state.putInt("mPointerAlphaOnTouch", mPointerAlphaOnTouch);
         state.putBoolean("lockEnabled", lockEnabled);
@@ -853,7 +852,7 @@ public class CircularSeekBar extends View {
         mCircleProgressColor = savedState.getInt("mCircleProgressColor");
         mPointerColor = savedState.getInt("mPointerColor");
         mPointerHaloColor = savedState.getInt("mPointerHaloColor");
-        mPointerHaloColorOnTouch = savedState.getInt("mPointerHaloColorOnTouch");
+//        mPointerHaloColorOnTouch = savedState.getInt("mPointerHaloColorOnTouch");
         mPointerAlpha = savedState.getInt("mPointerAlpha");
         mPointerAlphaOnTouch = savedState.getInt("mPointerAlphaOnTouch");
         lockEnabled = savedState.getBoolean("lockEnabled");

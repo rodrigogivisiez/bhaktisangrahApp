@@ -82,12 +82,21 @@ public class HomeFragment extends MasterFragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 // TODO Auto-generated method stub
-                Fragment investProgramDetail = new CategoryList();
 
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("CAT_ID", CatArray.get(position));
-                investProgramDetail.setArguments(bundle);
-                mContext.ReplaceFragement(investProgramDetail);
+                if(MasterActivity.CatArray.size() > 0)
+                {
+                    Fragment investProgramDetail = new CategoryList();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("CAT_ID", MasterActivity.CatArray.get(position));
+                    investProgramDetail.setArguments(bundle);
+                    mContext.ReplaceFragement(investProgramDetail);
+                }else{
+                    Fragment investProgramDetail = new CategoryList();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("CAT_ID", CatArray.get(position));
+                    investProgramDetail.setArguments(bundle);
+                    mContext.ReplaceFragement(investProgramDetail);
+                }
             }
         });
     }

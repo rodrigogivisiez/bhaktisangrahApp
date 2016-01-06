@@ -55,6 +55,8 @@ import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;*/
 import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.goldenant.bhaktisangrah.common.util.ToastUtil;
+import com.goldenant.bhaktisangrah.common.util.Utilities;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -69,7 +71,7 @@ import wseemann.media.FFmpegMediaPlayer;
 /**
  * Created by Adite on 03-01-2016.
  */
-public class Streaming extends MasterFragment {
+public class Streaming extends MasterFragment{
     // views
     private View rootView;
     //    private android.support.v7.app.ActionBar actionBar;
@@ -85,7 +87,9 @@ public class Streaming extends MasterFragment {
     private ImageButton prevButton;
     private ImageButton playButton;
     private ImageButton nextButton;
-//    private ProgressBar spinner;
+    private ProgressBar spinner;
+private Handler mHandler = new Handler();;
+    private Utilities utils;
 
     private Boolean isPlaying;
     //    private int songPosition;
@@ -99,7 +103,7 @@ public class Streaming extends MasterFragment {
 //    private YouTube.Search.List query;
 
     private Handler seekHandler = new Handler();
-
+//    SeekBar seekBar2;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -119,11 +123,12 @@ public class Streaming extends MasterFragment {
         trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
         seekBarView = (CircularSeekBar) rootView.findViewById(R.id.seekBar);
+//        seekBar2 = (SeekBar) rootView.findViewById(R.id.seekBar2);
         finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
         prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
         playButton = (ImageButton) rootView.findViewById(R.id.playButton);
         nextButton = (ImageButton) rootView.findViewById(R.id.nextButton);
-//        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
+        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
         bundle = getArguments();
 
@@ -136,7 +141,7 @@ public class Streaming extends MasterFragment {
         }*/
 
         // Progress Bar to display loading while everything is being set up
-        //  spinner.setVisibility(View.VISIBLE);
+
 
         // get song number from list of songs
 //        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
@@ -145,7 +150,7 @@ public class Streaming extends MasterFragment {
 
         setUi();
         prepareMusic();
-
+//        updateProgressBar();
 
         // prepare music
 
@@ -155,6 +160,7 @@ public class Streaming extends MasterFragment {
 
 
     private void setUi() {
+        utils = new Utilities();
 
         // set track name and album name in the actionbar
        /* actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
@@ -247,51 +253,90 @@ public class Streaming extends MasterFragment {
 //        trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
 
         // seekbar setup and progress listener
-        seekBarView.setMax(730000);
+        //seekBarView.setMax(730000);
+
+//        seekBarView.setProgress(0);
+//        seekBarView.setMax(100);
 
         seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(CircularSeekBar circularSeekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-
-                    if (freePlayer != null) {
-                        freePlayer.seekTo(progress);
-                        seekBarView.setProgress(progress);
-                    }
-                }
-            }
-
-            @Override
-            public void onStopTrackingTouch(CircularSeekBar seekBar) {
-
+            public void onProgressChanged(CircularSeekBar seekBar, int progress, boolean fromUser) {
             }
 
             @Override
             public void onStartTrackingTouch(CircularSeekBar seekBar) {
+                mHandler.removeCallbacks(mUpdateTimeTask);
+            }
 
+            @Override
+            public void onStopTrackingTouch(CircularSeekBar seekBar) {
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                int totalDuration = freePlayer.getDuration();
+                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+
+                spinner.setVisibility(View.VISIBLE);
+
+                // forward or backward to certain seconds
+                freePlayer.seekTo(currentPosition);
+
+                // update timer progress again
+                updateProgressBar();
             }
         });
 
+//        seekBar2.setOnSeekBarChangeListener(this);
+//        seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(CircularSeekBar circularSeekBar, int progress, boolean fromUser) {
+//                if (fromUser) {
+//
+//                    if (freePlayer != null) {
+//                        freePlayer.seekTo(progress);
+//                        seekBarView.setProgress(progress);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(CircularSeekBar seekBar) {
+//                mHandler.removeCallbacks(mUpdateTimeTask);
+//                int totalDuration = freePlayer.getDuration();
+//                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+//
+//                // forward or backward to certain seconds
+//                freePlayer.seekTo(currentPosition);
+//
+//                // update timer progress again
+//                updateProgressBar();
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(CircularSeekBar seekBar) {
+//                mHandler.removeCallbacks(mUpdateTimeTask);
+//            }
+//        });
+
         // set start position of track
         currentDuration.setText("00:00");
+        finalDuration.setText("00:00");
 
         // set end duration of track
 
 
         //freePlayer.getDuration()
-        String duration = String.valueOf(730000);
-        int seconds = ((Integer.parseInt(duration) / 1000) % 60);
-        int minutes = ((Integer.parseInt(duration) / 1000) / 60);
-        if (seconds < 10) {
-            finalDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
-        } else {
-            finalDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
-        }
+//        String duration = String.valueOf(730000);
+//        int seconds = ((Integer.parseInt(duration) / 1000) % 60);
+//        int minutes = ((Integer.parseInt(duration) / 1000) / 60);
+//        if (seconds < 10) {
+//            finalDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
+//        } else {
+//            finalDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
+//        }
 
     }
 
     private void prepareMusic() {
-
+        spinner.setVisibility(View.GONE);
        /* // check for free or premium user
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String userType = prefs.getString(getString(R.string.user_type_key),
@@ -316,9 +361,8 @@ public class Streaming extends MasterFragment {
 
             Log.d("selected trackUrl... ", trackUrl);
 
-            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.ic_album).fit().into(backgroundImageView);
-            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.ic_album).fit().into(trackImageView);
-
+            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(trackImageView);
         }
 
 
@@ -343,15 +387,16 @@ public class Streaming extends MasterFragment {
         freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(FFmpegMediaPlayer mp) {
-//                    spinner.setVisibility(View.GONE);
+                    spinner.setVisibility(View.GONE);
 
                 // restore button
                 playButton.setClickable(true);
                 playButton.setImageResource(R.drawable.pause);
 
                 freePlayer.start();
-                seekUpdation();
-//                setSeekBar();
+
+                // Updating progress bar
+                updateProgressBar();
 
                 isPlaying = true;
 
@@ -409,44 +454,38 @@ public class Streaming extends MasterFragment {
             }
         });
     }
-//    }
 
-    // set up seek bar properties and also update current and max duration
-//    private void setSeekBar() {
-//
-//        Log.d("Duration " ,  freePlayer.getDuration() + "");
-//
-//        if (freePlayer != null) {
-//            seekBarView.setProgress(730000);
-//        }
-//
-//        // ping for updated position every second
-//        seekHandler.postDelayed(run, 1000);
-//    }
-//
-//    // seperate thread for pinging seekbar position
-//    Runnable run = new Runnable() {
-//        @Override
-//        public void run() {
-//            setSeekBar();
-//        }
-//    };
-
-    Runnable run = new Runnable() {
-        @Override
+    private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
-            seekUpdation();
+
+            long totalDuration = freePlayer.getDuration();
+            long currentDurations = freePlayer.getCurrentPosition();
+
+            // Displaying Total Duration time
+            finalDuration.setText(""+utils.milliSecondsToTimer(totalDuration));
+            // Displaying time completed playing
+            currentDuration.setText(""+utils.milliSecondsToTimer(currentDurations));
+
+            // Updating progress bar
+            int progress = (int)(utils.getProgressPercentage(currentDurations, totalDuration));
+            seekBarView.setProgress(progress);
+
+            // Running this thread after 100 milliseconds
+            mHandler.postDelayed(this, 100);
         }
     };
 
-    public void seekUpdation() {
+    public void updateProgressBar() {
 
         if (freePlayer != null) {
-
-            seekBarView.setProgress(freePlayer.getCurrentPosition());
+            mHandler.postDelayed(mUpdateTimeTask, 100);
         }
+    }
 
-        seekHandler.postDelayed(run, 1000);
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        freePlayer.release();
     }
 
     @Override
@@ -466,5 +505,4 @@ public class Streaming extends MasterFragment {
             }
         });
     }
-
 }
