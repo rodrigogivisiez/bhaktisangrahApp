@@ -10,7 +10,7 @@ public class Constants
 
     //http://192.168.0.106/BhagtiSagar/api/
     //http://goldenant.in/mantra/api/
-    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/mantra/api/";
+    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";
     private final static String API_FOLDER = "v1/";
 
     //Base Url

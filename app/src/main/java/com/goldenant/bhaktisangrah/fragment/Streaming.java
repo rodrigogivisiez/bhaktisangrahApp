@@ -57,10 +57,12 @@ import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
+import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import wseemann.media.FFmpegMediaPlayer;
@@ -71,7 +73,7 @@ import wseemann.media.FFmpegMediaPlayer;
 /**
  * Created by Adite on 03-01-2016.
  */
-public class Streaming extends MasterFragment{
+public class Streaming extends MasterFragment {
     // views
     private View rootView;
     //    private android.support.v7.app.ActionBar actionBar;
@@ -87,20 +89,28 @@ public class Streaming extends MasterFragment{
     private ImageButton prevButton;
     private ImageButton playButton;
     private ImageButton nextButton;
+    private ImageButton repeatButton;
+
     private ProgressBar spinner;
-private Handler mHandler = new Handler();;
+    private Handler mHandler = new Handler();
+    ;
     private Utilities utils;
 
     private Boolean isPlaying;
-    //    private int songPosition;
+    private int songPosition = 0;
     String imageUrl;
     private Bundle bundle;
     protected static FFmpegMediaPlayer freePlayer;
     MainActivity mContext;
-//    protected static Player premiumPlayer;
+    private boolean isRepeat = false;
+    ArrayList<SubCategoryModel> ListItem = new ArrayList<SubCategoryModel>();
+    SubCategoryModel ListPos;
+
+    //    protected static Player premiumPlayer;
 //
 //    private YouTube youtube;
 //    private YouTube.Search.List query;
+    String item_description = null, trackUrl = null, item_id = null, item_image = null, item_name = null;
 
     private Handler seekHandler = new Handler();
 //    SeekBar seekBar2;
@@ -128,9 +138,32 @@ private Handler mHandler = new Handler();;
         prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
         playButton = (ImageButton) rootView.findViewById(R.id.playButton);
         nextButton = (ImageButton) rootView.findViewById(R.id.nextButton);
+
+        repeatButton = (ImageButton) rootView.findViewById(R.id.repeatButton);
+
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
+
         bundle = getArguments();
+
+        if (bundle != null) {
+            ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
+            ListPos = (SubCategoryModel) bundle.getSerializable("data_pos");
+
+//            item_description = bundle.getString("item_description");
+//            trackUrl = bundle.getString("item_file");
+//            item_id = bundle.getString("item_id");
+//            item_image = bundle.getString("item_image");
+//            item_name = bundle.getString("item_name");
+
+//            trackNameView.setText(item_name);
+//            albumNameView.setText(item_description);
+//
+//            Log.d("selected trackUrl... ", trackUrl);
+//
+//            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+//            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(trackImageView);
+        }
 
         // if song running -> pause it
         if (freePlayer != null) {
@@ -147,15 +180,69 @@ private Handler mHandler = new Handler();;
 //        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // setup ui
-
         setUi();
         prepareMusic();
-//        updateProgressBar();
 
-        // prepare music
+        freePlayer.setOnCompletionListener(new FFmpegMediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(FFmpegMediaPlayer fFmpegMediaPlayer) {
 
+                if (isRepeat) {
+                    // repeat is on play same song again
+//                    getRepeatTrack();
+                    prepareMusic();
+                    ToastUtil.showShortToastMessage(getActivity(), "Repeat");
+                } else {
+                    playButton.setClickable(true);
+                    playButton.setImageResource(R.drawable.ic_action_play);
+                    //prepareMusic();
+
+                    if(songPosition < (ListItem.size() - 1)){
+				        prepareMusic(songPosition + 1);
+                        songPosition = songPosition + 1;
+                    } else {
+                        // play first song
+                        prepareMusic(0);
+                        songPosition = 0;
+                    }
+                }
+
+
+
+            }
+        });
+
+        freePlayer.setOnSeekCompleteListener(new FFmpegMediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(FFmpegMediaPlayer fFmpegMediaPlayer) {
+                spinner.setVisibility(View.GONE);
+            }
+        });
 
         return rootView;
+    }
+
+    private void getRepeatTrack() {
+        try {
+
+            freePlayer = new FFmpegMediaPlayer();
+            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+            ToastUtil.showShortToastMessage(getActivity(), trackUrl);
+
+            freePlayer.setDataSource(trackUrl);
+            freePlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        freePlayer.start();
+
+        seekBarView.setProgress(0);
+        seekBarView.setMax(100);
+
+        updateProgressBar();
+        isPlaying = true;
     }
 
 
@@ -336,42 +423,12 @@ private Handler mHandler = new Handler();;
     }
 
     private void prepareMusic() {
-        spinner.setVisibility(View.GONE);
-       /* // check for free or premium user
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String userType = prefs.getString(getString(R.string.user_type_key),
-                getString(R.string.user_type_key));
-
-        // free user
-        if (userType.equals("free")) {*/
-
-        // get preview track
-
-        String item_description = null, trackUrl = null, item_id = null, item_image = null, item_name = null;
-
-        if (bundle != null) {
-            item_description = bundle.getString("item_description");
-            trackUrl = bundle.getString("item_file");
-            item_id = bundle.getString("item_id");
-            item_image = bundle.getString("item_image");
-            item_name = bundle.getString("item_name");
-
-            trackNameView.setText(item_name);
-            albumNameView.setText(item_description);
-
-            Log.d("selected trackUrl... ", trackUrl);
-
-            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(trackImageView);
-        }
-
 
         try {
 
             freePlayer = new FFmpegMediaPlayer();
             freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-            freePlayer.setDataSource(trackUrl);
+            freePlayer.setDataSource(ListPos.getItem_file());
             freePlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
@@ -383,11 +440,18 @@ private Handler mHandler = new Handler();;
         // disable until prepared
         playButton.setClickable(false);
         playButton.setImageResource(R.drawable.stop);
+        //playButton.setVisibility(View.GONE);
+
+        trackNameView.setText(ListPos.getItem_name());
+        albumNameView.setText(ListPos.getItem_description());
+
+        Picasso.with(getActivity()).load(ListPos.getItem_image()).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+        Picasso.with(getActivity()).load(ListPos.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
 
         freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(FFmpegMediaPlayer mp) {
-                    spinner.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
 
                 // restore button
                 playButton.setClickable(true);
@@ -395,6 +459,97 @@ private Handler mHandler = new Handler();;
 
                 freePlayer.start();
 
+                seekBarView.setProgress(0);
+                seekBarView.setMax(100);
+                // Updating progress bar
+                updateProgressBar();
+
+                isPlaying = true;
+
+                // prev button on click listener
+                prevButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        spinner.setVisibility(View.VISIBLE);
+                        if (songPosition > 0) {
+                            prepareMusic(songPosition - 1);
+                            songPosition = songPosition - 1;
+                        } else {
+                            // play last song
+                            prepareMusic(ListItem.size() - 1);
+                            songPosition = ListItem.size() - 1;
+                        }
+                    }
+                });
+
+                // next button on click listener
+                nextButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        spinner.setVisibility(View.VISIBLE);
+                        if (songPosition < (ListItem.size() - 1)) {
+                            prepareMusic(songPosition + 1);
+                            songPosition = songPosition + 1;
+                        } else {
+                            // play first song
+                            prepareMusic(0);
+                            songPosition = 0;
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void prepareMusic(int songIndex) {
+        //spinner.setVisibility(View.GONE);
+       /* // check for free or premium user
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String userType = prefs.getString(getString(R.string.user_type_key),
+                getString(R.string.user_type_key));
+
+        // free user
+        if (userType.equals("free")) {*/
+
+        // get preview track
+
+        try {
+
+            freePlayer = new FFmpegMediaPlayer();
+            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            freePlayer.setDataSource(ListItem.get(songIndex).getItem_file());
+            freePlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // initially not playing
+        isPlaying = false;
+
+        // disable until prepared
+        playButton.setClickable(false);
+        playButton.setImageResource(R.drawable.stop);
+        //playButton.setVisibility(View.GONE);
+
+        trackNameView.setText(ListItem.get(songIndex).getItem_name());
+        albumNameView.setText(ListItem.get(songIndex).getItem_description());
+
+        Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+        Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+
+        freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(FFmpegMediaPlayer mp) {
+                spinner.setVisibility(View.GONE);
+
+                // restore button
+                playButton.setClickable(true);
+                playButton.setImageResource(R.drawable.pause);
+
+                freePlayer.start();
+
+                seekBarView.setProgress(0);
+                seekBarView.setMax(100);
                 // Updating progress bar
                 updateProgressBar();
 
@@ -411,7 +566,22 @@ private Handler mHandler = new Handler();;
                         } else {
                             freePlayer.pause();
                             isPlaying = false;
-                            playButton.setImageResource(R.drawable.play);
+                            playButton.setImageResource(R.drawable.ic_action_play);
+                        }
+                    }
+                });
+
+                repeatButton.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View arg0) {
+                        if (isRepeat) {
+                            isRepeat = false;
+                            repeatButton.setImageResource(R.drawable.repeat_off);
+                        } else {
+                            // make repeat to true
+                            isRepeat = true;
+                            repeatButton.setImageResource(R.drawable.repeat_on);
                         }
                     }
                 });
@@ -420,7 +590,17 @@ private Handler mHandler = new Handler();;
                 prevButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                spinner.setVisibility(View.VISIBLE);
+                        spinner.setVisibility(View.VISIBLE);
+                        if (songPosition > 0) {
+                            prepareMusic(songPosition - 1);
+                            songPosition = songPosition - 1;
+                        } else {
+                            // play last song
+                            prepareMusic(ListItem.size() - 1);
+                            songPosition = ListItem.size() - 1;
+                        }
+
+//
 //                songPosition = songPosition - 1;
 //                if (songPosition < 0) {
 //                    songPosition = 0;
@@ -438,22 +618,34 @@ private Handler mHandler = new Handler();;
                 nextButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                spinner.setVisibility(View.VISIBLE);
-//                songPosition = songPosition + 1;
-//                if (songPosition > TopTenTracksActivityFragment.topTenTrackList.size() - 1) {
-//                    songPosition = 0;
-//                }
-//                setUi();
-//                playButton.setImageResource(R.drawable.ic_play);
-//                if (freePlayer != null) {
-//                    freePlayer.reset();
-//                }
-//                prepareMusic();
+                        spinner.setVisibility(View.VISIBLE);
+                        if (songPosition < (ListItem.size() - 1)) {
+                            prepareMusic(songPosition + 1);
+                            songPosition = songPosition + 1;
+                        } else {
+                            // play first song
+                            prepareMusic(0);
+                            songPosition = 0;
+                        }
+
+//                        spinner.setVisibility(View.VISIBLE);
+//                        songPosition = songPosition + 1;
+//                        if (songPosition > ListItem.size() - 1) {
+//                            songPosition = 0;
+//                        }
+//                        setUi();
+//                        playButton.setImageResource(R.drawable.ic_play);
+//                        if (freePlayer != null) {
+//                            freePlayer.reset();
+//                        }
+//
+
                     }
                 });
             }
         });
     }
+
 
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
@@ -462,18 +654,19 @@ private Handler mHandler = new Handler();;
             long currentDurations = freePlayer.getCurrentPosition();
 
             // Displaying Total Duration time
-            finalDuration.setText(""+utils.milliSecondsToTimer(totalDuration));
+            finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
             // Displaying time completed playing
-            currentDuration.setText(""+utils.milliSecondsToTimer(currentDurations));
+            currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
 
             // Updating progress bar
-            int progress = (int)(utils.getProgressPercentage(currentDurations, totalDuration));
+            int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
             seekBarView.setProgress(progress);
 
             // Running this thread after 100 milliseconds
             mHandler.postDelayed(this, 100);
         }
     };
+
 
     public void updateProgressBar() {
 
@@ -482,11 +675,11 @@ private Handler mHandler = new Handler();;
         }
     }
 
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        freePlayer.release();
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        freePlayer.release();
+//    }
 
     @Override
     public void onResume() {

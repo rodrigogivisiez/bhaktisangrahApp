@@ -8,7 +8,7 @@ android {
         applicationId "com.goldenant.bhaktisangrah"
         minSdkVersion 14
         targetSdkVersion 23
-        renderscriptTargetApi 21
+        renderscriptTargetApi 23
         renderscriptSupportModeEnabled true
         versionCode 1
         versionName "1.0"
