@@ -1,65 +1,37 @@
 package com.goldenant.bhaktisangrah.fragment;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
-import android.support.v4.app.Fragment;
-/*import android.support.v7.graphics.Palette;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;*/
-import android.support.v7.graphics.Palette;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
-/*import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerState;
-import com.spotify.sdk.android.player.PlayerStateCallback;
-import com.spotify.sdk.android.player.Spotify;*/
 import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
+import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.squareup.picasso.Transformation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,21 +39,15 @@ import java.util.List;
 
 import wseemann.media.FFmpegMediaPlayer;
 
-
-import wseemann.media.FFmpegMediaPlayer;
-
 /**
  * Created by Adite on 03-01-2016.
  */
 public class Streaming extends MasterFragment {
-    // views
     private View rootView;
-    //    private android.support.v7.app.ActionBar actionBar;
     private ImageView backgroundImageView;
     private TextView artistNameView;
     private TextView albumNameView;
     private ImageView trackImageView;
-    //    private ImageView youTubeButtonView;
     private TextView trackNameView;
     private TextView currentDuration;
     private CircularSeekBar seekBarView;
@@ -90,30 +56,24 @@ public class Streaming extends MasterFragment {
     private ImageButton playButton;
     private ImageButton nextButton;
     private ImageButton repeatButton;
-
     private ProgressBar spinner;
     private Handler mHandler = new Handler();
-    ;
     private Utilities utils;
-
     private Boolean isPlaying;
-    private int songPosition = 0;
     String imageUrl;
     private Bundle bundle;
     protected static FFmpegMediaPlayer freePlayer;
     MainActivity mContext;
     private boolean isRepeat = false;
     ArrayList<SubCategoryModel> ListItem = new ArrayList<SubCategoryModel>();
-    SubCategoryModel ListPos;
-
-    //    protected static Player premiumPlayer;
-//
-//    private YouTube youtube;
-//    private YouTube.Search.List query;
+    ArrayList<String> ListItemFile = new ArrayList<String>();
+    ArrayList<String> ListItemName = new ArrayList<String>();
+    ArrayList<String> ListItemImage = new ArrayList<String>();
+    int ListPosition;
+    HomeModel homeModel;
+    private static final float BLUR_RADIUS = 25f;
     String item_description = null, trackUrl = null, item_id = null, item_image = null, item_name = null;
-
-    private Handler seekHandler = new Handler();
-//    SeekBar seekBar2;
+    private int mode;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -124,16 +84,12 @@ public class Streaming extends MasterFragment {
         rootView = inflater.inflate(R.layout.streaming_player, container, false);
 
         // initialize ui elements
-//        actionBar = PlayerActivity.actionBar;
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
-//        artistNameView = (TextView) rootView.findViewById(R.id.artistName);
         albumNameView = (TextView) rootView.findViewById(R.id.albumName);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-//        youTubeButtonView = (ImageButton) rootView.findViewById(R.id.youTubeButton);
         trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
         seekBarView = (CircularSeekBar) rootView.findViewById(R.id.seekBar);
-//        seekBar2 = (SeekBar) rootView.findViewById(R.id.seekBar2);
         finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
         prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
         playButton = (ImageButton) rootView.findViewById(R.id.playButton);
@@ -143,211 +99,97 @@ public class Streaming extends MasterFragment {
 
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
+        AdView mAdView = (AdView) rootView.findViewById(R.id.adView_stream);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         bundle = getArguments();
 
         if (bundle != null) {
-            ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
-            ListPos = (SubCategoryModel) bundle.getSerializable("data_pos");
 
-//            item_description = bundle.getString("item_description");
-//            trackUrl = bundle.getString("item_file");
-//            item_id = bundle.getString("item_id");
-//            item_image = bundle.getString("item_image");
-//            item_name = bundle.getString("item_name");
+            mode = bundle.getInt("mode");
+            if(mode == 1){
+                ListItemFile = (ArrayList<String>) bundle.getSerializable("item_file");
+                ListItemName = (ArrayList<String>) bundle.getSerializable("item_name");
+                ListItemImage = (ArrayList<String>) bundle.getSerializable("item_image");
+                ListPosition = bundle.getInt("position");
 
-//            trackNameView.setText(item_name);
-//            albumNameView.setText(item_description);
-//
-//            Log.d("selected trackUrl... ", trackUrl);
-//
-//            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-//            Picasso.with(getActivity()).load(item_image).placeholder(R.drawable.no_image).fit().into(trackImageView);
+                Log.d("ListItemImage", ListItemImage + " ");
+            }else if (mode == 0){
+                ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
+                ListPosition = bundle.getInt("position");
+                homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
+            }
         }
 
         // if song running -> pause it
         if (freePlayer != null) {
             freePlayer.pause();
         }
-        /*if (premiumPlayer != null) {
-            premiumPlayer.pause();
-        }*/
-
-        // Progress Bar to display loading while everything is being set up
-
-
-        // get song number from list of songs
-//        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // setup ui
         setUi();
-        prepareMusic();
+        prepareMusic(ListPosition);
 
-        freePlayer.setOnCompletionListener(new FFmpegMediaPlayer.OnCompletionListener() {
+        // prev button on click listener
+        prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCompletion(FFmpegMediaPlayer fFmpegMediaPlayer) {
-
-                if (isRepeat) {
-                    // repeat is on play same song again
-//                    getRepeatTrack();
-                    prepareMusic();
-                    ToastUtil.showShortToastMessage(getActivity(), "Repeat");
+            public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
+                freePlayer.reset();
+                if (ListPosition > 0) {
+                    prepareMusic(ListPosition - 1);
+                    ListPosition = ListPosition - 1;
                 } else {
-                    playButton.setClickable(true);
-                    playButton.setImageResource(R.drawable.ic_action_play);
-                    //prepareMusic();
 
-                    if(songPosition < (ListItem.size() - 1)){
-				        prepareMusic(songPosition + 1);
-                        songPosition = songPosition + 1;
-                    } else {
-                        // play first song
-                        prepareMusic(0);
-                        songPosition = 0;
+                    if(ListItem.size() > 0){
+                        prepareMusic(ListItem.size() - 1);
+                        ListPosition = ListItem.size() - 1;
+                    }
+
+                    else if(ListItemFile.size() > 0){
+                        prepareMusic(ListItemFile.size() - 1);
+                        ListPosition = ListItemFile.size() - 1;
                     }
                 }
-
-
-
             }
         });
 
-        freePlayer.setOnSeekCompleteListener(new FFmpegMediaPlayer.OnSeekCompleteListener() {
+        // next button on click listener
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSeekComplete(FFmpegMediaPlayer fFmpegMediaPlayer) {
-                spinner.setVisibility(View.GONE);
+            public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
+                freePlayer.reset();
+                if (ListPosition < (ListItem.size() - 1)) {
+                    prepareMusic(ListPosition + 1);
+                    ListPosition = ListPosition + 1;
+                }
+
+                else if (ListPosition < (ListItemFile.size() - 1)) {
+                    prepareMusic(ListPosition + 1);
+                    ListPosition = ListPosition + 1;
+                }
+
+                else {
+                    // play first song
+                    prepareMusic(0);
+                    ListPosition = 0;
+                }
             }
         });
+
 
         return rootView;
     }
 
-    private void getRepeatTrack() {
-        try {
-
-            freePlayer = new FFmpegMediaPlayer();
-            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-            ToastUtil.showShortToastMessage(getActivity(), trackUrl);
-
-            freePlayer.setDataSource(trackUrl);
-            freePlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        freePlayer.start();
-
-        seekBarView.setProgress(0);
-        seekBarView.setMax(100);
-
-        updateProgressBar();
-        isPlaying = true;
-    }
-
-
     private void setUi() {
         utils = new Utilities();
-
-        // set track name and album name in the actionbar
-       /* actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
-        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
-
-        // TODO: remove once ui is modified
-        // artist and album name
-        artistNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
-        albumNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
-
-        // get image url
-        imageUrl = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackImageLarge;*/
-
-
-//        Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.ic_album).fit().centerCrop().into(backgroundImageView);
-
-
-//            Picasso.with(getActivity()).load(bundle.getString("item_image")).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
-//                @Override
-//                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-//
-//                    // blur and set background image with animation
-//                    Bitmap backgroundBitmap = bitmap;
-//                    backgroundBitmap = BlurBuilder.blur(getActivity(), bitmap);
-//
-//                    backgroundImageView.setImageBitmap(backgroundBitmap);
-//                    AlphaAnimation alpha = new AlphaAnimation(1, 0.5F);
-//                    alpha.setDuration(1000);
-//                    alpha.setFillAfter(true);
-//                    backgroundImageView.startAnimation(alpha);
-//
-//
-//                    // set track image
-//                    trackImageView.setImageBitmap(bitmap);
-//
-//                    // update ui elements based on average color of track image
-//                    Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-//                        @Override
-//                        public void onGenerated(Palette palette) {
-//
-//                            int color = palette.getMutedColor(android.R.color.black);
-//                            int alphaColor = Color.argb(Math.round(Color.alpha(color) * 0.9f), Color.red(color), Color.green(color), Color.blue(color));
-//
-//                            // action bar
-////                        actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
-//
-//                            // status bar
-////                        getActivity().getWindow().setStatusBarColor(alphaColor);
-////                        getActivity().getWindow();
-//
-//                            // navigation bar
-////                        getActivity().getWindow().setNavigationBarColor(alphaColor);
-//
-//                            // playback buttons
-////                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
-////                        playButton.setColor(palette.getMutedColor(android.R.color.black));
-////                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
-//
-//                            // seek bar
-//                            // seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
-//                            // TODO: Add change color of thumb
-//                        }
-//                    });
-//
-//                /*// search and link music video on youtube
-//                // TODO: Disable youtube linkage on freeplayer
-//                youTubeButtonView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        SearchVideoId searchVideoId = new SearchVideoId();
-//                        searchVideoId.execute(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
-//                    }
-//                });*/
-//                }
-//
-//                @Override
-//                public void onBitmapFailed(Drawable errorDrawable) {
-//                    // try again
-//                    setUi();
-//                }
-//
-//                @Override
-//                public void onPrepareLoad(Drawable placeHolderDrawable) {
-//                }
-//            });
-
-
-        // track Name
-//        trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
-
-        // seekbar setup and progress listener
-        //seekBarView.setMax(730000);
-
-//        seekBarView.setProgress(0);
-//        seekBarView.setMax(100);
 
         seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
             @Override
             public void onProgressChanged(CircularSeekBar seekBar, int progress, boolean fromUser) {
+
             }
 
             @Override
@@ -371,154 +213,26 @@ public class Streaming extends MasterFragment {
             }
         });
 
-//        seekBar2.setOnSeekBarChangeListener(this);
-//        seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(CircularSeekBar circularSeekBar, int progress, boolean fromUser) {
-//                if (fromUser) {
-//
-//                    if (freePlayer != null) {
-//                        freePlayer.seekTo(progress);
-//                        seekBarView.setProgress(progress);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(CircularSeekBar seekBar) {
-//                mHandler.removeCallbacks(mUpdateTimeTask);
-//                int totalDuration = freePlayer.getDuration();
-//                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
-//
-//                // forward or backward to certain seconds
-//                freePlayer.seekTo(currentPosition);
-//
-//                // update timer progress again
-//                updateProgressBar();
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(CircularSeekBar seekBar) {
-//                mHandler.removeCallbacks(mUpdateTimeTask);
-//            }
-//        });
-
         // set start position of track
         currentDuration.setText("00:00");
         finalDuration.setText("00:00");
-
-        // set end duration of track
-
-
-        //freePlayer.getDuration()
-//        String duration = String.valueOf(730000);
-//        int seconds = ((Integer.parseInt(duration) / 1000) % 60);
-//        int minutes = ((Integer.parseInt(duration) / 1000) / 60);
-//        if (seconds < 10) {
-//            finalDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
-//        } else {
-//            finalDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
-//        }
-
-    }
-
-    private void prepareMusic() {
-
-        try {
-
-            freePlayer = new FFmpegMediaPlayer();
-            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            freePlayer.setDataSource(ListPos.getItem_file());
-            freePlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // initially not playing
-        isPlaying = false;
-
-        // disable until prepared
-        playButton.setClickable(false);
-        playButton.setImageResource(R.drawable.stop);
-        //playButton.setVisibility(View.GONE);
-
-        trackNameView.setText(ListPos.getItem_name());
-        albumNameView.setText(ListPos.getItem_description());
-
-        Picasso.with(getActivity()).load(ListPos.getItem_image()).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-        Picasso.with(getActivity()).load(ListPos.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
-
-        freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(FFmpegMediaPlayer mp) {
-                spinner.setVisibility(View.GONE);
-
-                // restore button
-                playButton.setClickable(true);
-                playButton.setImageResource(R.drawable.pause);
-
-                freePlayer.start();
-
-                seekBarView.setProgress(0);
-                seekBarView.setMax(100);
-                // Updating progress bar
-                updateProgressBar();
-
-                isPlaying = true;
-
-                // prev button on click listener
-                prevButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        spinner.setVisibility(View.VISIBLE);
-                        if (songPosition > 0) {
-                            prepareMusic(songPosition - 1);
-                            songPosition = songPosition - 1;
-                        } else {
-                            // play last song
-                            prepareMusic(ListItem.size() - 1);
-                            songPosition = ListItem.size() - 1;
-                        }
-                    }
-                });
-
-                // next button on click listener
-                nextButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        spinner.setVisibility(View.VISIBLE);
-                        if (songPosition < (ListItem.size() - 1)) {
-                            prepareMusic(songPosition + 1);
-                            songPosition = songPosition + 1;
-                        } else {
-                            // play first song
-                            prepareMusic(0);
-                            songPosition = 0;
-                        }
-                    }
-                });
-            }
-        });
     }
 
     private void prepareMusic(int songIndex) {
-        //spinner.setVisibility(View.GONE);
-       /* // check for free or premium user
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String userType = prefs.getString(getString(R.string.user_type_key),
-                getString(R.string.user_type_key));
-
-        // free user
-        if (userType.equals("free")) {*/
-
-        // get preview track
 
         try {
 
             freePlayer = new FFmpegMediaPlayer();
             freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            freePlayer.setDataSource(ListItem.get(songIndex).getItem_file());
+
+            if(mode == 1){
+                freePlayer.setDataSource(ListItemFile.get(songIndex));
+            }else if (mode == 0){
+                freePlayer.setDataSource(ListItem.get(songIndex).getItem_file());
+            }
+
             freePlayer.prepareAsync();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -529,13 +243,28 @@ public class Streaming extends MasterFragment {
         // disable until prepared
         playButton.setClickable(false);
         playButton.setImageResource(R.drawable.stop);
-        //playButton.setVisibility(View.GONE);
 
-        trackNameView.setText(ListItem.get(songIndex).getItem_name());
-        albumNameView.setText(ListItem.get(songIndex).getItem_description());
+        if(mode == 1){
+            trackNameView.setText(ListItemName.get(songIndex));
+            albumNameView.setText("");
 
-        Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-        Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+            Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
+            BitmapDrawable d = new BitmapDrawable(bitmap);
+
+            backgroundImageView.setImageBitmap(bitmap);
+            trackImageView.setImageBitmap(bitmap);
+
+//            Picasso.with(getActivity()).load(ListItemImage.get(songIndex)).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+//            Picasso.with(getActivity()).load(ListItemImage.get(songIndex)).placeholder(R.drawable.no_image).fit().into(trackImageView);
+
+        }else if (mode == 0){
+            trackNameView.setText(ListItem.get(songIndex).getItem_name());
+            albumNameView.setText(ListItem.get(songIndex).getItem_description());
+
+            Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+
+        }
 
         freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
             @Override
@@ -546,12 +275,18 @@ public class Streaming extends MasterFragment {
                 playButton.setClickable(true);
                 playButton.setImageResource(R.drawable.pause);
 
+//                freePlayer.reset();
                 freePlayer.start();
 
                 seekBarView.setProgress(0);
-                seekBarView.setMax(100);
+//                seekBarView.setMax(100);
                 // Updating progress bar
-                updateProgressBar();
+
+                if (mode == 1){
+                    Log.d("freePlayer Duration", freePlayer.getDuration() + " ");
+                }else{
+                    updateProgressBar();
+                }
 
                 isPlaying = true;
 
@@ -586,66 +321,107 @@ public class Streaming extends MasterFragment {
                     }
                 });
 
-                // prev button on click listener
-                prevButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        spinner.setVisibility(View.VISIBLE);
-                        if (songPosition > 0) {
-                            prepareMusic(songPosition - 1);
-                            songPosition = songPosition - 1;
-                        } else {
-                            // play last song
-                            prepareMusic(ListItem.size() - 1);
-                            songPosition = ListItem.size() - 1;
-                        }
-
-//
-//                songPosition = songPosition - 1;
-//                if (songPosition < 0) {
-//                    songPosition = 0;
-//                }
-//                setUi();
-//                playButton.setImageResource(R.drawable.ic_play);
-//                if (freePlayer != null) {
-//                    freePlayer.reset();
-//                }
-//                prepareMusic();
-                    }
-                });
-
-                // next button on click listener
-                nextButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        spinner.setVisibility(View.VISIBLE);
-                        if (songPosition < (ListItem.size() - 1)) {
-                            prepareMusic(songPosition + 1);
-                            songPosition = songPosition + 1;
-                        } else {
-                            // play first song
-                            prepareMusic(0);
-                            songPosition = 0;
-                        }
-
-//                        spinner.setVisibility(View.VISIBLE);
-//                        songPosition = songPosition + 1;
-//                        if (songPosition > ListItem.size() - 1) {
-//                            songPosition = 0;
-//                        }
-//                        setUi();
-//                        playButton.setImageResource(R.drawable.ic_play);
-//                        if (freePlayer != null) {
-//                            freePlayer.reset();
-//                        }
-//
-
-                    }
-                });
             }
         });
+
+        freePlayer.setOnSeekCompleteListener(new FFmpegMediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(FFmpegMediaPlayer fFmpegMediaPlayer) {
+                currentDuration.setText("00:00");
+                finalDuration.setText("00:00");
+
+                spinner.setVisibility(View.GONE);
+            }
+        });
+
+        freePlayer.setOnCompletionListener(new FFmpegMediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(FFmpegMediaPlayer fFmpegMediaPlayer) {
+                if (isRepeat) {
+                    // repeat is on play same song again
+//                    prepareMusic(ListPosition);
+                    repeatTask(ListPosition);
+                    ToastUtil.showShortToastMessage(getActivity(), "REPEAT");
+                }
+//                else {
+//                    playButton.setClickable(true);
+//                    playButton.setImageResource(R.drawable.ic_action_play);
+//                    prepareMusic(ListPosition);
+//                }
+            }
+        });
+
+
     }
 
+    private void repeatTask(int pos) {
+        try {
+
+            if(mode == 1){
+
+                Log.d("Local Audio File.", ListItemFile.get(pos) + " ");
+
+                freePlayer = new FFmpegMediaPlayer();
+                freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                freePlayer.setDataSource(ListItemFile.get(pos));
+                freePlayer.prepareAsync();
+
+            }else if (mode == 0){
+                freePlayer = new FFmpegMediaPlayer();
+                freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                freePlayer.setDataSource(ListItem.get(pos).getItem_file());
+                freePlayer.prepareAsync();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // initially not playing
+        isPlaying = false;
+
+        // disable until prepared
+        playButton.setClickable(false);
+        playButton.setImageResource(R.drawable.stop);
+
+        if(mode == 1){
+            trackNameView.setText(ListItemName.get(pos));
+            albumNameView.setText("");
+
+            Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(pos));
+            BitmapDrawable d = new BitmapDrawable(bitmap);
+
+            backgroundImageView.setImageBitmap(bitmap);
+            trackImageView.setImageBitmap(bitmap);
+
+        }else if (mode == 0){
+            trackNameView.setText(ListItem.get(pos).getItem_name());
+            albumNameView.setText(ListItem.get(pos).getItem_description());
+
+            Picasso.with(getActivity()).load(ListItem.get(pos).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(ListItem.get(pos).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+        }
+
+        freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(FFmpegMediaPlayer mp) {
+                spinner.setVisibility(View.GONE);
+
+                // restore button
+                playButton.setClickable(true);
+                playButton.setImageResource(R.drawable.pause);
+
+//                freePlayer.reset();
+                freePlayer.start();
+
+                seekBarView.setProgress(0);
+//                seekBarView.setMax(100);
+                // Updating progress bar
+                updateProgressBar();
+            }
+        });
+
+    }
 
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
@@ -660,6 +436,11 @@ public class Streaming extends MasterFragment {
 
             // Updating progress bar
             int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
+
+            Log.d("FINAL PROGRESS ::: ", progress + " ");
+            Log.d("FINAL finalDuration", utils.milliSecondsToTimer(totalDuration) + " ");
+            Log.d("FINAL currentDurations", utils.milliSecondsToTimer(currentDurations) + " ");
+
             seekBarView.setProgress(progress);
 
             // Running this thread after 100 milliseconds
@@ -675,11 +456,11 @@ public class Streaming extends MasterFragment {
         }
     }
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        freePlayer.release();
-//    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        freePlayer.release();
+    }
 
     @Override
     public void onResume() {
@@ -691,11 +472,65 @@ public class Streaming extends MasterFragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                    HomeFragment home = new HomeFragment();
-                    mContext.ReplaceFragement(home);
+
+                    if(mode == 1){
+                        Downloads downloads = new Downloads();
+                        mContext.ReplaceFragement(downloads);
+                    }else if (mode == 0){
+                        CategoryList categoryList = new CategoryList();
+
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("CAT_ID", homeModel);
+                        categoryList.setArguments(bundle);
+
+                        mContext.ReplaceFragement(categoryList);
+                    }
                 }
                 return false;
             }
         });
+    }
+
+
+    public class BlurTransformation implements Transformation {
+
+        RenderScript rs;
+
+        public BlurTransformation(Context context) {
+            super();
+            rs = RenderScript.create(context);
+        }
+
+        @Override
+        public Bitmap transform(Bitmap bitmap) {
+            // Create another bitmap that will hold the results of the filter.
+            Bitmap blurredBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+            // Allocate memory for Renderscript to work with
+            Allocation input = Allocation.createFromBitmap(rs, blurredBitmap, Allocation.MipmapControl.MIPMAP_FULL, Allocation.USAGE_SHARED);
+            Allocation output = Allocation.createTyped(rs, input.getType());
+
+            // Load up an instance of the specific script that we want to use.
+            ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+            script.setInput(input);
+
+            // Set the blur radius
+            script.setRadius(5f);
+
+            // Start the ScriptIntrinisicBlur
+            script.forEach(output);
+
+            // Copy the output to the blurred bitmap
+            output.copyTo(blurredBitmap);
+
+            bitmap.recycle();
+
+            return blurredBitmap;
+        }
+
+        @Override
+        public String key() {
+            return "blur";
+        }
     }
 }

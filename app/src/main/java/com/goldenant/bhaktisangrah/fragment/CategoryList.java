@@ -126,7 +126,7 @@ public class CategoryList extends MasterFragment
                             CatListItem.add(categoryModel);
                         }
 
-                        CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, CatListItem);
+                        CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, CatListItem, homeModel);
                         mCategoryList.setAdapter(Adapter);
                     }
                 }

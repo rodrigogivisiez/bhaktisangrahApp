@@ -100,7 +100,12 @@ public class DownloadAdapter extends ArrayAdapter<String>
                 Fragment streaming = new Streaming();
 
                 Bundle bundle = new Bundle();
-                bundle.putString("item_file", mItemSongPath.get(position));
+                bundle.putInt("mode", 1);
+                bundle.putSerializable("item_file", mItemSongPath);
+                bundle.putSerializable("item_name", mItem);
+                bundle.putSerializable("item_image", mItemImage);
+                bundle.putInt("position", position);
+
                 streaming.setArguments(bundle);
                 mContext.ReplaceFragement(streaming);
             }

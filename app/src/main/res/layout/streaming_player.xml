@@ -1,143 +1,142 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.plusgaurav.spotifystreamer.PlayerActivityFragment">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/topLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/topLayout">
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <ImageView
+                    android:id="@+id/backgroundImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/backgroundImage"
-                    android:alpha="40"
                     android:layout_gravity="center"
-                    android:scaleType="centerCrop"/>
+                    android:alpha="0.4"
+                    android:scaleType="centerCrop" />
 
                 <ImageView
+                    android:id="@+id/trackImage"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    android:id="@+id/trackImage"
                     android:layout_gravity="center|bottom" />
             </FrameLayout>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#1e5159">
+            android:background="#1e5159"
+            android:orientation="vertical"
+            android:id="@+id/bottom_layout">
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="0.20"
+                android:orientation="horizontal"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp">
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:layout_weight="1"
-                    android:gravity="center_vertical|left">
+                    android:gravity="center_vertical|left"
+                    android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/currentDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="c time"
-                        android:id="@+id/currentDuration"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center_vertical|right">
+                    android:gravity="center_vertical|right"
+                    android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/finalDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:text="e time"
-                        android:id="@+id/finalDuration"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:gravity="center"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="0.50">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <ImageButton
+                    android:id="@+id/repeatButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:id="@+id/repeatButton"
-                    android:background="@drawable/repeat_off"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_marginBottom="20dp" />
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/repeat_off" />
 
                 <TextView
+                    android:id="@+id/trackName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="trackName"
-                    android:gravity="center"
-                    android:layout_gravity="center"
-                    android:id="@+id/trackName"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
+                    android:layout_gravity="center"
+                    android:text="trackName"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/white"
-                    android:padding="5dp" />
+                    android:gravity="center" />
 
                 <TextView
+                    android:id="@+id/albumName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="albumName"
-                    android:id="@+id/albumName"
-                    android:padding="5dp"
-                    android:textColor="#fff3a8" />
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#fff3a8"
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -145,69 +144,72 @@
 
     </LinearLayout>
 
-    <RelativeLayout
 
+    <RelativeLayout
+        android:id="@+id/mainLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/mainLayout">
+        android:layout_alignParentTop="true">
 
         <RelativeLayout
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            android:padding="10dp">
+            android:padding="10dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
 
             <ImageButton
-                android:layout_width="40dp"
-                android:layout_height="40dp"
                 android:id="@+id/prevButton"
-                android:background="@drawable/previous"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-            <ImageButton
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:id="@+id/nextButton"
-                android:background="@drawable/next"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
+                android:background="@drawable/previous" />
+
+            <ImageButton
+                android:id="@+id/nextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true" />
+                android:layout_centerVertical="true"
+                android:background="@drawable/next" />
+
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/circle"
-            android:layout_centerInParent="true">
+            android:background="@drawable/circle">
 
             <ImageButton
+                android:id="@+id/playButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/playButton"
-                android:background="@drawable/play"
+                android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true" />
+                android:background="@drawable/play" />
 
             <com.goldenant.bhaktisangrah.common.ui.CircularSeekBar
+                android:id="@+id/seekBar"
                 android:layout_width="170dp"
                 android:layout_height="170dp"
-                android:id="@+id/seekBar"
                 android:layout_alignParentTop="false"
                 android:layout_centerInParent="true"
-                android:thumb="@drawable/seekbar"
                 android:progressDrawable="@drawable/seekbar_progress"
-                />
+                android:thumb="@drawable/seekbar" />
 
         </RelativeLayout>
 
@@ -218,8 +220,26 @@
             android:layout_height="65dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true" />
-
     </RelativeLayout>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="bottom"
+        android:layout_below="@+id/bottom_layout">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView_stream"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/bottom_banner_id">
+        </com.google.android.gms.ads.AdView>
+    </LinearLayout>
 
 </RelativeLayout>

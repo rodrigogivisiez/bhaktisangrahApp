@@ -56,14 +56,16 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     private ProgressDialog pDialog;
 
+    private HomeModel homeModel;
     int pos;
 
-    public CategoryAdapter(MainActivity context, int resource,ArrayList<SubCategoryModel> list)
+    public CategoryAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list, HomeModel homeModel)
     {
         super(context, resource);
         mContext = context;
         this.mItem = list;
         this.resource = resource;
+        this.homeModel = homeModel;
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -108,13 +110,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 Fragment investProgramDetail = new Streaming();
                 Bundle bundle = new Bundle();
 
+                bundle.putInt("mode", 0);
                 bundle.putSerializable("data", mItem);
-                bundle.putSerializable("data_pos", mItem.get(position));
-//                bundle.putString("item_description", mItem.get(position).getItem_description());
-//                bundle.putString("item_file", mItem.get(position).getItem_file());
-//                bundle.putString("item_id", mItem.get(position).getItem_id());
-//                bundle.putString("item_image", mItem.get(position).getItem_image());
-//                bundle.putString("item_name", mItem.get(position).getItem_name());
+                bundle.putInt("position", position);
+                bundle.putSerializable("CAT_ID", homeModel);
 
                 investProgramDetail.setArguments(bundle);
                 mContext.ReplaceFragement(investProgramDetail);
