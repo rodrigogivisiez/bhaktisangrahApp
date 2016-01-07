@@ -6,20 +6,54 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.goldenant.bhaktisangrah.R;
+import com.goldenant.bhaktisangrah.common.util.DatabaseHelper;
+import com.goldenant.bhaktisangrah.model.NotificationRecord;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class GCMNotificationIntentService extends IntentService {
 	// Sets an ID for the notification, so it can be updated
 	public static final int notifyID = 9001;
 	NotificationCompat.Builder builder;
 
+	DatabaseHelper mDbHelper, dbAdapters;
+	SQLiteDatabase mDb;
+	static int version_val = 1;
+
+	NotificationRecord nr = new NotificationRecord();
+
 	public GCMNotificationIntentService() {
 		super("GcmIntentService");
+	}
+
+	@Override
+	public void onCreate()
+	{
+		// TODO Auto-generated method stub
+		super.onCreate();
+
+		mDbHelper = new DatabaseHelper(this, "Database.sqlite", null,version_val);
+		dbAdapters = DatabaseHelper.getDBAdapterInstance(this);
+
+		try
+		{
+			dbAdapters.createDataBase();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -51,7 +85,8 @@ public class GCMNotificationIntentService extends IntentService {
 		GcmBroadcastReceiver.completeWakefulIntent(intent);
 	}
 
-	private void sendNotification(String msg) {
+	private void sendNotification(String msg)
+	{
 		Intent resultIntent = new Intent(this, GCMDialogActivity.class);
 		resultIntent.putExtra("msg", msg);
 
@@ -83,5 +118,29 @@ public class GCMNotificationIntentService extends IntentService {
 		mNotifyBuilder.setAutoCancel(true);
 		// Post a notification
 		mNotificationManager.notify(notifyID, mNotifyBuilder.build());
+
+		//Insert into db start
+		try
+		{
+			Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+			Date currentLocalTime = cal.getTime();
+			SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+			date.setTimeZone(TimeZone.getDefault());
+
+			String localTime = date.format(currentLocalTime);
+
+			dbAdapters.openDataBase();
+			nr.setContent(msg);
+			nr.setDate(localTime);
+
+			dbAdapters.Insert_Record(nr);
+
+			dbAdapters.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		//Insert db end
 	}
 }
