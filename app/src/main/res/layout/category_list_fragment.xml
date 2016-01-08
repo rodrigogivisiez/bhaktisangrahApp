@@ -3,8 +3,8 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/theme_color">
-
+    android:background="@color/theme_color"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,7 +14,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/listView_cat_list"
-            android:layout_above="@+id/adView_cat"/>
+            android:layout_above="@+id/adView_cat"
+            android:cacheColorHint="#00000000"
+            android:smoothScrollbar="true"/>
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView_cat"

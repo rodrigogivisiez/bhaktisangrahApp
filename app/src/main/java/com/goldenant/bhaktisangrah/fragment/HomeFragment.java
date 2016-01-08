@@ -56,6 +56,8 @@ public class HomeFragment extends MasterFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.showDrawer();
+        mContext.hideDrawerBack();
         mContext.setTitle("Categories");
 
         listView_category = (ListView) view.findViewById(R.id.listView_category);

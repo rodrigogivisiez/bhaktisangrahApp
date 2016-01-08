@@ -99,9 +99,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         tv_title.setText(mItem.get(position).getItem_name());
         tv_desc.setText(mItem.get(position).getItem_description());
+
 //        tv_duration.setText(mItem.get(position).getIte);
 
-        Picasso.with(mContext).load(mItem.get(position).getItem_image()).into(cat_image);
+        Picasso.with(mContext).load(mItem.get(position).getItem_image()).placeholder(R.drawable.no_image).into(cat_image);
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override

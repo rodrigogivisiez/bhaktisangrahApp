@@ -43,25 +43,24 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/bottom_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="#1e5159"
-            android:orientation="vertical"
-            android:id="@+id/bottom_layout">
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_margin="5dp"
                 android:layout_weight="0.20"
                 android:orientation="horizontal"
                 android:paddingLeft="30dp"
-                android:paddingRight="30dp">
+                android:paddingRight="30dp"
+                android:paddingTop="10dp">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -76,7 +75,7 @@
                         android:id="@+id/currentDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="c time"
+                        android:text="00:00"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
                 </LinearLayout>
@@ -92,7 +91,7 @@
                         android:id="@+id/finalDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="e time"
+                        android:text="00:00"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
                 </LinearLayout>
@@ -102,20 +101,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:layout_weight="0.80"
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/repeatButton"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/repeat_off" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/repeatButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/repeat_off" />
+
+                    <View
+                        android:layout_width="10dp"
+                        android:layout_height="0dp" />
+
+                    <ImageButton
+                        android:id="@+id/shuffleButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/shuffle_off" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/trackName"
@@ -124,19 +141,21 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:layout_gravity="center"
+                    android:gravity="center"
+                    android:paddingTop="5dp"
                     android:text="trackName"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/white"
-                    android:gravity="center" />
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/albumName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="5dp"
                     android:text="albumName"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="#fff3a8"
-                    android:gravity="center" />
+                    android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                    android:textColor="#fff3a8" />
 
             </LinearLayout>
 
@@ -160,11 +179,11 @@
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:padding="10dp"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center_vertical"
+            android:padding="10dp">
 
             <ImageButton
                 android:id="@+id/prevButton"
@@ -191,7 +210,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_horizontal|center"
             android:background="@drawable/circle">
 
             <ImageButton
@@ -213,33 +232,33 @@
 
         </RelativeLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBar3"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" />
     </RelativeLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar3"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
+        android:layout_below="@+id/bottom_layout"
         android:layout_centerHorizontal="true"
         android:gravity="bottom"
-        android:layout_below="@+id/bottom_layout">
+        android:orientation="vertical">
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView_stream"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/bottom_banner_id">
-        </com.google.android.gms.ads.AdView>
+            ads:adUnitId="@string/bottom_banner_id"></com.google.android.gms.ads.AdView>
     </LinearLayout>
 
 </RelativeLayout>

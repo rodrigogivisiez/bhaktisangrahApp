@@ -5,6 +5,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.R;
@@ -56,6 +58,27 @@ public class MasterActivity extends AppCompatActivity {
         font = Typeface.createFromAsset(getAssets(), "ProximaNova-Light.otf");
         return font;
     }
+
+    public void showDrawer() {
+        ImageView drawer_indicator = (ImageView) findViewById(R.id.drawer_indicator);
+        drawer_indicator.setVisibility(View.VISIBLE);
+    }
+
+    public void hideDrawer() {
+        ImageView drawer_indicator = (ImageView) findViewById(R.id.drawer_indicator);
+        drawer_indicator.setVisibility(View.INVISIBLE);
+    }
+
+    public void showDrawerBack() {
+        ImageButton drawer_back = (ImageButton) findViewById(R.id.drawer_back);
+        drawer_back.setVisibility(View.VISIBLE);
+    }
+
+    public void hideDrawerBack() {
+        ImageButton drawer_back = (ImageButton) findViewById(R.id.drawer_back);
+        drawer_back.setVisibility(View.INVISIBLE);
+    }
+
 
     public void showWaitIndicator(boolean state) {
         showWaitIndicator(state, "");

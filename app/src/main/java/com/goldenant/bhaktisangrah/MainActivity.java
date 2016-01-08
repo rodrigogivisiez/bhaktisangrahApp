@@ -20,8 +20,10 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,6 +42,7 @@ import com.goldenant.bhaktisangrah.fragment.Notification;
 import com.goldenant.bhaktisangrah.fragment.Share;
 import com.goldenant.bhaktisangrah.gcm.ApplicationConstants;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
+import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -69,7 +72,9 @@ public class MainActivity extends MasterActivity {
     private Context mContext;
     private ArrayList<NavDrawerItem> navDrawerItems;
     public FragmentManager fragmentManager = getSupportFragmentManager();
+    public ArrayList<SubCategoryModel> MasterCategoryArray = new ArrayList<SubCategoryModel>();
     private Typeface font;
+    public ImageButton drawer_back;
 
     TextView title;
 
@@ -85,6 +90,7 @@ public class MainActivity extends MasterActivity {
         setContentView(R.layout.activity_main);
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer_back = (ImageButton) findViewById(R.id.drawer_back);
         imageView = (ImageView) findViewById(R.id.drawer_indicator);
         mDrawerList = (ListView) findViewById(R.id.drawer_content);
         resources = getResources();

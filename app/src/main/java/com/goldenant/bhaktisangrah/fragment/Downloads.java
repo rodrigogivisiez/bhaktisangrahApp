@@ -50,6 +50,8 @@ public class Downloads extends MasterFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
         mContext.setTitle("Downloads");
 
         listView_downloads = (ListView) view.findViewById(R.id.listView_downloads);
@@ -120,6 +122,14 @@ public class Downloads extends MasterFragment
             textView_download.setTypeface(mContext.getTypeFace());
             error_layout_downloads.setVisibility(View.VISIBLE);
         }
+
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
+            }
+        });
 
     }
 

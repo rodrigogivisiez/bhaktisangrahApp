@@ -54,6 +54,9 @@ public class CategoryList extends MasterFragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
+
         mContext.setTitle("Play song Or Download");
         mCategoryList = (ListView) view.findViewById(R.id.listView_cat_list);
 
@@ -64,17 +67,29 @@ public class CategoryList extends MasterFragment
         bundle = getArguments();
 
         if(bundle != null){
-
             homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
             category_id = homeModel.getCategory_id();
-
         }
 
         isInternet = new InternetStatus().isInternetOn(mContext);
         if(isInternet){
 
-            getCategory();
+//            if(mContext.MasterCategoryArray.size() > 0){
+//                CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, mContext.MasterCategoryArray, homeModel);
+//                mCategoryList.setAdapter(Adapter);
+//            }
+//            else{
+                getCategory();
+//            }
         }
+
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
+            }
+        });
     }
 
     private void getCategory()
@@ -125,6 +140,8 @@ public class CategoryList extends MasterFragment
 
                             CatListItem.add(categoryModel);
                         }
+
+                        mContext.MasterCategoryArray = CatListItem;
 
                         CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, CatListItem, homeModel);
                         mCategoryList.setAdapter(Adapter);
