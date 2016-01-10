@@ -1,6 +1,5 @@
 package com.goldenant.bhaktisangrah.fragment;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -63,9 +62,9 @@ public class Streaming extends MasterFragment {
     private ImageButton nextButton;
     private ImageButton repeatButton;
     private ImageButton shuffleButton;
+     private ProgressBar progressBar;
     private Handler mHandler = new Handler();
     private Utilities utils;
-    private ProgressBar progressBar;
     private Boolean isPlaying;
     String imageUrl;
     private Bundle bundle;
@@ -82,7 +81,6 @@ public class Streaming extends MasterFragment {
     private static final float BLUR_RADIUS = 25f;
     String item_description = null, trackUrl = null, item_id = null, item_image = null, item_name = null;
     private int mode;
-    ProgressDialog mProgressDialog;
 
 
     @Override
@@ -157,32 +155,85 @@ public class Streaming extends MasterFragment {
             }
         });
 
+        // Media Complete...
+        mContext.mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (isRepeat) {
+//                    playSong(ListPosition);
+                    new AsyncRunner().execute(ListPosition);
+                } else if (isShuffle) {
+                    // shuffle is on - play a random song
+                    Random rand = new Random();
+
+                    if (mode == 1) {
+                        ListPosition = rand.nextInt((ListItemFile.size() - 1) - 0 + 1) + 0;
+                    } else {
+                        ListPosition = rand.nextInt((ListItem.size() - 1) - 0 + 1) + 0;
+                    }
+
+//                    playSong(ListPosition);
+                    new AsyncRunner().execute(ListPosition);
+                } else {
+                    // no repeat or shuffle ON - play next song
+
+                    if (ListPosition < (ListItem.size() - 1)) {
+//                        playSong(ListPosition + 1);
+                        new AsyncRunner().execute(ListPosition + 1);
+                        ListPosition = ListPosition + 1;
+                    } else if (ListPosition < (ListItemFile.size() - 1)) {
+//                        playSong(ListPosition + 1);
+                        new AsyncRunner().execute(ListPosition + 1);
+                        ListPosition = ListPosition + 1;
+                    } else {
+                        // play first song
+//                        playSong(0);
+                        new AsyncRunner().execute(0);
+                        ListPosition = 0;
+                    }
+                }
+            }
+        });
+
         new AsyncRunner().execute(ListPosition);
+
+        mContext.mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+            @Override
+            public void onSeekComplete(MediaPlayer mp) {
+                currentDuration.setText("00:00");
+                finalDuration.setText("00:00");
+
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        mContext.mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+//                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+
 
         playButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 // check for already playing
-
-                if(mContext.mPlayer != null){
-
-                    if (mContext.mPlayer.isPlaying()) {
-                        if (mContext.mPlayer != null) {
-                            mContext.mPlayer.pause();
-                            // Changing button image to play button
-                            playButton.setImageResource(R.drawable.ic_action_play);
-                        }
-                    } else {
-                        // Resume song
-                        if (mContext.mPlayer != null) {
-                            mContext.mPlayer.start();
-                            // Changing button image to pause button
-                            playButton.setImageResource(R.drawable.pause);
-                        }
+                if (mContext.mPlayer.isPlaying()) {
+                    if (mContext.mPlayer != null) {
+                        mContext.mPlayer.pause();
+                        // Changing button image to play button
+                        playButton.setImageResource(R.drawable.ic_action_play);
+                    }
+                } else {
+                    // Resume song
+                    if (mContext.mPlayer != null) {
+                        mContext.mPlayer.start();
+                        // Changing button image to pause button
+                        playButton.setImageResource(R.drawable.pause);
                     }
                 }
-
 
             }
         });
@@ -208,15 +259,15 @@ public class Streaming extends MasterFragment {
                 if(isRepeat){
                     isRepeat = false;
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat OFF");
-                    repeatButton.setBackgroundResource(R.drawable.repeat_off);
+                    repeatButton.setImageResource(R.drawable.repeat_off);
                 }else{
                     // make repeat to true
                     isRepeat = true;
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat ON");
                     // make shuffle to false
                     isShuffle = false;
-                    repeatButton.setBackgroundResource(R.drawable.repeat_on);
-                    shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
+                    repeatButton.setImageResource(R.drawable.repeat_on);
+                    shuffleButton.setImageResource(R.drawable.shuffle_off);
                 }
             }
         });
@@ -228,15 +279,15 @@ public class Streaming extends MasterFragment {
                 if(isShuffle){
                     isShuffle = false;
                     ToastUtil.showShortToastMessage(getActivity(), "Shuffle OFF");
-                    shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
+                    shuffleButton.setImageResource(R.drawable.shuffle_off);
                 }else{
                     // make repeat to true
                     isShuffle= true;
                     ToastUtil.showShortToastMessage(getActivity(), "Shuffle ON");
                     // make shuffle to false
                     isRepeat = false;
-                    shuffleButton.setBackgroundResource(R.drawable.shuffle_on);
-                    repeatButton.setBackgroundResource(R.drawable.repeat_off);
+                    shuffleButton.setImageResource(R.drawable.shuffle_on);
+                    repeatButton.setImageResource(R.drawable.repeat_off);
                 }
             }
         });
@@ -255,23 +306,17 @@ public class Streaming extends MasterFragment {
 
             @Override
             public void onStopTrackingTouch(CircularSeekBar seekBar) {
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                int totalDuration = mContext.mPlayer.getDuration();
+                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
 
-                if(mContext.mPlayer != null){
+                progressBar.setVisibility(View.VISIBLE);
 
+                // forward or backward to certain seconds
+                mContext.mPlayer.seekTo(currentPosition);
 
-                    mHandler.removeCallbacks(mUpdateTimeTask);
-                    int totalDuration = mContext.mPlayer.getDuration();
-                    int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
-
-                    progressBar.setVisibility(View.VISIBLE);
-
-//                    showWaitIndicator(true);
-                    // forward or backward to certain seconds
-                    mContext.mPlayer.seekTo(currentPosition);
-
-                    // update timer progress again
-                    updateProgressBar();
-                }
+                // update timer progress again
+                updateProgressBar();
             }
         });
 
@@ -341,15 +386,14 @@ public class Streaming extends MasterFragment {
             stopPlaying();
 
             if(mode == 1){
-                Log.d("SONG",""+ListItemFile.get(songIndex).replace(" ","%20"));
-                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex).replace(" ","%20")));
+                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex)));
             }else{
 
-                Log.d("SONG",""+ListItem.get(songIndex).getItem_file().replace(" ", "%20"));
-                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
+                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file()));
 
             }
-//            mContext.mPlayer.prepareAsync();
+
+            mContext.mPlayer.prepare();
 
         }catch (Exception e){
 
@@ -372,114 +416,39 @@ public class Streaming extends MasterFragment {
     public void playSong(int songIndex) {
         // Play song
         try {
-//            progressBar.setVisibility(View.GONE);
-               if(mContext.mPlayer != null){
 
-                mContext.mPlayer.start();
-                progressBar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
 
-//                showWaitIndicator(false);
-                // Displaying Song title
+            mContext.mPlayer.start();
+            // Displaying Song title
 
-                if(mode == 1){
-                    trackNameView.setText(ListItemName.get(songIndex));
-                    albumNameView.setText("");
+            if(mode == 1){
+                trackNameView.setText(ListItemName.get(songIndex));
+                albumNameView.setText("");
 
-                    Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
-                    BitmapDrawable d = new BitmapDrawable(bitmap);
+                Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
+                BitmapDrawable d = new BitmapDrawable(bitmap);
 
-                    backgroundImageView.setImageBitmap(bitmap);
-                    trackImageView.setImageBitmap(bitmap);
+                backgroundImageView.setImageBitmap(bitmap);
+                trackImageView.setImageBitmap(bitmap);
 
-                }else{
-                    trackNameView.setText(ListItem.get(songIndex).getItem_name());
-                    albumNameView.setText(ListItem.get(songIndex).getItem_description());
+            }else{
+                trackNameView.setText(ListItem.get(songIndex).getItem_name());
+                albumNameView.setText(ListItem.get(songIndex).getItem_description());
 
-                    Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-                    Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
-                }
-
-                // Changing Button Image to pause image
-                playButton.setImageResource(R.drawable.pause);
-
-                nextButton.setEnabled(true);
-                prevButton.setEnabled(true);
-                nextButton.setClickable(true);
-                prevButton.setClickable(true);
-
-                // set Progress bar values
-                seekBarView.setProgress(0);
-                seekBarView.setMax(100);
-
-                // Updating progress bar
-                // Media Complete...
-
-                mContext.mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        if (isRepeat) {
-//                    playSong(ListPosition);
-                            new AsyncRunner().execute(ListPosition);
-                        } else if (isShuffle) {
-                            // shuffle is on - play a random song
-                            Random rand = new Random();
-
-                            if (mode == 1) {
-                                ListPosition = rand.nextInt((ListItemFile.size() - 1) - 0 + 1) + 0;
-                            } else {
-                                ListPosition = rand.nextInt((ListItem.size() - 1) - 0 + 1) + 0;
-                            }
-
-//                    playSong(ListPosition);
-                            new AsyncRunner().execute(ListPosition);
-                        } else {
-                            // no repeat or shuffle ON - play next song
-
-                            if (ListPosition < (ListItem.size() - 1)) {
-//                        playSong(ListPosition + 1);
-                                new AsyncRunner().execute(ListPosition + 1);
-                                ListPosition = ListPosition + 1;
-                            } else if (ListPosition < (ListItemFile.size() - 1)) {
-//                        playSong(ListPosition + 1);
-                                new AsyncRunner().execute(ListPosition + 1);
-                                ListPosition = ListPosition + 1;
-                            } else {
-                                // play first song
-//                        playSong(0);
-                                new AsyncRunner().execute(0);
-                                ListPosition = 0;
-                            }
-                        }
-                    }
-                });
-                mContext.mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                    @Override
-                    public void onSeekComplete(MediaPlayer mp) {
-                        currentDuration.setText("00:00");
-                        finalDuration.setText("00:00");
-
-                        progressBar.setVisibility(View.GONE);
-//                        showWaitIndicator(false);
-                    }
-                });
-
-                mContext.mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                    @Override
-                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-//                progressBar.setVisibility(View.VISIBLE);
-                    }
-                });
-                updateProgressBar();
-            }
-            else {
-                progressBar.setVisibility(View.GONE);
-//                showWaitIndicator(false);
-                nextButton.setEnabled(true);
-                prevButton.setEnabled(true);
-                nextButton.setClickable(true);
-                prevButton.setClickable(true);
+                Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+                Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
             }
 
+            // Changing Button Image to pause image
+            playButton.setImageResource(R.drawable.pause);
+
+            // set Progress bar values
+            seekBarView.setProgress(0);
+            seekBarView.setMax(100);
+
+            // Updating progress bar
+            updateProgressBar();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         } catch (IllegalStateException e) {
@@ -495,7 +464,6 @@ public class Streaming extends MasterFragment {
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setVisibility(View.VISIBLE);
-//            showWaitIndicator(true);
         }
 
         @Override
@@ -510,6 +478,9 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            progressBar.setVisibility(View.GONE);
+            nextButton.setEnabled(true);
+            prevButton.setEnabled(true);
 
             playSong(mId);
         }
@@ -521,9 +492,7 @@ public class Streaming extends MasterFragment {
         protected void onPreExecute() {
             super.onPreExecute();
             nextButton.setEnabled(false);
-            prevButton.setEnabled(false);
-            nextButton.setClickable(false);
-            prevButton.setClickable(false);
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -534,6 +503,7 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            progressBar.setVisibility(View.GONE);
 
             if (ListPosition < (ListItem.size() - 1)) {
 //                playSong(ListPosition + 1);
@@ -560,10 +530,7 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            nextButton.setEnabled(false);
-            prevButton.setEnabled(false);
-            nextButton.setClickable(false);
-            prevButton.setClickable(false);
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -574,6 +541,7 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            progressBar.setVisibility(View.GONE);
 
             if(ListPosition > 0){
 //                playSong(ListPosition - 1);
@@ -588,7 +556,7 @@ public class Streaming extends MasterFragment {
                     ListPosition = ListItem.size() - 1;
                 } else if (ListItemFile.size() > 0) {
 //                    playSong(ListItemFile.size() - 1);
-                    new AsyncRunner().execute(ListItemFile.size() - 1);
+                    new AsyncRunner().execute(ListItem.size() - 1);
                     ListPosition = ListItemFile.size() - 1;
                 }
             }
@@ -598,30 +566,24 @@ public class Streaming extends MasterFragment {
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
 
-            try {
-                if(mContext.mPlayer != null){
+            if(mContext.mPlayer != null){
 
-                    long totalDuration = mContext.mPlayer.getDuration();
-                    long currentDurations = mContext.mPlayer.getCurrentPosition();
+                long totalDuration = mContext.mPlayer.getDuration();
+                long currentDurations = mContext.mPlayer.getCurrentPosition();
 
-                    // Displaying Total Duration time
-                    finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
-                    // Displaying time completed playing
-                    currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
+                // Displaying Total Duration time
+                finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
+                // Displaying time completed playing
+                currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
 
-                    // Updating progress bar
-                    int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
-                    //Log.d("Progress", ""+progress);
-                    seekBarView.setProgress(progress);
+                // Updating progress bar
+                int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
+                //Log.d("Progress", ""+progress);
+                seekBarView.setProgress(progress);
 
-                    // Running this thread after 100 milliseconds
-                    mHandler.postDelayed(this, 100);
-                }
-            }catch (Exception e){
-
-                e.printStackTrace();
+                // Running this thread after 100 milliseconds
+                mHandler.postDelayed(this, 100);
             }
-
 
         }
     };
@@ -641,22 +603,6 @@ public class Streaming extends MasterFragment {
 
         }
 
-    }
-
-    public void showWaitIndicator(boolean state) {
-        showWaitIndicator(state, "");
-    }
-
-    public void showWaitIndicator(boolean state, String message) {
-        if (state) {
-            mProgressDialog = new ProgressDialog(mContext,R.style.TransparentProgressDialog);
-            mProgressDialog.setIndeterminateDrawable(getResources().getDrawable(R.drawable.progressbar));
-            mProgressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Large);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.show();
-        } else {
-            mProgressDialog.dismiss();
-        }
     }
 
     @Override

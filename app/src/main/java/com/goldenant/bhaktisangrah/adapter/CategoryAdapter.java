@@ -1,7 +1,9 @@
 package com.goldenant.bhaktisangrah.adapter;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -385,10 +387,28 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
             Log.d("Path_of_file==>", "" + imagePath);
+
+            ShowAlert();
         }
 
     }
 
+    private void ShowAlert()
+    {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+        alertDialogBuilder.setMessage("Download successfully");
+        alertDialogBuilder.setTitle("Bhakti Sagar");
+        alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int arg1) {
+                dialog.cancel();
+            }
+        });
+
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
 
     public static Bitmap getImage(String url) {
         try {
