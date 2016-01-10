@@ -2,6 +2,7 @@ package com.goldenant.bhaktisangrah.common.ui;
 
 import android.app.ProgressDialog;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -25,6 +26,9 @@ public class MasterActivity extends AppCompatActivity {
     public static Typeface font;
 
     ProgressDialog mProgressDialog;
+    public MediaPlayer mPlayer;
+
+    public  Bundle bundle = new Bundle();
 
     public static ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
@@ -34,6 +38,7 @@ public class MasterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         isInternet = new InternetStatus().isInternetOn(this);
+        mPlayer = new MediaPlayer();
 
     }
 
@@ -108,5 +113,30 @@ public class MasterActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        if(mPlayer != null){
+
+            mPlayer.release();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if(mPlayer != null){
+
+            if (mPlayer.isPlaying()) {
+                if (mPlayer != null) {
+                    mPlayer.pause();
+                }
+            }
+        }
+
     }
 }

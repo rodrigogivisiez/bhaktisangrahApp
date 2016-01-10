@@ -16,6 +16,7 @@ import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
+import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.google.android.gms.ads.AdRequest;
@@ -72,7 +73,18 @@ public class CategoryList extends MasterFragment
         }
 
         isInternet = new InternetStatus().isInternetOn(mContext);
-        if(isInternet){
+
+        if(mContext.bundle.containsKey(category_id)){
+
+            CatListItem = new ArrayList<SubCategoryModel>();
+            CatListItem = (ArrayList<SubCategoryModel>) mContext.bundle.getSerializable(category_id);
+
+            CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, CatListItem, homeModel);
+            mCategoryList.setAdapter(Adapter);
+
+        }else {
+
+            if(isInternet){
 
 //            if(mContext.MasterCategoryArray.size() > 0){
 //                CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, mContext.MasterCategoryArray, homeModel);
@@ -81,7 +93,9 @@ public class CategoryList extends MasterFragment
 //            else{
                 getCategory();
 //            }
+            }
         }
+
 
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,7 +155,7 @@ public class CategoryList extends MasterFragment
                             CatListItem.add(categoryModel);
                         }
 
-                        mContext.MasterCategoryArray = CatListItem;
+                        mContext.bundle.putSerializable(category_id,CatListItem);
 
                         CategoryAdapter Adapter = new CategoryAdapter(mContext,R.layout.category_item, CatListItem, homeModel);
                         mCategoryList.setAdapter(Adapter);

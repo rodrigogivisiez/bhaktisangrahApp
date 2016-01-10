@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.MainActivity;
@@ -25,6 +27,7 @@ import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.util.ByteArrayBuffer;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -42,8 +45,7 @@ import java.util.Scanner;
 /**
  * Created by Adite on 03-01-2016.
  */
-public class CategoryAdapter extends ArrayAdapter<HomeModel>
-{
+public class CategoryAdapter extends ArrayAdapter<HomeModel> {
     private LayoutInflater layoutInflater;
 
     public ArrayList<SubCategoryModel> mItem = new ArrayList<SubCategoryModel>();
@@ -52,20 +54,29 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
     int resource;
 
-    private static String fileName,imagename;
+    private static String fileName, imagename;
 
     private ProgressDialog pDialog;
 
+    private Typeface font;
     private HomeModel homeModel;
     int pos;
 
-    public CategoryAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list, HomeModel homeModel)
-    {
+    static class ViewHolder {
+
+        private CircularImageView cat_image;
+        private ImageButton play, download;
+        private TextView tv_title, tv_desc, tv_duration;
+
+    }
+
+    public CategoryAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list, HomeModel homeModel) {
         super(context, resource);
         mContext = context;
         this.mItem = list;
         this.resource = resource;
         this.homeModel = homeModel;
+        font = Typeface.createFromAsset(mContext.getAssets(), "ProximaNova-Light.otf");
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -78,61 +89,79 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent)
-    {
-        View rootView = convertView;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        View itemView = convertView;
+        final ViewHolder mViewHolder;
+        LayoutInflater inflater = (LayoutInflater) (mContext).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        rootView = layoutInflater.inflate(R.layout.subcategory_list_item,null, true);
+        try {
 
-        CircularImageView cat_image = (CircularImageView) rootView.findViewById(R.id.image);
+            if (itemView == null) {
 
-        ImageButton play = (ImageButton) rootView.findViewById(R.id.play);
-        ImageButton download = (ImageButton) rootView.findViewById(R.id.download);
+                itemView = inflater.inflate(R.layout.subcategory_list_item, null, true);
 
-        TextView tv_title = (TextView) rootView.findViewById(R.id.tv_title);
-        TextView tv_desc = (TextView) rootView.findViewById(R.id.tv_desc);
-        TextView tv_duration = (TextView) rootView.findViewById(R.id.tv_duration);
+                mViewHolder = new ViewHolder();
 
-        tv_title.setTypeface(mContext.getTypeFace());
-        tv_desc.setTypeface(mContext.getTypeFace());
-        tv_duration.setTypeface(mContext.getTypeFace());
+                mViewHolder.cat_image = (CircularImageView) itemView.findViewById(R.id.image);
 
-        tv_title.setText(mItem.get(position).getItem_name());
-        tv_desc.setText(mItem.get(position).getItem_description());
+                mViewHolder.play = (ImageButton) itemView.findViewById(R.id.play);
+                mViewHolder.download = (ImageButton) itemView.findViewById(R.id.download);
 
-//        tv_duration.setText(mItem.get(position).getIte);
+                mViewHolder.tv_title = (TextView) itemView.findViewById(R.id.tv_title);
+                mViewHolder.tv_desc = (TextView) itemView.findViewById(R.id.tv_desc);
+                mViewHolder.tv_duration = (TextView) itemView.findViewById(R.id.tv_duration);
 
-        Picasso.with(mContext).load(mItem.get(position).getItem_image()).placeholder(R.drawable.no_image).into(cat_image);
+                itemView.setTag(mViewHolder);
 
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Fragment investProgramDetail = new Streaming();
-                Bundle bundle = new Bundle();
-
-                bundle.putInt("mode", 0);
-                bundle.putSerializable("data", mItem);
-                bundle.putInt("position", position);
-                bundle.putSerializable("CAT_ID", homeModel);
-
-                investProgramDetail.setArguments(bundle);
-                mContext.ReplaceFragement(investProgramDetail);
+            } else {
+                mViewHolder = (ViewHolder) itemView.getTag();
             }
-        });
 
-        download.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                fileName = mItem.get(position).getDownload_name()+".mp3";
-                imagename = mItem.get(position).getDownload_name()+".jpg";
-                pos = position;
-                new DownloadFileFromURL().execute( mItem.get(position).getItem_file());
+            if (mItem.get(position) != null) {
+
+                mViewHolder.tv_title.setTypeface(font);
+                mViewHolder.tv_desc.setTypeface(font);
+                mViewHolder.tv_duration.setTypeface(font);
+
+                mViewHolder.tv_title.setText(mItem.get(position).getItem_name());
+                mViewHolder.tv_desc.setText(mItem.get(position).getItem_description());
+
+                Picasso.with(mContext).load(mItem.get(position).getItem_image()).placeholder(R.drawable.no_image).into(mViewHolder.cat_image);
+
+                mViewHolder.play.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Fragment investProgramDetail = new Streaming();
+                        Bundle bundle = new Bundle();
+
+                        bundle.putInt("mode", 0);
+                        bundle.putSerializable("data", mItem);
+                        bundle.putInt("position", position);
+                        bundle.putSerializable("CAT_ID", homeModel);
+
+                        investProgramDetail.setArguments(bundle);
+                        mContext.ReplaceFragement(investProgramDetail);
+                    }
+                });
+
+                mViewHolder.download.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fileName = mItem.get(position).getDownload_name() + ".mp3";
+                        imagename = mItem.get(position).getDownload_name() + ".jpg";
+                        pos = position;
+                        new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
+                    }
+                });
+
             }
-        });
+        } catch (Exception e) {
 
-        return  rootView;
+            e.printStackTrace();
+        }
+
+        return itemView;
     }
 
     //Download mp3 start
@@ -140,7 +169,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         /**
          * Before starting background thread Show Progress Bar Dialog
-         * */
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -155,12 +184,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         /**
          * Downloading file in background thread
-         * */
-        protected String doInBackground(String... f_url)
-        {
+         */
+        protected String doInBackground(String... f_url) {
             int count;
-            try
-            {
+            try {
                 URL url = new URL(f_url[0]);
                 URLConnection conection = url.openConnection();
                 conection.connect();
@@ -168,7 +195,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                 int lenghtOfFile = conection.getContentLength();
 
                 // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(),8192);
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
                 File myDir = new File("/data/data/"
                         + mContext.getApplicationContext()
@@ -184,28 +211,28 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
 //                if(!outputFile.exists())
 //                {
-                    OutputStream output = new FileOutputStream(outputFile);
+                OutputStream output = new FileOutputStream(outputFile);
 
-                    byte data[] = new byte[1024];
+                byte data[] = new byte[1024];
 
-                    long total = 0;
+                long total = 0;
 
-                    while ((count = input.read(data)) != -1) {
-                        total += count;
-                        // publishing the progress....
-                        // After this onProgressUpdate will be called
-                        publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    // After this onProgressUpdate will be called
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
 
-                        // writing data to file
-                        output.write(data, 0, count);
-                    }
+                    // writing data to file
+                    output.write(data, 0, count);
+                }
 
-                    // flushing output
-                    output.flush();
+                // flushing output
+                output.flush();
 
-                    // closing streams
-                    output.close();
-                    input.close();
+                // closing streams
+                output.close();
+                input.close();
 //                }
 //                else
 //                {
@@ -218,14 +245,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                         .getPackageName() + "/Bhakti sagar/images/");
                 myDir.mkdirs();
 
-                try
-                {
+                try {
                     File image = new File(myDir, imagename);
 
-                    if (!image.exists())
-                    {
-                        try
-                        {
+                    if (!image.exists()) {
+                        try {
                             Bitmap Image = getImage(mItem.get(pos).getItem_image());
 
                             FileOutputStream out = new FileOutputStream(image);
@@ -250,24 +274,21 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                             .getPackageName() + "/Bhakti sagar/BhaktiSagar.txt");
 
 
-                    if(!myFile.exists())
-                    {
+                    if (!myFile.exists()) {
                         myFile.createNewFile();
                     }
 
                     String aDataRow = mItem.get(pos).getItem_name();
 
                     Scanner scanner = new Scanner(myFile);
-                    List<String> list=new ArrayList<>();
-                    while(scanner.hasNextLine())
-                    {
+                    List<String> list = new ArrayList<>();
+                    while (scanner.hasNextLine()) {
                         list.add(scanner.nextLine());
                     }
 
-                    if(!list.contains(aDataRow))
-                    {
+                    if (!list.contains(aDataRow)) {
                         String aBuffer = "";
-                        FileWriter fileWritter = new FileWriter(myFile,true);
+                        FileWriter fileWritter = new FileWriter(myFile, true);
                         BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
                         aBuffer += aDataRow + "\n";
                         bufferWritter.write(aBuffer);
@@ -279,25 +300,22 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                     File file = new File("/data/data/" + mContext.getApplicationContext()
                             .getPackageName() + "/Bhakti sagar/BhaktiSagarImage.txt");
 
-                    if(!file.exists())
-                    {
+                    if (!file.exists()) {
                         file.createNewFile();
                     }
 
                     String DataRow = "/data/data/" + mContext.getApplicationContext()
-                            .getPackageName() + "/Bhakti sagar/images/"+imagename;
+                            .getPackageName() + "/Bhakti sagar/images/" + imagename;
 
                     Scanner scanner1 = new Scanner(myFile);
                     List<String> list1 = new ArrayList<>();
-                    while(scanner1.hasNextLine())
-                    {
+                    while (scanner1.hasNextLine()) {
                         list1.add(scanner1.nextLine());
                     }
 
-                    if(!list1.contains(DataRow))
-                    {
+                    if (!list1.contains(DataRow)) {
                         String Buffer = "";
-                        FileWriter filewritter = new FileWriter(file,true);
+                        FileWriter filewritter = new FileWriter(file, true);
                         BufferedWriter bufferwritter = new BufferedWriter(filewritter);
                         Buffer += DataRow + "\n";
                         bufferwritter.write(Buffer);
@@ -309,25 +327,22 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                     File fileSong = new File("/data/data/" + mContext.getApplicationContext()
                             .getPackageName() + "/Bhakti sagar/BhaktiSagarSongs.txt");
 
-                    if(!fileSong.exists())
-                    {
+                    if (!fileSong.exists()) {
                         fileSong.createNewFile();
                     }
 
                     String DataRowSongs = "/data/data/" + mContext.getApplicationContext()
-                            .getPackageName() + "/Bhakti sagar/mp3/"+fileName;
+                            .getPackageName() + "/Bhakti sagar/mp3/" + fileName;
 
                     Scanner scanner2 = new Scanner(myFile);
                     List<String> list2 = new ArrayList<>();
-                    while(scanner2.hasNextLine())
-                    {
+                    while (scanner2.hasNextLine()) {
                         list2.add(scanner2.nextLine());
                     }
 
-                    if(!list2.contains(DataRowSongs))
-                    {
+                    if (!list2.contains(DataRowSongs)) {
                         String BufferSongs = "";
-                        FileWriter filewritterSong = new FileWriter(fileSong,true);
+                        FileWriter filewritterSong = new FileWriter(fileSong, true);
                         BufferedWriter bufferwritterSong = new BufferedWriter(filewritterSong);
                         BufferSongs += DataRowSongs + "\n";
                         bufferwritterSong.write(BufferSongs);
@@ -349,7 +364,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         /**
          * Updating progress bar
-         * */
+         */
         protected void onProgressUpdate(String... progress) {
             // setting progress percentage
             pDialog.setProgress(Integer.parseInt(progress[0]));
@@ -357,7 +372,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
 
         /**
          * After completing background task Dismiss the progress dialog
-         * **/
+         **/
         @Override
         protected void onPostExecute(String file_url) {
             // dismiss the dialog after the file was downloaded
@@ -369,7 +384,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel>
                     .toString() + fileName;
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
-            Log.d("Path_of_file==>",""+imagePath);
+            Log.d("Path_of_file==>", "" + imagePath);
         }
 
     }

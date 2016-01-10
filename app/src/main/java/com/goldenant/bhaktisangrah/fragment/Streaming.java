@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +68,6 @@ public class Streaming extends MasterFragment {
     private Boolean isPlaying;
     String imageUrl;
     private Bundle bundle;
-    private MediaPlayer mPlayer;
     //    protected static FFmpegMediaPlayer freePlayer;
     MainActivity mContext;
     private boolean isRepeat = false;
@@ -94,7 +94,6 @@ public class Streaming extends MasterFragment {
         mContext.hideDrawer();
         mContext.showDrawerBack();
 
-        mPlayer = new MediaPlayer();
         utils = new Utilities();
 
         // initialize ui elements
@@ -132,6 +131,8 @@ public class Streaming extends MasterFragment {
             } else if (mode == 0) {
                 ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
                 ListPosition = bundle.getInt("position");
+
+                Log.d("ListPosition",""+ListPosition);
                 homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
             }
         }
@@ -155,11 +156,12 @@ public class Streaming extends MasterFragment {
         });
 
         // Media Complete...
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        mContext.mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 if (isRepeat) {
-                    playSong(ListPosition);
+//                    playSong(ListPosition);
+                    new AsyncRunner().execute(ListPosition);
                 } else if (isShuffle) {
                     // shuffle is on - play a random song
                     Random rand = new Random();
@@ -170,28 +172,32 @@ public class Streaming extends MasterFragment {
                         ListPosition = rand.nextInt((ListItem.size() - 1) - 0 + 1) + 0;
                     }
 
-                    playSong(ListPosition);
+//                    playSong(ListPosition);
+                    new AsyncRunner().execute(ListPosition);
                 } else {
                     // no repeat or shuffle ON - play next song
 
                     if (ListPosition < (ListItem.size() - 1)) {
-                        playSong(ListPosition + 1);
+//                        playSong(ListPosition + 1);
+                        new AsyncRunner().execute(ListPosition + 1);
                         ListPosition = ListPosition + 1;
                     } else if (ListPosition < (ListItemFile.size() - 1)) {
-                        playSong(ListPosition + 1);
+//                        playSong(ListPosition + 1);
+                        new AsyncRunner().execute(ListPosition + 1);
                         ListPosition = ListPosition + 1;
                     } else {
                         // play first song
-                        playSong(0);
+//                        playSong(0);
+                        new AsyncRunner().execute(0);
                         ListPosition = 0;
                     }
                 }
             }
         });
 
-        new AsyncRunner().execute();
+        new AsyncRunner().execute(ListPosition);
 
-        mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+        mContext.mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
                 currentDuration.setText("00:00");
@@ -201,7 +207,7 @@ public class Streaming extends MasterFragment {
             }
         });
 
-        mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+        mContext.mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
 //                progressBar.setVisibility(View.VISIBLE);
@@ -214,16 +220,16 @@ public class Streaming extends MasterFragment {
             @Override
             public void onClick(View arg0) {
                 // check for already playing
-                if (mPlayer.isPlaying()) {
-                    if (mPlayer != null) {
-                        mPlayer.pause();
+                if (mContext.mPlayer.isPlaying()) {
+                    if (mContext.mPlayer != null) {
+                        mContext.mPlayer.pause();
                         // Changing button image to play button
                         playButton.setImageResource(R.drawable.ic_action_play);
                     }
                 } else {
                     // Resume song
-                    if (mPlayer != null) {
-                        mPlayer.start();
+                    if (mContext.mPlayer != null) {
+                        mContext.mPlayer.start();
                         // Changing button image to pause button
                         playButton.setImageResource(R.drawable.pause);
                     }
@@ -301,13 +307,13 @@ public class Streaming extends MasterFragment {
             @Override
             public void onStopTrackingTouch(CircularSeekBar seekBar) {
                 mHandler.removeCallbacks(mUpdateTimeTask);
-                int totalDuration = mPlayer.getDuration();
+                int totalDuration = mContext.mPlayer.getDuration();
                 int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
 
                 progressBar.setVisibility(View.VISIBLE);
 
                 // forward or backward to certain seconds
-                mPlayer.seekTo(currentPosition);
+                mContext.mPlayer.seekTo(currentPosition);
 
                 // update timer progress again
                 updateProgressBar();
@@ -374,23 +380,46 @@ public class Streaming extends MasterFragment {
         return rootView;
     }
 
+    public void prepareSong(int songIndex){
+
+        try {
+            stopPlaying();
+
+            if(mode == 1){
+                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex)));
+            }else{
+
+                mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file()));
+
+            }
+
+            mContext.mPlayer.prepare();
+
+        }catch (Exception e){
+
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private void stopPlaying() {
+        if (mContext.mPlayer != null) {
+            mContext.mPlayer.stop();
+            mContext.mPlayer.release();
+            mHandler.removeCallbacks(mUpdateTimeTask);
+            mContext.mPlayer = null;
+        }
+    }
+
     public void playSong(int songIndex) {
         // Play song
         try {
 
-            mPlayer.reset();
-
-            if(mode == 1){
-                mPlayer.setDataSource(ListItemFile.get(songIndex));
-            }else{
-                mPlayer.setDataSource(ListItem.get(songIndex).getItem_file());
-            }
-
-            mPlayer.prepare();
-
             progressBar.setVisibility(View.GONE);
 
-            mPlayer.start();
+            mContext.mPlayer.start();
             // Displaying Song title
 
             if(mode == 1){
@@ -424,220 +453,13 @@ public class Streaming extends MasterFragment {
             e.printStackTrace();
         } catch (IllegalStateException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-//    private void setUi() {
-//        utils = new Utilities();
-//
-//        seekBarView.setOnSeekBarChangeListener(new CircularSeekBar.OnCircularSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(CircularSeekBar seekBar, int progress, boolean fromUser) {
-//
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(CircularSeekBar seekBar) {
-//                mHandler.removeCallbacks(mUpdateTimeTask);
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(CircularSeekBar seekBar) {
-//                mHandler.removeCallbacks(mUpdateTimeTask);
-//                int totalDuration = freePlayer.getDuration();
-//                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
-//
-//                spinner.setVisibility(View.VISIBLE);
-//
-//                // forward or backward to certain seconds
-//                freePlayer.seekTo(currentPosition);
-//
-//                // update timer progress again
-//                updateProgressBar();
-//            }
-//        });
-//
-//        // set start position of track
-//        currentDuration.setText("00:00");
-//        finalDuration.setText("00:00");
-//    }
 
-//    private void prepareMusic(int songIndex) {
-//
-//        try {
-//
-//            if(freePlayer != null){
-//                freePlayer.reset();
-//            }
-//            else {
-//                freePlayer = new FFmpegMediaPlayer();
-//
-//            }
-//
-//            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//
-////            if(mode == 1){
-////                freePlayer.setDataSource(ListItemFile.get(songIndex));
-////            }else
-//              if (mode == 0){
-//                freePlayer.setDataSource(ListItem.get(songIndex).getItem_file());
-//            }
-//
-//
-//            freePlayer.prepareAsync();
-//            freePlayer.setLooping(true);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        // initially not playing
-//        isPlaying = true;
-//
-//        // disable until prepared
-//        playButton.setClickable(false);
-//        playButton.setImageResource(R.drawable.stop);
-//
-//        if(mode == 1){
-//            trackNameView.setText(ListItemName.get(songIndex));
-//            albumNameView.setText("");
-//
-//            Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
-//            BitmapDrawable d = new BitmapDrawable(bitmap);
-//
-//            backgroundImageView.setImageBitmap(bitmap);
-//            trackImageView.setImageBitmap(bitmap);
-//
-////            Picasso.with(getActivity()).load(ListItemImage.get(songIndex)).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-////            Picasso.with(getActivity()).load(ListItemImage.get(songIndex)).placeholder(R.drawable.no_image).fit().into(trackImageView);
-//
-//        }else if (mode == 0){
-//            trackNameView.setText(ListItem.get(songIndex).getItem_name());
-//            albumNameView.setText(ListItem.get(songIndex).getItem_description());
-//
-//            Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
-//            Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
-//
-//        }
-//
-//        freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
-//            @Override
-//            public void onPrepared(FFmpegMediaPlayer mp) {
-//                spinner.setVisibility(View.GONE);
-//
-//                // restore button
-//                playButton.setClickable(true);
-//                playButton.setImageResource(R.drawable.pause);
-//
-//                freePlayer.start();
-//
-//                seekBarView.setProgress(0);
-//                 updateProgressBar();
-//
-//                isPlaying = true;
-//
-//                // play/pause
-//                playButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        if (!isPlaying) {
-//                            freePlayer.start();
-//                            freePlayer.setLooping(true);
-//                            playButton.setImageResource(R.drawable.pause);
-//                            isPlaying = true;
-//                        } else {
-//                            freePlayer.pause();
-//                            isPlaying = false;
-//                            playButton.setImageResource(R.drawable.ic_action_play);
-//                        }
-//                    }
-//                });
-//
-//                repeatButton.setOnClickListener(new View.OnClickListener() {
-//
-//                    @Override
-//                    public void onClick(View arg0) {
-//                        if (isRepeat) {
-//                            isRepeat = false;
-//                            freePlayer.setLooping(false);
-//                            repeatButton.setImageResource(R.drawable.repeat_off);
-//                        } else {
-//                            // make repeat to true
-//                            isRepeat = true;
-//                            freePlayer.setLooping(true);
-//                            repeatButton.setImageResource(R.drawable.repeat_on);
-//                        }
-//                    }
-//                });
-//
-//            }
-//        });
-//
-//        freePlayer.setOnSeekCompleteListener(new FFmpegMediaPlayer.OnSeekCompleteListener() {
-//            @Override
-//            public void onSeekComplete(FFmpegMediaPlayer fFmpegMediaPlayer) {
-//                currentDuration.setText("00:00");
-//                finalDuration.setText("00:00");
-//
-//                spinner.setVisibility(View.GONE);
-//            }
-//        });
-//
-//
-//        freePlayer.setOnBufferingUpdateListener(new FFmpegMediaPlayer.OnBufferingUpdateListener() {
-//            @Override
-//            public void onBufferingUpdate(FFmpegMediaPlayer fFmpegMediaPlayer, int i) {
-//                ToastUtil.showShortToastMessage(getActivity(), "Buffering call");
-//            }
-//        });
-//
-//        freePlayer.setOnCompletionListener(new FFmpegMediaPlayer.OnCompletionListener() {
-//            @Override
-//            public void onCompletion(FFmpegMediaPlayer fFmpegMediaPlayer) {
-////                if (isRepeat) {
-//                    // repeat is on play same song again
-////                    prepareMusic(ListPosition);
-////                prepareMusic(ListPosition);
-//
-//                playButton.setClickable(true);
-//                playButton.setImageResource(R.drawable.ic_action_play);
-//                fFmpegMediaPlayer.start();
-//                fFmpegMediaPlayer.setLooping(true);
-////                if (!isPlaying) {
-////                    freePlayer.start();
-////                    playButton.setImageResource(R.drawable.pause);
-////                    isPlaying = true;
-////                }
-//
-////                try {
-////                    freePlayer.prepareAsync();
-////                    freePlayer.setLooping(true);
-////                    freePlayer.start();
-////                } catch (IOException e) {
-////                    e.printStackTrace();
-////                }
-////                freePlayer.release();
-////                prepareMusic(ListPosition);
-////                freePlayer.setLooping(true);
-////                freePlayer.start();
-////                updateProgressBar();
-//                ToastUtil.showShortToastMessage(getActivity(), "REPEAT");
-////                }
-////                else {
-////                    playButton.setClickable(true);
-////                    playButton.setImageResource(R.drawable.ic_action_play);
-////                    prepareMusic(ListPosition);
-////                }
-//            }
-//        });
-//
-//
-//    }
+    class AsyncRunner extends AsyncTask<Integer, Void, String> {
 
-    class AsyncRunner extends AsyncTask<Void, Void, String> {
-
+        int mId;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -645,7 +467,11 @@ public class Streaming extends MasterFragment {
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected String doInBackground(Integer... params) {
+
+            mId = params[0];
+
+            prepareSong(mId);
             return null;
         }
 
@@ -653,8 +479,10 @@ public class Streaming extends MasterFragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             progressBar.setVisibility(View.GONE);
+            nextButton.setEnabled(true);
+            prevButton.setEnabled(true);
 
-            playSong(ListPosition);
+            playSong(mId);
         }
     }
 
@@ -663,6 +491,7 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            nextButton.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
         }
 
@@ -677,18 +506,21 @@ public class Streaming extends MasterFragment {
             progressBar.setVisibility(View.GONE);
 
             if (ListPosition < (ListItem.size() - 1)) {
-                playSong(ListPosition + 1);
+//                playSong(ListPosition + 1);
+                new AsyncRunner().execute(ListPosition + 1);
                 ListPosition = ListPosition + 1;
             }
 
             if (ListPosition < (ListItemFile.size() - 1)) {
-                playSong(ListPosition + 1);
+//                playSong(ListPosition + 1);
+                new AsyncRunner().execute(ListPosition + 1);
                 ListPosition = ListPosition + 1;
             }
 
             else {
                 // play first song
-                playSong(ListPosition);
+//                playSong(ListPosition);
+                new AsyncRunner().execute(ListPosition);
             }
         }
     }
@@ -712,16 +544,19 @@ public class Streaming extends MasterFragment {
             progressBar.setVisibility(View.GONE);
 
             if(ListPosition > 0){
-                playSong(ListPosition - 1);
+//                playSong(ListPosition - 1);
+                new AsyncRunner().execute(ListPosition - 1);
                 ListPosition = ListPosition - 1;
             }else {
                 // play last song
 
                 if (ListItem.size() > 0) {
-                    playSong(ListItem.size() - 1);
+//                    playSong(ListItem.size() - 1);
+                    new AsyncRunner().execute(ListItem.size() - 1);
                     ListPosition = ListItem.size() - 1;
                 } else if (ListItemFile.size() > 0) {
-                    playSong(ListItemFile.size() - 1);
+//                    playSong(ListItemFile.size() - 1);
+                    new AsyncRunner().execute(ListItem.size() - 1);
                     ListPosition = ListItemFile.size() - 1;
                 }
             }
@@ -731,8 +566,8 @@ public class Streaming extends MasterFragment {
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
 
-            long totalDuration = mPlayer.getDuration();
-            long currentDurations = mPlayer.getCurrentPosition();
+            long totalDuration = mContext.mPlayer.getDuration();
+            long currentDurations = mContext.mPlayer.getCurrentPosition();
 
             // Displaying Total Duration time
             finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
@@ -752,28 +587,19 @@ public class Streaming extends MasterFragment {
 
     public void updateProgressBar() {
 
-        if (mPlayer != null) {
-            mHandler.postDelayed(mUpdateTimeTask, 100);
-        }
-    }
+        try {
 
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        mPlayer.release();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mPlayer.isPlaying()) {
-            if (mPlayer != null) {
-                mPlayer.pause();
+            if (mContext.mPlayer != null) {
+                mHandler.postDelayed(mUpdateTimeTask, 100);
             }
-        }
-    }
 
+        }catch (Exception e){
+
+            e.printStackTrace();
+
+        }
+
+    }
 
     @Override
     public void onResume() {

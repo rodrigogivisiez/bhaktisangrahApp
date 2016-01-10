@@ -72,7 +72,6 @@ public class MainActivity extends MasterActivity {
     private Context mContext;
     private ArrayList<NavDrawerItem> navDrawerItems;
     public FragmentManager fragmentManager = getSupportFragmentManager();
-    public ArrayList<SubCategoryModel> MasterCategoryArray = new ArrayList<SubCategoryModel>();
     private Typeface font;
     public ImageButton drawer_back;
 
