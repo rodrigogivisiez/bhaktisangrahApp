@@ -566,21 +566,25 @@ public class Streaming extends MasterFragment {
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
 
-            long totalDuration = mContext.mPlayer.getDuration();
-            long currentDurations = mContext.mPlayer.getCurrentPosition();
+            if(mContext.mPlayer != null){
 
-            // Displaying Total Duration time
-            finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
-            // Displaying time completed playing
-            currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
+                long totalDuration = mContext.mPlayer.getDuration();
+                long currentDurations = mContext.mPlayer.getCurrentPosition();
 
-            // Updating progress bar
-            int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
-            //Log.d("Progress", ""+progress);
-            seekBarView.setProgress(progress);
+                // Displaying Total Duration time
+                finalDuration.setText("" + utils.milliSecondsToTimer(totalDuration));
+                // Displaying time completed playing
+                currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
 
-            // Running this thread after 100 milliseconds
-            mHandler.postDelayed(this, 100);
+                // Updating progress bar
+                int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
+                //Log.d("Progress", ""+progress);
+                seekBarView.setProgress(progress);
+
+                // Running this thread after 100 milliseconds
+                mHandler.postDelayed(this, 100);
+            }
+
         }
     };
 
