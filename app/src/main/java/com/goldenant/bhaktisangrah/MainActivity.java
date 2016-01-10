@@ -1,5 +1,6 @@
 package com.goldenant.bhaktisangrah;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,6 +75,7 @@ public class MainActivity extends MasterActivity {
     public FragmentManager fragmentManager = getSupportFragmentManager();
     private Typeface font;
     public ImageButton drawer_back;
+
 
     TextView title;
 
@@ -456,4 +458,5 @@ public class MainActivity extends MasterActivity {
             drawer.closeDrawers();
         }
     }
+
 }

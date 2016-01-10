@@ -129,14 +129,14 @@ public class MasterActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
 
-        if(mPlayer != null){
+        /*if(mPlayer != null){
 
             if (mPlayer.isPlaying()) {
                 if (mPlayer != null) {
                     mPlayer.pause();
                 }
             }
-        }
+        }*/
 
     }
 }

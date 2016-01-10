@@ -219,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/play" />
+                android:background="@drawable/ic_action_play" />
 
             <com.goldenant.bhaktisangrah.common.ui.CircularSeekBar
                 android:id="@+id/seekBar"
