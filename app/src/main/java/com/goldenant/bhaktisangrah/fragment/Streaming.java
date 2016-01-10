@@ -135,6 +135,8 @@ public class Streaming extends MasterFragment {
                 Log.d("ListPosition",""+ListPosition);
                 homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
             }
+
+            mContext.setTitle("Now playing "+ListItem.get(ListPosition).getItem_name());
         }
 
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
@@ -382,15 +384,17 @@ public class Streaming extends MasterFragment {
 
     public void prepareSong(int songIndex){
 
-        try {
+        try
+        {
             stopPlaying();
 
-            if(mode == 1){
+            if(mode == 1)
+            {
                 mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex)));
-            }else{
-
+            }
+            else
+            {
                 mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file()));
-
             }
 
             mContext.mPlayer.prepare();
@@ -399,9 +403,6 @@ public class Streaming extends MasterFragment {
 
             e.printStackTrace();
         }
-
-
-
     }
 
     private void stopPlaying() {
@@ -416,7 +417,6 @@ public class Streaming extends MasterFragment {
     public void playSong(int songIndex) {
         // Play song
         try {
-
             progressBar.setVisibility(View.GONE);
 
             mContext.mPlayer.start();
@@ -425,6 +425,8 @@ public class Streaming extends MasterFragment {
             if(mode == 1){
                 trackNameView.setText(ListItemName.get(songIndex));
                 albumNameView.setText("");
+
+                mContext.setTitle("Now playing " + ListItemName.get(songIndex));
 
                 Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
                 BitmapDrawable d = new BitmapDrawable(bitmap);
@@ -435,6 +437,8 @@ public class Streaming extends MasterFragment {
             }else{
                 trackNameView.setText(ListItem.get(songIndex).getItem_name());
                 albumNameView.setText(ListItem.get(songIndex).getItem_description());
+
+                mContext.setTitle("Now playing " + ListItem.get(songIndex).getItem_name());
 
                 Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
                 Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);

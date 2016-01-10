@@ -143,7 +143,6 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="trackName"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/white" />
 
@@ -153,7 +152,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="albumName"
                     android:textAppearance="?android:attr/textAppearanceSmallInverse"
                     android:textColor="#fff3a8" />
 

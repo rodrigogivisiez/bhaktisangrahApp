@@ -37,6 +37,11 @@ public class Share extends MasterFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
         mContext = (MainActivity) getMasterActivity();
+
+        FacebookSdk.sdkInitialize(mContext);
+        callbackManager = CallbackManager.Factory.create();
+        shareDialog = new ShareDialog(this);
+
         return inflater.inflate(R.layout.share_fragment, container, false);
     }
 
@@ -51,25 +56,23 @@ public class Share extends MasterFragment
         llEmail  = (LinearLayout) view.findViewById(R.id.llEmail);
         llWhatsapp = (LinearLayout) view.findViewById(R.id.llWhatsapp);
 
-        FacebookSdk.sdkInitialize(mContext);
-        callbackManager = CallbackManager.Factory.create();
-        shareDialog = new ShareDialog(this);
-
-        FUtils.getAppPackageAppHash(mContext);
-
         llFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 if (ShareDialog.canShow(ShareLinkContent.class)) {
                     ShareLinkContent linkContent = new ShareLinkContent.Builder()
                             .setContentTitle("Bhakti Sagar")
                             .setContentDescription(
-                                    "This is a test message")
-                            .setContentUrl(Uri.parse("http://www.india-daily.com/wp-content/uploads/2015/04/a3.jpg"))
+                                    "This is the awesome Devotional songs app")
+                            .setContentUrl(Uri.parse("https://i.ytimg.com/vi/bIqfItDy0do/hqdefault.jpg"))
                             .build();
 
                     shareDialog.show(linkContent);
                 }
+
+
+//                            .setContentUrl(Uri.parse("market://details?id=" + mContext.getPackageName()))
             }
         });
 
@@ -81,7 +84,7 @@ public class Share extends MasterFragment
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri
                             .fromParts("mailto", "shethconstructiongroup@gmail.com", null));
                     emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sagar");
-                    emailIntent.putExtra(Intent.EXTRA_TEXT, "Test Bhakti Sagar");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, "market://details?id=" + mContext.getPackageName());
                     startActivity(Intent.createChooser(emailIntent, "Send email..."));
                 }
                 else
@@ -99,7 +102,7 @@ public class Share extends MasterFragment
                     PackageManager pm= mContext.getPackageManager();
                     Intent waIntent = new Intent(Intent.ACTION_SEND);
                     waIntent.setType("text/plain");
-                    String text = "Bhakti Sagar testing";
+                    String text = "market://details?id=" + mContext.getPackageName();
 
                     PackageInfo info=pm.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
                     //Check if package exists or not. If not then code
@@ -116,6 +119,19 @@ public class Share extends MasterFragment
                 }
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+
+        if(resultCode == -1)
+        {
+            ToastUtil.showShortToastMessage(mContext,"Successfully share");
+        }
+
     }
 
     @Override

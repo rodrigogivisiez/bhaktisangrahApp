@@ -22,7 +22,7 @@ public class FUtils {
 		PackageInfo info;
 		try {
 			info = activity.getPackageManager().getPackageInfo(
-					"com.gargi.mobileappz.maaish.consumer", PackageManager.GET_SIGNATURES);
+					"com.goldenant.bhaktisangrah", PackageManager.GET_SIGNATURES);
 			for (Signature signature : info.signatures) {
 				MessageDigest md = MessageDigest.getInstance("SHA");
 				md.update(signature.toByteArray());
