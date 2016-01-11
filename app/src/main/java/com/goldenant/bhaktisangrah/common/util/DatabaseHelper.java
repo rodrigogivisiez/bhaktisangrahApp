@@ -176,8 +176,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			{
 				NotificationRecord bean = new NotificationRecord();
 
-				bean.setContent(cursor.getString(2));
-				bean.setDate(cursor.getString(3));
+				bean.setContent(cursor.getString(1));
+				bean.setDate(cursor.getString(2));
 
 
 				category.add(bean);

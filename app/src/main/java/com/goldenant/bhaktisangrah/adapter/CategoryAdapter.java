@@ -32,11 +32,14 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -56,12 +59,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
     int resource;
 
-    private static String fileName, imagename;
+    private String fileName, imagename,file_id;
 
     private ProgressDialog pDialog;
 
     private Typeface font;
     private HomeModel homeModel;
+    ArrayList<String> songsID = new ArrayList<String>();
     int pos;
 
     static class ViewHolder {
@@ -80,6 +84,25 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
         this.homeModel = homeModel;
         font = Typeface.createFromAsset(mContext.getAssets(), "ProximaNova-Light.otf");
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        try {
+            //Get path of song name
+            File myFile = new File("/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/BhaktiSagarID.txt");
+            FileInputStream fIn = new FileInputStream(myFile);
+            BufferedReader myReader = new BufferedReader(
+                    new InputStreamReader(fIn));
+            String aDataRow = "";
+//            String aBuffer = "";
+            while ((aDataRow = myReader.readLine()) != null) {
+//                aBuffer += aDataRow + "\n";
+                songsID.add(aDataRow);
+            }
+
+            myReader.close();
+        }catch (Exception e){
+
+            e.printStackTrace();
+        }
     }
 
     public int getCount() {
@@ -147,12 +170,33 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                     }
                 });
 
+                mViewHolder.download.setVisibility(View.VISIBLE);
+
+                if(songsID.size() > 0){
+
+                    for(int i= 0 ; i < songsID.size() ; i ++){
+
+                        if(mItem.get(position).getItem_id().equalsIgnoreCase(songsID.get(i))){
+
+
+                            mViewHolder.download.setVisibility(View.INVISIBLE);
+
+                            break;
+                        }
+                    }
+
+                }
                 mViewHolder.download.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         fileName = mItem.get(position).getDownload_name() + ".mp3";
                         imagename = mItem.get(position).getDownload_name() + ".jpg";
+                        file_id = mItem.get(position).getItem_id();
                         pos = position;
+
+                        Log.d("fileName",""+fileName);
+                        Log.d("imagename",""+imagename);
+
                         new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
                     }
                 });
@@ -180,7 +224,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             pDialog.setIndeterminate(false);
             pDialog.setMax(100);
             pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pDialog.setCancelable(true);
+            pDialog.setCancelable(false);
             pDialog.show();
         }
 
@@ -297,6 +341,37 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         bufferWritter.close();
                     }
 
+                    //Writing ID into file start
+                    try {
+                        //Write path of song name
+                        File myFileid = new File("/data/data/" + mContext.getApplicationContext()
+                                .getPackageName() + "/Bhakti sagar/BhaktiSagarID.txt");
+
+
+                        if (!myFileid.exists()) {
+                            myFileid.createNewFile();
+                        }
+
+                        String aDataid = mItem.get(pos).getItem_id();
+
+                        Scanner scannerid = new Scanner(myFileid);
+                        List<String> listid = new ArrayList<>();
+                        while (scannerid.hasNextLine()) {
+                            listid.add(scannerid.nextLine());
+                        }
+
+                        if (!listid.contains(aDataid)) {
+                            String aBuffer = "";
+                            FileWriter fileWritter = new FileWriter(myFileid, true);
+                            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+                            aBuffer += aDataid + "\n";
+                            bufferWritter.write(aBuffer);
+                            bufferWritter.close();
+                        }
+                    } catch (Exception e){
+
+                        e.printStackTrace();
+                    }
 
                     //Write path of image
                     File file = new File("/data/data/" + mContext.getApplicationContext()

@@ -54,7 +54,8 @@
                 android:layout_height="wrap_content"
                 android:text="tv_duration"
                 android:textColor="@color/white"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

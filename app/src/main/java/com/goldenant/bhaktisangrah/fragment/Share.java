@@ -82,7 +82,7 @@ public class Share extends MasterFragment
                 if (mContext.isInternet)
                 {
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri
-                            .fromParts("mailto", "shethconstructiongroup@gmail.com", null));
+                            .fromParts("mailto", "goldenant.apps@gmail.com", null));
                     emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sagar");
                     emailIntent.putExtra(Intent.EXTRA_TEXT, "market://details?id=" + mContext.getPackageName());
                     startActivity(Intent.createChooser(emailIntent, "Send email..."));

@@ -79,6 +79,9 @@ public class DownloadAdapter extends ArrayAdapter<String>
 
         tv_title.setText(mItem.get(position));
 
+        Log.d("TITLE", "" + mItem.get(position));
+        Log.d("IMAGE",""+mItemImage.get(position));
+
         try
         {
             Bitmap bitmap = BitmapFactory.decodeFile( mItemImage.get(position));

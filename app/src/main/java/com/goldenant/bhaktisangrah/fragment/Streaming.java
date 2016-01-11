@@ -38,12 +38,10 @@ import com.google.android.gms.ads.AdView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import wseemann.media.FFmpegMediaPlayer;
 
 /**
  * Created by Adite on 03-01-2016.
@@ -137,7 +135,12 @@ public class Streaming extends MasterFragment {
 
                 Log.d("ListPosition",""+ListPosition);
                 homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
-                mContext.setTitle(" "+ListItem.get(ListPosition).getItem_name());
+
+                if(isVisible()){
+
+                    mContext.setTitle(" "+ListItem.get(ListPosition).getItem_name());
+                }
+
             }
 
         }
@@ -394,22 +397,37 @@ public class Streaming extends MasterFragment {
                 // Displaying Song title
 
                 if(mode == 1){
-                    trackNameView.setText(ListItemName.get(songIndex));
-                    albumNameView.setText("");
+//                    trackNameView.setText(ListItemName.get(songIndex));
+//                    albumNameView.setText("");
 
-                    mContext.setTitle(" " + ListItemName.get(songIndex));
+                    if(isVisible()){
 
-                    Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
-                    BitmapDrawable d = new BitmapDrawable(bitmap);
+                        if(ListItemName.get(songIndex) != null){
 
-                    backgroundImageView.setImageBitmap(bitmap);
-                    trackImageView.setImageBitmap(bitmap);
+                            mContext.setTitle(" " + ListItemName.get(songIndex));
+                        }
+
+                    }
+
+                    if(ListItemName.get(songIndex) != null){
+
+                        Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
+                        BitmapDrawable d = new BitmapDrawable(bitmap);
+
+                        backgroundImageView.setImageBitmap(bitmap);
+                        trackImageView.setImageBitmap(bitmap);
+                    }
+
 
                 }else{
                     trackNameView.setText(ListItem.get(songIndex).getItem_name());
                     albumNameView.setText(ListItem.get(songIndex).getItem_description());
 
-                    mContext.setTitle(" " + ListItem.get(songIndex).getItem_name());
+                    if(isVisible()){
+
+                        mContext.setTitle(" " + ListItem.get(songIndex).getItem_name());
+
+                    }
 
                     Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
                     Picasso.with(getActivity()).load(ListItem.get(songIndex).getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
@@ -595,45 +613,41 @@ public class Streaming extends MasterFragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            if (ListPosition < (ListItem.size() - 1)) {
+            if(ListItem.size() > 0){
+
+                if (ListPosition < (ListItem.size() - 1)) {
 //                playSong(ListPosition + 1);
 //                new AsyncRunner().execute(ListPosition + 1);
-                if (mTask != null) {
+                    if (mTask != null) {
 
-                    mTask.cancel(true);
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                } else {
+                        mTask.cancel(true);
+                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                    } else {
 
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                    }
+                    ListPosition = ListPosition + 1;
+                }else {
+
+                    if (mTask != null) {
+
+                        mTask.cancel(true);
+                        mTask = (AsyncRunner) new AsyncRunner().execute(0);
+                    } else {
+
+                        mTask = (AsyncRunner) new AsyncRunner().execute(0);
+                    }
                 }
-                ListPosition = ListPosition + 1;
-            }
-
-            if (ListPosition < (ListItemFile.size() - 1)) {
-//                playSong(ListPosition + 1);
-//                new AsyncRunner().execute(ListPosition + 1);
-                if (mTask != null) {
-
-                    mTask.cancel(true);
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                } else {
-
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                }
-                ListPosition = ListPosition + 1;
             }
 
             else {
-                // play first song
-//                playSong(ListPosition);
-//                new AsyncRunner().execute(ListPosition);
                 if (mTask != null) {
 
                     mTask.cancel(true);
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                    mTask = (AsyncRunner) new AsyncRunner().execute(0);
                 } else {
 
-                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                    mTask = (AsyncRunner) new AsyncRunner().execute(0);
                 }
             }
         }
