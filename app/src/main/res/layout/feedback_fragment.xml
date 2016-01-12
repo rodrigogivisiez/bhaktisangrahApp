@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
+    android:background="@color/theme_color"
     android:padding="10dp">
 
     <EditText
@@ -11,25 +11,33 @@
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:hint="Name"
+        android:textColorHint="@color/white"
         android:ems="10"
+        android:textColor="@color/white"
         android:id="@+id/editText_name"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="phone"
+        android:textColorHint="@color/white"
         android:ems="10"
+        android:textColor="@color/white"
         android:layout_marginTop="7dp"
         android:hint="Mobile number"
         android:maxLength="10"
         android:id="@+id/editText_mobile"/>
 
     <EditText
+        android:textColorHint="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="top|left"
         android:id="@+id/editText_dis"
+        android:textColor="@color/white"
         android:layout_marginTop="7dp"
-        android:hint="Discreption"/>
+        android:hint="Discreption"
+        android:lines="5" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -49,6 +57,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Submit"
+        android:textColor="@color/white"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/button_submit"
+        android:background="@drawable/button"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>

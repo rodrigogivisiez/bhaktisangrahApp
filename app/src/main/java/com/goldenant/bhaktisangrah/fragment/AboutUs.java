@@ -45,6 +45,8 @@ public class AboutUs extends MasterFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
         mContext.setTitle("AboutUs");
 
         webview = (WebView) view.findViewById(R.id.webView);
@@ -61,10 +63,11 @@ public class AboutUs extends MasterFragment
         {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://goldenant.in"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.goldenant.in"));
                 startActivity(browserIntent);
             }
         });
+
 
 
         if(mContext.isInternet == true)
@@ -75,6 +78,15 @@ public class AboutUs extends MasterFragment
         {
             ToastUtil.showLongToastMessage(mContext, "No internet connection found");
         }
+
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
+            }
+        });
+
     }
 
     private void getAboutUs()

@@ -21,7 +21,7 @@
             android:background="@drawable/ic_facebook"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <ImageView
                 android:id="@+id/imgfacebook"

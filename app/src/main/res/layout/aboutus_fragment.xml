@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="WWW.goldenant.in"
+                android:text="http://www.goldenant.in"
                 android:id="@+id/textView2_about_us"
                 android:textColor="#e7c71b"
                 android:layout_gravity="center_horizontal" />

@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.R;
@@ -21,9 +22,8 @@ import org.json.JSONObject;
 public class GCMDialogActivity extends Activity {
 	Context context;
 	Bundle bundleObject;
-	TextView txtGCMText, lblGCM;
-	ImageButton btnClose;
-	Button btnView;
+	TextView txtGCMText;
+	RelativeLayout GCMView;
 	JSONObject jGCM = new JSONObject();
 	String msg;
 	Bundle b;
@@ -33,34 +33,32 @@ public class GCMDialogActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.custom_alert);
+		setContentView(R.layout.gcm_alert_dialog);
 
 		b = getIntent().getExtras();
-		txtGCMText = (TextView) findViewById(R.id.txtmessage);
+		txtGCMText = (TextView) findViewById(R.id.GCMMessage);
 
 		if (b != null) {
 			txtGCMText.setText(b.getString("msg"));
 		}
 
-		btnClose = (ImageButton) findViewById(R.id.btnClose);
-		btnClose.setOnClickListener(new OnClickListener() {
+//		btnClose = (ImageButton) findViewById(R.id.btnClose);
+//		btnClose.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				Intent intent = new Intent(Intent.ACTION_MAIN);
+//				intent.addCategory(Intent.CATEGORY_HOME);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+//						| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//				startActivity(intent);
+//				System.exit(1);
+//			}
+//		});
 
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Intent intent = new Intent(Intent.ACTION_MAIN);
-				intent.addCategory(Intent.CATEGORY_HOME);
-				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-						| Intent.FLAG_ACTIVITY_CLEAR_TASK);
-				startActivity(intent);
-				System.exit(1);
-			}
-		});
-
-		btnView = (Button) findViewById(R.id.btnView);
-		btnView.setText("View");
-		
-		btnView.setOnClickListener(new OnClickListener() {
+		GCMView = (RelativeLayout) findViewById(R.id.GCMView);
+		GCMView.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {

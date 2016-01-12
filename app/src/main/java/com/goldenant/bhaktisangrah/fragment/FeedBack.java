@@ -36,6 +36,9 @@ public class FeedBack extends MasterFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
+
         mContext.setTitle("Feedback");
 
         editText_name = (EditText) view.findViewById(R.id.editText_name);
@@ -83,30 +86,30 @@ public class FeedBack extends MasterFragment
             }
         });
 
-        button_submit.setOnClickListener(new View.OnClickListener()
-        {
+        button_submit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                if(editText_name.getText().toString().length() == 0)
-                {
-                    ToastUtil.showLongToastMessage(mContext,"Please enter your name");
-                }
-                else if(editText_mobile.getText().toString().length() == 0)
-                {
-                    ToastUtil.showLongToastMessage(mContext,"Please enter your mobile number");
-                }
-                else if(editText_dis.getText().toString().length() == 0)
-                {
-                    ToastUtil.showLongToastMessage(mContext,"Please enter proper discription");
-                }
-                else
-                {
-                    mContext.feedback(mContext,editText_name.getText().toString(),editText_mobile.getText().toString(),
+            public void onClick(View v) {
+                if (editText_name.getText().toString().length() == 0) {
+                    ToastUtil.showLongToastMessage(mContext, "Please enter your name");
+                } else if (editText_mobile.getText().toString().length() == 0) {
+                    ToastUtil.showLongToastMessage(mContext, "Please enter your mobile number");
+                } else if (editText_dis.getText().toString().length() == 0) {
+                    ToastUtil.showLongToastMessage(mContext, "Please enter proper discription");
+                } else {
+                    mContext.feedback(mContext, editText_name.getText().toString(), editText_mobile.getText().toString(),
                             editText_dis.getText().toString());
                 }
             }
         });
+
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
+            }
+        });
+
     }
 
     @Override

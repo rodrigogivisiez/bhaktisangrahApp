@@ -53,6 +53,8 @@ public class Notification extends MasterFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
         mContext.setTitle("Notification");
 
         listView_notification = (ListView) view.findViewById(R.id.listView_notification);
@@ -92,6 +94,14 @@ public class Notification extends MasterFragment
         {
             e.printStackTrace();
         }
+
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
+            }
+        });
     }
 
     @Override

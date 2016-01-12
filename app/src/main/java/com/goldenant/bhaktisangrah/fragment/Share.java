@@ -24,9 +24,8 @@ import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 /**
  * Created by ankita on 1/2/2016.
  */
-public class Share extends MasterFragment
-{
-    LinearLayout llFacebook,llEmail,llWhatsapp;
+public class Share extends MasterFragment {
+    LinearLayout llFacebook, llEmail, llWhatsapp;
 
     MainActivity mContext;
 
@@ -34,8 +33,7 @@ public class Share extends MasterFragment
     ShareDialog shareDialog;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContext = (MainActivity) getMasterActivity();
 
         FacebookSdk.sdkInitialize(mContext);
@@ -46,49 +44,52 @@ public class Share extends MasterFragment
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState)
-    {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mContext.hideDrawer();
+        mContext.showDrawerBack();
         mContext.setTitle("Share");
 
         llFacebook = (LinearLayout) view.findViewById(R.id.llFacebook);
-        llEmail  = (LinearLayout) view.findViewById(R.id.llEmail);
+        llEmail = (LinearLayout) view.findViewById(R.id.llEmail);
         llWhatsapp = (LinearLayout) view.findViewById(R.id.llWhatsapp);
 
         llFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 if (ShareDialog.canShow(ShareLinkContent.class)) {
                     ShareLinkContent linkContent = new ShareLinkContent.Builder()
+                            .setContentUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.goldenant.bhaktisangrah"))
                             .setContentTitle("Bhakti Sagar")
                             .setContentDescription(
                                     "This is the awesome Devotional songs app")
-                            .setContentUrl(Uri.parse("https://i.ytimg.com/vi/bIqfItDy0do/hqdefault.jpg"))
+
                             .build();
 
                     shareDialog.show(linkContent);
                 }
+            }
+        });
 
-
-//                            .setContentUrl(Uri.parse("market://details?id=" + mContext.getPackageName()))
+        mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HomeFragment home = new HomeFragment();
+                mContext.ReplaceFragement(home);
             }
         });
 
         llEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mContext.isInternet)
-                {
+                if (mContext.isInternet) {
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri
                             .fromParts("mailto", "goldenant.apps@gmail.com", null));
                     emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sagar");
                     emailIntent.putExtra(Intent.EXTRA_TEXT, "market://details?id=" + mContext.getPackageName());
                     startActivity(Intent.createChooser(emailIntent, "Send email..."));
-                }
-                else
-                {
+                } else {
                     ToastUtil.showLongToastMessage(mContext, "No internet connection found");
                 }
             }
@@ -97,14 +98,13 @@ public class Share extends MasterFragment
         llWhatsapp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try
-                {
-                    PackageManager pm= mContext.getPackageManager();
+                try {
+                    PackageManager pm = mContext.getPackageManager();
                     Intent waIntent = new Intent(Intent.ACTION_SEND);
                     waIntent.setType("text/plain");
                     String text = "market://details?id=" + mContext.getPackageName();
 
-                    PackageInfo info=pm.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
+                    PackageInfo info = pm.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
                     //Check if package exists or not. If not then code
                     //in catch block will be called
                     waIntent.setPackage("com.whatsapp");
@@ -112,9 +112,7 @@ public class Share extends MasterFragment
                     waIntent.putExtra(Intent.EXTRA_TEXT, text);
                     startActivity(Intent.createChooser(waIntent, "Share with"));
 
-                }
-                catch (PackageManager.NameNotFoundException e)
-                {
+                } catch (PackageManager.NameNotFoundException e) {
                     ToastUtil.showLongToastMessage(mContext, "WhatsApp not Installed");
                 }
             }
@@ -127,16 +125,14 @@ public class Share extends MasterFragment
         callbackManager.onActivityResult(requestCode, resultCode, data);
 
 
-        if(resultCode == -1)
-        {
-            ToastUtil.showShortToastMessage(mContext,"Successfully share");
+        if (resultCode == -1) {
+            ToastUtil.showShortToastMessage(mContext, "Successfully share");
         }
 
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 
         getView().setFocusableInTouchMode(true);

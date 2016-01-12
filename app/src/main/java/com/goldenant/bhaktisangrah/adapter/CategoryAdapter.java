@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -23,6 +24,8 @@ import android.widget.TextView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
+import com.goldenant.bhaktisangrah.common.util.ClickGuard;
+import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
@@ -170,7 +173,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                     }
                 });
 
-                mViewHolder.download.setVisibility(View.VISIBLE);
+                //mViewHolder.download.setVisibility(View.VISIBLE);
+                mViewHolder.download.setBackgroundResource(R.drawable.download);
 
                 if(songsID.size() > 0){
 
@@ -178,9 +182,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
                         if(mItem.get(position).getItem_id().equalsIgnoreCase(songsID.get(i))){
 
-
-                            mViewHolder.download.setVisibility(View.INVISIBLE);
-
+                            mViewHolder.download.setBackgroundResource(R.drawable.download_finished);
+                            ClickGuard.guard(mViewHolder.download);
                             break;
                         }
                     }
@@ -194,10 +197,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         file_id = mItem.get(position).getItem_id();
                         pos = position;
 
-                        Log.d("fileName",""+fileName);
+                        Log.d("fileName","" + fileName);
                         Log.d("imagename",""+imagename);
 
                         new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
+
                     }
                 });
 
@@ -476,6 +480,14 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
         alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int arg1) {
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("CAT_ID", homeModel);
+
+                CategoryList categoryList = new CategoryList();
+                categoryList.setArguments(bundle);
+                mContext.ReplaceFragement(categoryList);
+
                 dialog.cancel();
             }
         });
