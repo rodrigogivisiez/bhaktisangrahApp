@@ -76,6 +76,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
         private CircularImageView cat_image;
         private ImageButton play, download;
         private TextView tv_title, tv_desc, tv_duration;
+        private String urls;
+        private String imgpath;
 
     }
 
@@ -176,6 +178,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 //mViewHolder.download.setVisibility(View.VISIBLE);
                 mViewHolder.download.setBackgroundResource(R.drawable.download);
 
+
                 if(songsID.size() > 0){
 
                     for(int i= 0 ; i < songsID.size() ; i ++){
@@ -183,6 +186,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         if(mItem.get(position).getItem_id().equalsIgnoreCase(songsID.get(i))){
 
                             mViewHolder.download.setBackgroundResource(R.drawable.download_finished);
+                            mViewHolder.download.setClickable(false);
                             ClickGuard.guard(mViewHolder.download);
                             break;
                         }
@@ -200,8 +204,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         Log.d("fileName","" + fileName);
                         Log.d("imagename",""+imagename);
 
-                        new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
+                        mViewHolder.urls = mItem.get(position).getItem_file();
+                        mViewHolder.download.setClickable(false);
 
+                        new DownloadFileFromURL().execute(mViewHolder);
                     }
                 });
 
@@ -215,7 +221,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
     }
 
     //Download mp3 start
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    class DownloadFileFromURL extends AsyncTask<ViewHolder, String, ViewHolder> {
 
         /**
          * Before starting background thread Show Progress Bar Dialog
@@ -228,17 +234,17 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             pDialog.setIndeterminate(false);
             pDialog.setMax(100);
             pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pDialog.setCancelable(false);
+            pDialog.setCancelable(true);
             pDialog.show();
         }
 
         /**
          * Downloading file in background thread
          */
-        protected String doInBackground(String... f_url) {
+        protected ViewHolder doInBackground(ViewHolder... f_url) {
             int count;
             try {
-                URL url = new URL(f_url[0]);
+                URL url = new URL(f_url[0].urls);
                 URLConnection conection = url.openConnection();
                 conection.connect();
                 // getting file length
@@ -440,7 +446,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 Log.e("Error: ", e.getMessage());
             }
 
-            return null;
+            return f_url[0];
         }
 
         /**
@@ -455,9 +461,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
          * After completing background task Dismiss the progress dialog
          **/
         @Override
-        protected void onPostExecute(String file_url) {
+        protected void onPostExecute(ViewHolder file_url) {
             // dismiss the dialog after the file was downloaded
             pDialog.dismiss();
+            file_url.download.setClickable(true);
 
             // Displaying downloaded image into image view
             // Reading image path from sdcard
