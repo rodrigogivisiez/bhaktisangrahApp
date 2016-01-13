@@ -2,6 +2,7 @@ package com.goldenant.bhaktisangrah.common.ui;
 
 import android.app.ProgressDialog;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +40,7 @@ public class MasterActivity extends AppCompatActivity {
 
         isInternet = new InternetStatus().isInternetOn(this);
         mPlayer = new MediaPlayer();
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
     }
 

@@ -30,14 +30,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:alpha="0.4"
                     android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/trackImage"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
-                    android:layout_gravity="center|bottom" />
+                    android:layout_gravity="center|bottom"
+                    android:visibility="gone"/>
             </FrameLayout>
 
         </LinearLayout>

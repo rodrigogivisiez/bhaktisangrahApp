@@ -90,17 +90,21 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
         try {
             //Get path of song name
             File myFile = new File("/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/BhaktiSagarID.txt");
-            FileInputStream fIn = new FileInputStream(myFile);
-            BufferedReader myReader = new BufferedReader(
-                    new InputStreamReader(fIn));
-            String aDataRow = "";
-//            String aBuffer = "";
-            while ((aDataRow = myReader.readLine()) != null) {
-//                aBuffer += aDataRow + "\n";
-                songsID.add(aDataRow);
-            }
 
-            myReader.close();
+            if (myFile.exists())
+            {
+                FileInputStream fIn = new FileInputStream(myFile);
+                BufferedReader myReader = new BufferedReader(
+                        new InputStreamReader(fIn));
+                String aDataRow = "";
+//            String aBuffer = "";
+                while ((aDataRow = myReader.readLine()) != null) {
+//                aBuffer += aDataRow + "\n";
+                    songsID.add(aDataRow);
+                }
+
+                myReader.close();
+            }
         }catch (Exception e){
 
             e.printStackTrace();
@@ -184,6 +188,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
                             mViewHolder.download.setBackgroundResource(R.drawable.download_finished);
                             mViewHolder.download.setOnClickListener(null);
+                            mViewHolder.download.setClickable(false);
                             ClickGuard.guard(mViewHolder.download);
                             break;
                         }
@@ -198,13 +203,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         file_id = mItem.get(position).getItem_id();
                         pos = position;
 
-                        Log.d("fileName","" + fileName);
-                        Log.d("imagename",""+imagename);
+//                        mViewHolder.urls = mItem.get(position).getItem_file();
+//                        mViewHolder.download.setClickable(false);
 
-                        mViewHolder.urls = mItem.get(position).getItem_file();
-                        mViewHolder.download.setClickable(false);
-
-                        new DownloadFileFromURL().execute(mViewHolder);
+                        new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
                     }
                 });
 
@@ -218,7 +220,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
     }
 
     //Download mp3 start
-    class DownloadFileFromURL extends AsyncTask<ViewHolder, String, ViewHolder> {
+    class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
         /**
          * Before starting background thread Show Progress Bar Dialog
@@ -231,17 +233,17 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             pDialog.setIndeterminate(false);
             pDialog.setMax(100);
             pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            pDialog.setCancelable(true);
+            pDialog.setCancelable(false);
             pDialog.show();
         }
 
         /**
          * Downloading file in background thread
          */
-        protected ViewHolder doInBackground(ViewHolder... f_url) {
+        protected String doInBackground(String... f_url) {
             int count;
             try {
-                URL url = new URL(f_url[0].urls);
+                URL url = new URL(f_url[0]);
                 URLConnection conection = url.openConnection();
                 conection.connect();
                 // getting file length
@@ -443,7 +445,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 Log.e("Error: ", e.getMessage());
             }
 
-            return f_url[0];
+            return null;
         }
 
         /**
@@ -458,10 +460,9 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
          * After completing background task Dismiss the progress dialog
          **/
         @Override
-        protected void onPostExecute(ViewHolder file_url) {
+        protected void onPostExecute(String file_url) {
             // dismiss the dialog after the file was downloaded
             pDialog.dismiss();
-            file_url.download.setClickable(true);
 
             // Displaying downloaded image into image view
             // Reading image path from sdcard

@@ -18,7 +18,6 @@ import com.facebook.share.widget.ShareDialog;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
-import com.goldenant.bhaktisangrah.common.util.FUtils;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 
 /**
