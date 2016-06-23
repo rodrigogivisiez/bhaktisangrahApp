@@ -14,6 +14,9 @@ import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.DownloadAdapter;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +41,8 @@ public class Downloads extends MasterFragment
 
     TextView textView_download;
 
+    private InterstitialAd interstitial;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
@@ -53,6 +58,8 @@ public class Downloads extends MasterFragment
         mContext.hideDrawer();
         mContext.showDrawerBack();
         mContext.setTitle("Downloads");
+
+        loadBigAds();
 
         listView_downloads = (ListView) view.findViewById(R.id.listView_downloads);
 
@@ -131,6 +138,25 @@ public class Downloads extends MasterFragment
             }
         });
 
+    }
+
+    private void loadBigAds()
+    {
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
+
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
+            }
+        });
     }
 
 //    public void getFromSdcard()

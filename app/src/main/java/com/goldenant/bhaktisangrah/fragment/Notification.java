@@ -16,6 +16,9 @@ import com.goldenant.bhaktisangrah.adapter.NotificationAdapter;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.DatabaseHelper;
 import com.goldenant.bhaktisangrah.model.NotificationRecord;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +44,8 @@ public class Notification extends MasterFragment
 
     TextView text_nonotifiction;
 
+    private InterstitialAd interstitial;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
@@ -56,6 +61,8 @@ public class Notification extends MasterFragment
         mContext.hideDrawer();
         mContext.showDrawerBack();
         mContext.setTitle("Notification");
+
+        loadBigAds();
 
         listView_notification = (ListView) view.findViewById(R.id.listView_notification);
 
@@ -100,6 +107,25 @@ public class Notification extends MasterFragment
             public void onClick(View v) {
                 HomeFragment home = new HomeFragment();
                 mContext.ReplaceFragement(home);
+            }
+        });
+    }
+
+    private void loadBigAds()
+    {
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
+
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
             }
         });
     }

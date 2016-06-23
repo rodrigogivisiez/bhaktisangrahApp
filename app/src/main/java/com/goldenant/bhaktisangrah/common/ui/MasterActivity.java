@@ -33,6 +33,7 @@ public class MasterActivity extends AppCompatActivity {
 
     public static ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
+    public static int listScreen = 0,playScreen = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,17 +1,25 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'music'
+            keyPassword '123456'
+            storeFile file('D:/Backup/Music App/music_app.keystore.jks')
+            storePassword '123456'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-
     defaultConfig {
         applicationId "com.goldenant.bhaktisangrah"
         minSdkVersion 14
         targetSdkVersion 23
         renderscriptTargetApi 23
         renderscriptSupportModeEnabled true
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName '1.2'
+        signingConfig signingConfigs.config
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -26,6 +34,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
@@ -37,5 +47,4 @@ dependencies {
     compile 'com.github.markushi:circlebutton:1.1'
     compile 'com.android.support:palette-v7:23.0.0'
     compile 'com.google.android.gms:play-services:8.1.0'
-
 }

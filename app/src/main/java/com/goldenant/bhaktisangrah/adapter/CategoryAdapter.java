@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.MainActivity;
@@ -75,7 +76,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
         private TextView tv_title, tv_desc, tv_duration;
         private String urls;
         private String imgpath;
-
+        private LinearLayout layout_main;
     }
 
     public CategoryAdapter(MainActivity context, int resource, ArrayList<SubCategoryModel> list, HomeModel homeModel) {
@@ -142,6 +143,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 mViewHolder.tv_desc = (TextView) itemView.findViewById(R.id.tv_desc);
                 mViewHolder.tv_duration = (TextView) itemView.findViewById(R.id.tv_duration);
 
+                mViewHolder.layout_main = (LinearLayout) itemView.findViewById(R.id.layout_main);
+
                 itemView.setTag(mViewHolder);
 
             } else {
@@ -160,6 +163,23 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 Picasso.with(mContext).load(mItem.get(position).getItem_image()).placeholder(R.drawable.no_image).into(mViewHolder.cat_image);
 
                 mViewHolder.play.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Fragment investProgramDetail = new Streaming();
+                        Bundle bundle = new Bundle();
+
+                        bundle.putInt("mode", 0);
+                        bundle.putSerializable("data", mItem);
+                        bundle.putInt("position", position);
+                        bundle.putSerializable("CAT_ID", homeModel);
+
+                        investProgramDetail.setArguments(bundle);
+                        mContext.ReplaceFragement(investProgramDetail);
+                    }
+                });
+
+                mViewHolder.layout_main.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 

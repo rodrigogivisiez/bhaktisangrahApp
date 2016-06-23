@@ -12,15 +12,17 @@ import android.widget.ListView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.CategoryAdapter;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
-import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -41,6 +43,8 @@ public class CategoryList extends MasterFragment
     private ListView mCategoryList;
     private String category_id;
     private Bundle bundle;
+
+    private InterstitialAd interstitial;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -64,6 +68,12 @@ public class CategoryList extends MasterFragment
         AdView mAdView = (AdView) view.findViewById(R.id.adView_cat);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
+
+        MasterActivity.listScreen = MasterActivity.listScreen + 1;
+        if(MasterActivity.listScreen == 5) {
+            MasterActivity.listScreen = 0;
+            loadBigAds();
+        }
 
         bundle = getArguments();
 
@@ -102,6 +112,25 @@ public class CategoryList extends MasterFragment
             public void onClick(View v) {
                 HomeFragment home = new HomeFragment();
                 mContext.ReplaceFragement(home);
+            }
+        });
+    }
+
+    private void loadBigAds()
+    {
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
+
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
             }
         });
     }

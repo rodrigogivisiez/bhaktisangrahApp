@@ -27,13 +27,16 @@ import android.widget.TextView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -81,6 +84,7 @@ public class Streaming extends MasterFragment {
     private int mode;
     ProgressDialog mProgressDialog;
 
+    private InterstitialAd interstitial;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,6 +98,12 @@ public class Streaming extends MasterFragment {
         mContext.showDrawerBack();
 
         utils = new Utilities();
+
+        MasterActivity.playScreen = MasterActivity.playScreen + 1;
+        if(MasterActivity.playScreen == 3) {
+            MasterActivity.playScreen = 0;
+            loadBigAds();
+        }
 
         // initialize ui elements
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
@@ -138,9 +148,7 @@ public class Streaming extends MasterFragment {
 
                     mContext.setTitle(" "+ListItem.get(ListPosition).getItem_name());
                 }
-
             }
-
         }
 
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
@@ -195,8 +203,6 @@ public class Streaming extends MasterFragment {
                         }
                     }
                 }
-
-
             }
         });
 
@@ -291,6 +297,26 @@ public class Streaming extends MasterFragment {
 
         return rootView;
     }
+
+    private void loadBigAds()
+    {
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
+
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
+            }
+        });
+    }
+
 
     public void prepareSong(int songIndex){
 
