@@ -94,7 +94,7 @@ public class FeedBack extends MasterFragment
                 } else if (editText_mobile.getText().toString().length() == 0) {
                     ToastUtil.showLongToastMessage(mContext, "Please enter your mobile number");
                 } else if (editText_dis.getText().toString().length() == 0) {
-                    ToastUtil.showLongToastMessage(mContext, "Please enter proper discription");
+                    ToastUtil.showLongToastMessage(mContext, "Please enter proper description");
                 } else {
                     mContext.feedback(mContext, editText_name.getText().toString(), editText_mobile.getText().toString(),
                             editText_dis.getText().toString());

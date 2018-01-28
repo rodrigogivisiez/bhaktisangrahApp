@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.goldenant.bhaktisangrah.MainActivity;
@@ -23,13 +24,17 @@ import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
+
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import com.facebook.ads.*;
+
+import static com.goldenant.bhaktisangrah.common.util.Constants.Bottom_Banner_placement_id;
+
 
 /**
  * Created by Ajay on 11-09-2015.
@@ -42,6 +47,7 @@ public class HomeFragment extends MasterFragment {
 
     ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
+    private AdView adView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -56,15 +62,24 @@ public class HomeFragment extends MasterFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
+        // Find the Ad Container
+        LinearLayout adContainer = view.findViewById(R.id.banner_container);
+
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+
+        // Request an ad
+        adView.loadAd();
+
+
         mContext.showDrawer();
         mContext.hideDrawerBack();
         mContext.setTitle("Categories");
 
         listView_category = (ListView) view.findViewById(R.id.listView_category);
 
-        AdView mAdView = (AdView) view.findViewById(R.id.adView_home);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+
 
         if(MasterActivity.CatArray.size() > 0)
         {
@@ -205,5 +220,13 @@ public class HomeFragment extends MasterFragment {
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
+        super.onDestroy();
     }
 }

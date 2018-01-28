@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -29,19 +30,20 @@ import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularSeekBar;
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.Random;
+import com.facebook.ads.*;
+
+import static com.goldenant.bhaktisangrah.common.util.Constants.*;
 
 
 /**
@@ -86,6 +88,10 @@ public class Streaming extends MasterFragment {
 
     private InterstitialAd interstitial;
 
+    private AdView adView;
+    private InterstitialAd interstitialAd;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -121,9 +127,13 @@ public class Streaming extends MasterFragment {
         shuffleButton = (ImageButton) rootView.findViewById(R.id.shuffleButton);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
-        final AdView mAdView = (AdView) rootView.findViewById(R.id.adView_stream);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
+        // Find the Ad Container
+        LinearLayout adContainer = rootView.findViewById(R.id.banner_container);
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+        // Request an ad
+        adView.loadAd();
 
         bundle = getArguments();
 
@@ -300,21 +310,44 @@ public class Streaming extends MasterFragment {
 
     private void loadBigAds()
     {
-        // Prepare the Interstitial Ad
-        interstitial = new InterstitialAd(mContext);
-        // Insert the Ad Unit ID
-        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+        interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
+        interstitialAd.setAdListener(new InterstitialAdListener() {
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+                // Interstitial displayed callback
+            }
 
-        // Request for Ads
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitial.loadAd(adRequest);
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                // Interstitial dismissed callback
+            }
 
-        // Prepare an Interstitial Ad Listener
-        interstitial.setAdListener(new AdListener() {
-            public void onAdLoaded() {
-                interstitial.show();
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                // Ad error callback
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Show the ad when it's done loading.
+                interstitialAd.show();
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                // Ad clicked callback
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                // Ad impression logged callback
             }
         });
+
+        // For auto play video ads, it's recommended to load the ad
+        // at least 30 seconds before it is shown
+        interstitialAd.loadAd();
     }
 
 
@@ -882,5 +915,16 @@ public class Streaming extends MasterFragment {
         public String key() {
             return "blur";
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+        }
+        if (interstitialAd != null) {
+            interstitialAd.destroy();
+        }
+        super.onDestroy();
     }
 }

@@ -6,9 +6,8 @@
     <string name="share">share</string>
     <string name="feedback_sub">feedback_sub</string>
     <string name="exit_title">Press back key once more to exit the App.</string>
-
     <string name="fb_app_id">903723256364055</string>
-    <string name="bottom_banner_id">ca-app-pub-4917639294278231/1708041306</string>
+
 
     <string-array name="nav_drawer_title">
         <item>HOME</item>

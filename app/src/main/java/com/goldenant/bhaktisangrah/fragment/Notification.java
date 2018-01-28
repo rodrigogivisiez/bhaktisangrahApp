@@ -14,14 +14,14 @@ import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.NotificationAdapter;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
+import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.DatabaseHelper;
 import com.goldenant.bhaktisangrah.model.NotificationRecord;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.facebook.ads.*;
 
 /**
  * Created by ankita on 1/2/2016.
@@ -44,7 +44,7 @@ public class Notification extends MasterFragment
 
     TextView text_nonotifiction;
 
-    private InterstitialAd interstitial;
+    private InterstitialAd interstitialAd;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
@@ -113,21 +113,44 @@ public class Notification extends MasterFragment
 
     private void loadBigAds()
     {
-        // Prepare the Interstitial Ad
-        interstitial = new InterstitialAd(mContext);
-        // Insert the Ad Unit ID
-        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+        interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
+        interstitialAd.setAdListener(new InterstitialAdListener() {
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+                // Interstitial displayed callback
+            }
 
-        // Request for Ads
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitial.loadAd(adRequest);
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                // Interstitial dismissed callback
+            }
 
-        // Prepare an Interstitial Ad Listener
-        interstitial.setAdListener(new AdListener() {
-            public void onAdLoaded() {
-                interstitial.show();
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                // Ad error callback
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Show the ad when it's done loading.
+                interstitialAd.show();
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                // Ad clicked callback
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                // Ad impression logged callback
             }
         });
+
+        // For auto play video ads, it's recommended to load the ad
+        // at least 30 seconds before it is shown
+        interstitialAd.loadAd();
     }
 
     @Override
@@ -148,5 +171,14 @@ public class Notification extends MasterFragment
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        if (interstitialAd != null) {
+            interstitialAd.destroy();
+        }
+        super.onDestroy();
     }
 }

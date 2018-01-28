@@ -9,14 +9,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.DownloadAdapter;
+import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
+import com.facebook.ads.*;
+import com.goldenant.bhaktisangrah.common.util.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,8 +39,8 @@ public class Downloads extends MasterFragment
     LinearLayout error_layout_downloads;
 
     TextView textView_download;
+    InterstitialAd interstitialAd;
 
-    private InterstitialAd interstitial;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
@@ -59,7 +58,11 @@ public class Downloads extends MasterFragment
         mContext.showDrawerBack();
         mContext.setTitle("Downloads");
 
-        loadBigAds();
+        MasterActivity.playScreen = MasterActivity.playScreen + 1;
+        if(MasterActivity.playScreen == 3) {
+            MasterActivity.playScreen = 0;
+            loadBigAds();
+        }
 
         listView_downloads = (ListView) view.findViewById(R.id.listView_downloads);
 
@@ -142,21 +145,44 @@ public class Downloads extends MasterFragment
 
     private void loadBigAds()
     {
-        // Prepare the Interstitial Ad
-        interstitial = new InterstitialAd(mContext);
-        // Insert the Ad Unit ID
-        interstitial.setAdUnitId("ca-app-pub-4917639294278231/8323169708");
+        interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
+        interstitialAd.setAdListener(new InterstitialAdListener() {
+            @Override
+            public void onInterstitialDisplayed(Ad ad) {
+                // Interstitial displayed callback
+            }
 
-        // Request for Ads
-        AdRequest adRequest = new AdRequest.Builder().build();
-        interstitial.loadAd(adRequest);
+            @Override
+            public void onInterstitialDismissed(Ad ad) {
+                // Interstitial dismissed callback
+            }
 
-        // Prepare an Interstitial Ad Listener
-        interstitial.setAdListener(new AdListener() {
-            public void onAdLoaded() {
-                interstitial.show();
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                // Ad error callback
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Show the ad when it's done loading.
+                interstitialAd.show();
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                // Ad clicked callback
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                // Ad impression logged callback
             }
         });
+
+        // For auto play video ads, it's recommended to load the ad
+        // at least 30 seconds before it is shown
+        interstitialAd.loadAd();
     }
 
 //    public void getFromSdcard()
@@ -197,5 +223,14 @@ public class Downloads extends MasterFragment
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        if (interstitialAd != null) {
+            interstitialAd.destroy();
+        }
+        super.onDestroy();
     }
 }

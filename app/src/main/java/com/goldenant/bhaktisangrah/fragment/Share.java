@@ -23,7 +23,8 @@ import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 /**
  * Created by ankita on 1/2/2016.
  */
-public class Share extends MasterFragment {
+public class Share extends MasterFragment
+{
     LinearLayout llFacebook, llEmail, llWhatsapp;
 
     MainActivity mContext;
@@ -60,10 +61,9 @@ public class Share extends MasterFragment {
                 if (ShareDialog.canShow(ShareLinkContent.class)) {
                     ShareLinkContent linkContent = new ShareLinkContent.Builder()
                             .setContentUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.goldenant.bhaktisangrah"))
-                            .setContentTitle("Bhakti Sagar")
+                            .setContentTitle("Bhakti Sangrah")
                             .setContentDescription(
-                                    "This is the awesome Devotional songs app")
-
+                                    "I am happy to share this awesome Devotional songs app with you, Download from here: ")
                             .build();
 
                     shareDialog.show(linkContent);
@@ -85,8 +85,8 @@ public class Share extends MasterFragment {
                 if (mContext.isInternet) {
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri
                             .fromParts("mailto", "goldenant.apps@gmail.com", null));
-                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sagar");
-                    emailIntent.putExtra(Intent.EXTRA_TEXT, "market://details?id=" + mContext.getPackageName());
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bhakti Sangrah");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, "I am happy to share this awesome Devotional songs app with you, Download from here: " + "https://play.google.com/store/apps/details?id=com.goldenant.bhaktisangrah");
                     startActivity(Intent.createChooser(emailIntent, "Send email..."));
                 } else {
                     ToastUtil.showLongToastMessage(mContext, "No internet connection found");
@@ -101,7 +101,8 @@ public class Share extends MasterFragment {
                     PackageManager pm = mContext.getPackageManager();
                     Intent waIntent = new Intent(Intent.ACTION_SEND);
                     waIntent.setType("text/plain");
-                    String text = "market://details?id=" + mContext.getPackageName();
+                    //String text = "market://details?id=" + mContext.getPackageName();
+                    String text = "I am happy to share this awesome Devotional songs app with you, Download from here: " + "https://play.google.com/store/apps/details?id=com.goldenant.bhaktisangrah";
 
                     PackageInfo info = pm.getPackageInfo("com.whatsapp", PackageManager.GET_META_DATA);
                     //Check if package exists or not. If not then code

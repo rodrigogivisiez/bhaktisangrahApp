@@ -56,6 +56,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 import static android.view.Gravity.START;
 
@@ -90,6 +92,8 @@ public class MainActivity extends MasterActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Fabric.with(this, new Crashlytics());
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer_back = (ImageButton) findViewById(R.id.drawer_back);
@@ -314,7 +318,7 @@ public class MainActivity extends MasterActivity {
             localIntent.setType("plain/text");
             localIntent.addFlags(268435456);
             localIntent.putExtra("android.intent.extra.EMAIL", new String[] { "goldenant.apps@gmail.com" });
-            localIntent.putExtra("android.intent.extra.SUBJECT", "Feedback for Bhakti sagar");
+            localIntent.putExtra("android.intent.extra.SUBJECT", "Feedback for Bhakti Sangrah");
             localIntent.putExtra("android.intent.extra.TEXT", str);
             paramContext.startActivity(Intent.createChooser(localIntent, "Send mail...").addFlags(268435456));
             return;

@@ -46,5 +46,7 @@ public class Constants
 
     //Common variable
     public static final String BACK_MODE = "back_mode";
+    public static final String Bottom_Banner_placement_id = "903723256364055_1508568682546173";
+    public static final String Big_Banner_placement_id = "903723256364055_1508570959212612";
 
 }
