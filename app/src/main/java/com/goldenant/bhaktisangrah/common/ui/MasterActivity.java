@@ -1,6 +1,8 @@
 package com.goldenant.bhaktisangrah.common.ui;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -13,7 +15,11 @@ import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.util.InternetStatus;
+import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
 import com.goldenant.bhaktisangrah.model.HomeModel;
+import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.goldenant.bhaktisangrah.service.MediaPlayerService;
+import com.goldenant.bhaktisangrah.service.MusicService;
 
 import java.util.ArrayList;
 
@@ -29,11 +35,24 @@ public class MasterActivity extends AppCompatActivity {
     ProgressDialog mProgressDialog;
     public MediaPlayer mPlayer;
 
-    public  Bundle bundle = new Bundle();
+    public Bundle bundle = new Bundle();
 
     public static ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
-    public static int listScreen = 0,playScreen = 0;
+    public static int listScreen = 0, playScreen = 0;
+
+    public static MusicService musicSrv = null;
+    public static boolean musicBound = false;
+    public static Intent playIntent;
+
+
+    public static MediaPlayerService player;
+    public static boolean serviceBound = false;
+    public static BroadcastReceiver mPlaybackStatus;
+    public static final ArrayList<MusicStateListener> mMusicStateListener = new ArrayList<>();
+
+
+    public static ArrayList<SubCategoryModel> songsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +62,6 @@ public class MasterActivity extends AppCompatActivity {
         mPlayer = new MediaPlayer();
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     public void setTitle(String title) {
@@ -117,15 +131,19 @@ public class MasterActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
 
-        if(mPlayer != null){
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mPlayer != null) {
 
             mPlayer.release();
         }
-
+        try {
+            unregisterReceiver(mPlaybackStatus);
+        } catch (final Throwable e) {
+        }
+        mMusicStateListener.clear();
     }
 
     @Override
@@ -142,4 +160,84 @@ public class MasterActivity extends AppCompatActivity {
         }*/
 
     }
+
+    public void setNextTrack() {
+        player.playNextTrack();
+    }
+    public boolean isPlayerPrepared() {
+        return player.isPlayerPrepared();
+    }
+
+    public void setPreviousTrack() {
+        player.playPreviousTrack();
+    }
+
+    public void seekTo(int currentPosition) {
+        player.seekTo(currentPosition);
+    }
+
+    public long getDuration() {
+        return player.getDuration();
+    }
+
+    public long getCurrentPosition() {
+        return player.getCurrentPosition();
+    }
+
+    public boolean isPlaying() {
+       if(player!=null)
+        return player.isMediaPlaying();
+       else
+           return false;
+    }
+
+    public void playSong() {
+        player.playSong();
+    }
+
+    public void startPlaying() {
+        player.resumeMediaPlay();
+    }
+
+    public void setSongList(ArrayList<SubCategoryModel> ListItem) {
+        //pass list
+      //  player.setAudioList(null);
+        player.setAudioList(ListItem);
+    }
+
+    public void setSongPosition(int position) {
+        //pass list
+        player.setAudioIndex(position);
+    }
+
+    public void pauseSong() {
+        player.pauseMediaPlay();
+    }
+
+    public SubCategoryModel getActiveAudio() {
+        return player.getActiveAudio();
+    }
+    public int getAudioIndex() {
+        return player.getAudioIndex();
+    }
+
+    public void songPicked(View view) {
+        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+        musicSrv.playSong();
+    }
+
+    public void stopService() {
+        stopService(playIntent);
+        musicSrv = null;
+        musicBound = false;
+        // System.exit(0);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+
 }

@@ -4,10 +4,12 @@
     package="com.goldenant.bhaktisangrah" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <!-- GCM Permissions - Start here -->
 
@@ -79,9 +81,17 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".service.MediaPlayerService" />
         <!-- Register GCM Service -->
 
         <service android:name="com.goldenant.bhaktisangrah.gcm.GCMNotificationIntentService" />
+
+        <service android:name=".service.MusicService"
+            android:exported="false">
+        <intent-filter>
+            <action android:name="com.goldenant.bhaktisangrah.action.PLAY" />
+        </intent-filter>
+        </service>
     </application>
 
 </manifest>

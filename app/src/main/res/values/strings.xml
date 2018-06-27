@@ -7,6 +7,7 @@
     <string name="feedback_sub">feedback_sub</string>
     <string name="exit_title">Press back key once more to exit the App.</string>
     <string name="fb_app_id">903723256364055</string>
+    <string name="error_playing_track">Error Playing Track</string>
 
 
     <string-array name="nav_drawer_title">

@@ -35,7 +35,7 @@ import com.facebook.ads.*;
 import static com.goldenant.bhaktisangrah.common.util.Constants.*;
 
 /**
- * Created by ankita on 1/2/2016.
+ * Created by Jaydeep Jikadra on 1/2/2018.
  */
 public class CategoryList extends MasterFragment
 {
@@ -97,7 +97,7 @@ public class CategoryList extends MasterFragment
 
         isInternet = new InternetStatus().isInternetOn(mContext);
 
-        if(mContext.bundle.containsKey(category_id)){
+        /*if(mContext.bundle.containsKey(category_id)){
 
             CatListItem = new ArrayList<SubCategoryModel>();
             CatListItem = (ArrayList<SubCategoryModel>) mContext.bundle.getSerializable(category_id);
@@ -106,7 +106,7 @@ public class CategoryList extends MasterFragment
             mCategoryList.setAdapter(Adapter);
 
         }else {
-
+*/
             if(isInternet){
 
 //            if(mContext.MasterCategoryArray.size() > 0){
@@ -116,7 +116,7 @@ public class CategoryList extends MasterFragment
 //            else{
                 getCategory();
 //            }
-            }
+     //       }
         }
 
 

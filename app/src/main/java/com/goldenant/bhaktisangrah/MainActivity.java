@@ -1,8 +1,13 @@
 package com.goldenant.bhaktisangrah;
 
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -12,6 +17,8 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -43,8 +50,12 @@ import com.goldenant.bhaktisangrah.fragment.HomeFragment;
 import com.goldenant.bhaktisangrah.fragment.Notification;
 import com.goldenant.bhaktisangrah.fragment.Share;
 import com.goldenant.bhaktisangrah.gcm.ApplicationConstants;
+import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.goldenant.bhaktisangrah.service.MediaPlayerService;
+import com.goldenant.bhaktisangrah.service.MusicNotification;
+import com.goldenant.bhaktisangrah.service.MusicService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -54,14 +65,16 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 
 import static android.view.Gravity.START;
+import static com.goldenant.bhaktisangrah.service.MediaPlayerService.NOTIFICATION_ID;
 
-public class MainActivity extends MasterActivity {
+public class MainActivity extends MasterActivity implements MusicStateListener {
 
     private DrawerArrowDrawable drawerArrowDrawable;
     private float offset;
@@ -78,23 +91,43 @@ public class MainActivity extends MasterActivity {
     public FragmentManager fragmentManager = getSupportFragmentManager();
     private Typeface font;
     public ImageButton drawer_back;
-
-
+    public static final String Broadcast_PLAY_NEW_AUDIO = "com.goldenant.bhaktisangrah.PlayNewAudio";
+    public  Intent playerIntent;
     TextView title;
 
     //GCM registration start
     String reg_id,register_id;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     GoogleCloudMessaging gcmObj;
+    private NotificationManager mNotificationManager;
+
+
     //Rergistration end
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (android.os.Build.VERSION.SDK_INT > 9)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
         Fabric.with(this, new Crashlytics());
+/*
+        if(playIntent==null){
+            playIntent = new Intent(getApplicationContext(), MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }*/
 
+        if(playerIntent==null) {
+            playerIntent = new Intent(getApplicationContext(), MediaPlayerService.class);
+           startService(playerIntent);
+           bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+        mPlaybackStatus = new PlaybackStatus(this);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer_back = (ImageButton) findViewById(R.id.drawer_back);
         imageView = (ImageView) findViewById(R.id.drawer_indicator);
@@ -464,4 +497,156 @@ public class MainActivity extends MasterActivity {
         }
     }
 
+    public void showNotification(String fileImage){
+       // new MusicNotification(this,fileImage);
+        //finish();
+    }
+
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            //get service
+            musicSrv = binder.getService();
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+            // musicBound = true;
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+         /*  if (musicConnection != null) {
+            unbindService(musicConnection);
+        }
+        stopService();*/
+        if (serviceBound) {
+            unbindService(serviceConnection);
+            //service is active
+            player.stopSelf();
+        }
+        try {
+            unregisterReceiver(mPlaybackStatus);
+        } catch (final Throwable e) {
+        }
+        cancelNotification();
+    }
+
+
+    public void cancelNotification() {
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(NOTIFICATION_ID); // Notification ID to cancel
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        final IntentFilter filter = new IntentFilter();
+        // Play and pause changes
+        filter.addAction(MediaPlayerService.PLAYSTATE_CHANGED);
+        // Track changes
+        filter.addAction(MediaPlayerService.META_CHANGED);
+        // Update a list, probably the playlist fragment's
+        filter.addAction(MediaPlayerService.REFRESH);
+        // If a playlist has changed, notify us
+        filter.addAction(MediaPlayerService.PLAYLIST_CHANGED);
+        // If there is an error playing a track
+        filter.addAction(MediaPlayerService.TRACK_ERROR);
+
+        registerReceiver(mPlaybackStatus, filter);
+
+    }
+    public void setMusicStateListenerListener(final MusicStateListener status) {
+        if (status == this) {
+            throw new UnsupportedOperationException("Override the method, don't add a listener");
+        }
+
+        if (status != null) {
+            mMusicStateListener.add(status);
+        }
+    }
+
+    public void removeMusicStateListenerListener(final MusicStateListener status) {
+        if (status != null) {
+            mMusicStateListener.remove(status);
+        }
+    }
+
+    //Binding this Client to the AudioPlayer Service
+    public static ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MediaPlayerService.LocalBinder binder = (MediaPlayerService.LocalBinder) service;
+            player = binder.getService();
+            serviceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            serviceBound = false;
+        }
+    };
+
+    @Override
+    public void restartLoader() {
+        for (final MusicStateListener listener : mMusicStateListener) {
+            if (listener != null) {
+                listener.restartLoader();
+            }
+        }
+    }
+
+    @Override
+    public void onPlaylistChanged() {
+//stop
+    }
+
+    @Override
+    public void onMetaChanged() {
+        for (final MusicStateListener listener : mMusicStateListener) {
+            if (listener != null) {
+                listener.onMetaChanged();
+            }
+        }
+    }
+
+    private final static class PlaybackStatus extends BroadcastReceiver {
+
+        private final WeakReference<MainActivity> mReference;
+
+
+        public PlaybackStatus(final MainActivity activity) {
+            mReference = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            final String action = intent.getAction();
+            MainActivity baseActivity = mReference.get();
+            if (baseActivity != null) {
+                if (action.equals(MediaPlayerService.META_CHANGED)) {
+                    baseActivity.onMetaChanged();
+                } else if (action.equals(MediaPlayerService.PLAYSTATE_CHANGED)) {
+//                    baseActivity.mPlayPauseProgressButton.getPlayPauseButton().updateState();
+                } else if (action.equals(MediaPlayerService.REFRESH)) {
+                    baseActivity.restartLoader();
+                } else if (action.equals(MediaPlayerService.PLAYLIST_CHANGED)) {
+                    baseActivity.onPlaylistChanged();
+                } else if (action.equals(MediaPlayerService.TRACK_ERROR)) {
+                    final String errorMsg = context.getString(R.string.error_playing_track,
+                            intent.getStringExtra(MediaPlayerService.TrackErrorExtra.TRACK_NAME));
+                    Toast.makeText(baseActivity, errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 }

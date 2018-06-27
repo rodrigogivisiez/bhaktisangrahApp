@@ -33,6 +33,7 @@ import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
+import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 
@@ -45,11 +46,10 @@ import com.facebook.ads.*;
 
 import static com.goldenant.bhaktisangrah.common.util.Constants.*;
 
-
 /**
  * Created by Adite on 03-01-2016.
  */
-public class Streaming extends MasterFragment {
+public class Streaming extends MasterFragment implements MusicStateListener {
     private View rootView;
     private ImageView backgroundImageView;
     private TextView artistNameView;
@@ -90,6 +90,7 @@ public class Streaming extends MasterFragment {
 
     private AdView adView;
     private InterstitialAd interstitialAd;
+    private SubCategoryModel currentlyPlaying;
 
 
     @Override
@@ -104,36 +105,12 @@ public class Streaming extends MasterFragment {
         mContext.showDrawerBack();
 
         utils = new Utilities();
-
+        ((MainActivity) getActivity()).setMusicStateListenerListener(this);
         MasterActivity.playScreen = MasterActivity.playScreen + 1;
         if(MasterActivity.playScreen == 3) {
             MasterActivity.playScreen = 0;
             loadBigAds();
         }
-
-        // initialize ui elements
-        backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
-        albumNameView = (TextView) rootView.findViewById(R.id.albumName);
-        trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-        trackNameView = (TextView) rootView.findViewById(R.id.trackName);
-        currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
-        seekBarView = (CircularSeekBar) rootView.findViewById(R.id.seekBar);
-        finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
-        prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
-        playButton = (ImageButton) rootView.findViewById(R.id.playButton);
-        nextButton = (ImageButton) rootView.findViewById(R.id.nextButton);
-
-        repeatButton = (ImageButton) rootView.findViewById(R.id.repeatButton);
-        shuffleButton = (ImageButton) rootView.findViewById(R.id.shuffleButton);
-        progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar3);
-
-        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
-        // Find the Ad Container
-        LinearLayout adContainer = rootView.findViewById(R.id.banner_container);
-        // Add the ad view to your activity layout
-        adContainer.addView(adView);
-        // Request an ad
-        adView.loadAd();
 
         bundle = getArguments();
 
@@ -161,6 +138,33 @@ public class Streaming extends MasterFragment {
             }
         }
 
+        // initialize ui elements
+        backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
+        albumNameView = (TextView) rootView.findViewById(R.id.albumName);
+        trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+        trackNameView = (TextView) rootView.findViewById(R.id.trackName);
+        currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
+        seekBarView = (CircularSeekBar) rootView.findViewById(R.id.seekBar);
+        finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
+        prevButton = (ImageButton) rootView.findViewById(R.id.prevButton);
+        playButton = (ImageButton) rootView.findViewById(R.id.playButton);
+        nextButton = (ImageButton) rootView.findViewById(R.id.nextButton);
+
+        repeatButton = (ImageButton) rootView.findViewById(R.id.repeatButton);
+        shuffleButton = (ImageButton) rootView.findViewById(R.id.shuffleButton);
+        progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar3);
+
+        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
+        // Find the Ad Container
+        LinearLayout adContainer = rootView.findViewById(R.id.banner_container);
+        // Add the ad view to your activity layout
+        adContainer.addView(adView);
+        // Request an ad
+        adView.loadAd();
+
+
+
+
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,14 +183,19 @@ public class Streaming extends MasterFragment {
             }
         });
 
-        if (mTask != null) {
+       /* if (mTask != null) {
 
             mTask.cancel(true);
             mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
         } else {
 
             mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
-        }
+        }*/
+
+       if(ListItem!=null || !ListItem.isEmpty()){
+           updateView(ListItem.get(ListPosition));
+       }
+
 
 //        new AsyncRunner().execute(ListPosition);
 
@@ -198,19 +207,21 @@ public class Streaming extends MasterFragment {
 
                 if(mContext.mPlayer != null){
 
-                    if (mContext.mPlayer.isPlaying()) {
-                        if (mContext.mPlayer != null) {
-                            mContext.mPlayer.pause();
+                    if (mContext.isPlaying()) {
+                       // if (mContext.mPlayer != null) {
+                          //  mContext.mPlayer.pause();
+                            mContext.pauseSong();
                             // Changing button image to play button
                             playButton.setImageResource(R.drawable.ic_action_play);
-                        }
+                       // }
                     } else {
                         // Resume song
-                        if (mContext.mPlayer != null) {
-                            mContext.mPlayer.start();
+                       // if (mContext.mPlayer != null) {
+                            mContext.startPlaying();
+                            //mContext.mPlayer.start();
                             // Changing button image to pause button
                             playButton.setImageResource(R.drawable.pause);
-                        }
+                       // }
                     }
                 }
             }
@@ -219,14 +230,18 @@ public class Streaming extends MasterFragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                new AsyncRunnerNext().execute();
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                mContext.setNextTrack();
+               // new AsyncRunnerNext().execute();
             }
         });
 
         prevButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				new AsyncRunnerPrevious().execute();
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                mContext.setPreviousTrack();
+				//new AsyncRunnerPrevious().execute();
 			}
 		});
 
@@ -285,27 +300,50 @@ public class Streaming extends MasterFragment {
             @Override
             public void onStopTrackingTouch(CircularSeekBar seekBar) {
 
-                if(mContext.mPlayer != null){
+               // if(mContext.mPlayer != null){
 
 
                     mHandler.removeCallbacks(mUpdateTimeTask);
-                    int totalDuration = mContext.mPlayer.getDuration();
+                    //int totalDuration = mContext.mPlayer.getDuration();
+                    int totalDuration = (int) mContext.getDuration();
                     int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
 
                     progressBar.setVisibility(View.VISIBLE);
 
-//                    showWaitIndicator(true);
+                    //showWaitIndicator(true);
                     // forward or backward to certain seconds
-                    mContext.mPlayer.seekTo(currentPosition);
+                    mContext.seekTo(currentPosition);
 
                     // update timer progress again
                     updateProgressBar();
-                }
+             //   }
             }
         });
 
 
         return rootView;
+    }
+
+    private void updateView(SubCategoryModel currentlyPlaying) {
+        Log.e("update view","UPDATE");
+        Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+        albumNameView.setText(currentlyPlaying.getItem_description());
+        Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+        trackNameView.setText(currentlyPlaying.getItem_name());
+        if (mContext.isPlayerPrepared()) {
+            // Changing button image to play button
+            if (!mContext.isPlaying()) {
+                playButton.setImageResource(R.drawable.ic_action_play);
+
+            } else {
+                playButton.setImageResource(R.drawable.pause);
+            }
+        }
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        if(mContext.isPlayerPrepared()){
+            Log.e("restartLoader","UPDATE_PROGRESS");
+            updateProgressBar();
+        }
     }
 
     private void loadBigAds()
@@ -378,7 +416,6 @@ public class Streaming extends MasterFragment {
                         mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
                     }
                 }
-
 //                mContext.mPlayer.prepare();
 
         }catch (Exception e){
@@ -403,7 +440,8 @@ public class Streaming extends MasterFragment {
 //            progressBar.setVisibility(View.GONE);
                if(mContext.mPlayer != null){
 
-                mContext.mPlayer.start();
+               // mContext.mPlayer.start();
+                   mContext.playSong();
                 progressBar.setVisibility(View.GONE);
 
 //                showWaitIndicator(false);
@@ -589,6 +627,28 @@ public class Streaming extends MasterFragment {
         }
     }
 
+    @Override
+    public void restartLoader() {
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        Log.e("restartLoader","UPDATE_PROGRESS");
+        if(mContext.isPlaying()){
+            updateProgressBar();
+        }
+    }
+
+    @Override
+    public void onPlaylistChanged() {
+
+    }
+
+    @Override
+    public void onMetaChanged() {
+     //   updateNowplayingCard();
+      //  updateState();
+        Log.e("onMetaChanged","UPDATE_VIEW");
+        updateView(mContext.getActiveAudio());
+    }
+
 
     class AsyncRunner extends AsyncTask<Integer, Void, String> {
 
@@ -606,6 +666,7 @@ public class Streaming extends MasterFragment {
             mId = params[0];
 
             prepareSong(mId);
+            mHandler.removeCallbacks(mUpdateTimeTask);
             return null;
         }
 
@@ -613,7 +674,7 @@ public class Streaming extends MasterFragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            playSong(mId);
+           // playSong(mId);
         }
     }
 
@@ -637,7 +698,7 @@ public class Streaming extends MasterFragment {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            if(ListItemFile.size() > 0)
+           /* if(ListItemFile.size() > 0)
             {
                 if(ListPosition == ListItemFile.size() - 1)
                 {
@@ -672,7 +733,7 @@ public class Streaming extends MasterFragment {
                     mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
                 }
                 ListPosition = ListPosition + 1;
-            }
+            } */
         }
     }
 
@@ -695,8 +756,7 @@ public class Streaming extends MasterFragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-
-            if(ListItemFile.size() > 0)
+           /* if(ListItemFile.size() > 0)
             {
                 if(ListPosition == 0)
                 {
@@ -733,6 +793,8 @@ public class Streaming extends MasterFragment {
                 }
                 ListPosition = ListPosition - 1;
             }
+*/
+
 
 //            if(ListItemFile.size() > 0)
 //            {
@@ -784,10 +846,10 @@ public class Streaming extends MasterFragment {
         public void run() {
 
             try {
-                if(mContext.mPlayer != null){
+               // if(mContext.mPlayer != null){
 
-                    long totalDuration = mContext.mPlayer.getDuration();
-                    long currentDurations = mContext.mPlayer.getCurrentPosition();
+                    long totalDuration = mContext.getDuration();
+                    long currentDurations = mContext.getCurrentPosition();
 
                     // Displaying Total Duration time
                     long reduse = totalDuration - currentDurations;
@@ -802,7 +864,7 @@ public class Streaming extends MasterFragment {
 
                     // Running this thread after 100 milliseconds
                     mHandler.postDelayed(this, 100);
-                }
+              //  }
             }catch (Exception e){
 
                 e.printStackTrace();
@@ -817,9 +879,9 @@ public class Streaming extends MasterFragment {
 
         try {
 
-            if (mContext.mPlayer != null) {
+           // if (mContext.mPlayer != null) {
                 mHandler.postDelayed(mUpdateTimeTask, 100);
-            }
+        //    }
 
         }catch (Exception e){
 
@@ -829,7 +891,7 @@ public class Streaming extends MasterFragment {
 
     }
 
-    public void showWaitIndicator(boolean state) {
+  /*  public void showWaitIndicator(boolean state) {
         showWaitIndicator(state, "");
     }
 
@@ -843,7 +905,7 @@ public class Streaming extends MasterFragment {
         } else {
             mProgressDialog.dismiss();
         }
-    }
+    }*/
 
     @Override
     public void onResume() {
@@ -927,4 +989,7 @@ public class Streaming extends MasterFragment {
         }
         super.onDestroy();
     }
+
+
+
 }

@@ -201,6 +201,7 @@ public class HomeFragment extends MasterFragment {
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
+                        mContext.cancelNotification();
                         System.exit(1);
                     }
 

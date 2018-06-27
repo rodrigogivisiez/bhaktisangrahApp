@@ -1,5 +1,7 @@
 package com.goldenant.bhaktisangrah.common.util;
 
+import android.os.Build;
+
 /**
  * Created by Adite-JD on 1/5/2016.
  */
@@ -66,5 +68,30 @@ public class Utilities {
 
         // return current duration in milliseconds
         return currentDuration * 1000;
+    }
+
+    public static boolean isOreo() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
+    public static boolean isMarshmallow() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    }
+
+    public static boolean isLollipop() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+
+    public static boolean isJellyBeanMR2() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
+    }
+
+    public static boolean isJellyBean() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
+    public static boolean isJellyBeanMR1() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
     }
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -26,6 +27,7 @@ import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.common.util.ClickGuard;
 import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
+
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
@@ -47,6 +49,9 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static com.goldenant.bhaktisangrah.MainActivity.Broadcast_PLAY_NEW_AUDIO;
+
 
 /**
  * Created by Adite on 03-01-2016.
@@ -165,10 +170,17 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 mViewHolder.play.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        mContext.setSongPosition(position);
+                        mContext.setSongList(mItem);
+                        if(mContext.serviceBound && mContext.isPlaying()){
+                            Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                            mContext.sendBroadcast(broadcastIntent);
+                        }
+                        else if (mContext.serviceBound) {
+                            mContext.playSong();
+                        }
                         Fragment investProgramDetail = new Streaming();
                         Bundle bundle = new Bundle();
-
                         bundle.putInt("mode", 0);
                         bundle.putSerializable("data", mItem);
                         bundle.putInt("position", position);
@@ -183,6 +195,15 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                     @Override
                     public void onClick(View v) {
 
+                            mContext.setSongPosition(position);
+                            mContext.setSongList(mItem);
+                        if(mContext.serviceBound && mContext.isPlaying()){
+                            Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                            mContext.sendBroadcast(broadcastIntent);
+                        }
+                        else if (mContext.serviceBound) {
+                            mContext.playSong();
+                        }
                         Fragment investProgramDetail = new Streaming();
                         Bundle bundle = new Bundle();
 

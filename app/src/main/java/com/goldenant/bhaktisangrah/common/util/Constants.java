@@ -1,16 +1,14 @@
 package com.goldenant.bhaktisangrah.common.util;
 
 /**
- * Created by ankita on 1/2/2016.
+ * Created by Jaydeep Jikadra on 1/2/2018.
  */
 public class Constants
 {
-    ///mantra/api/v1/get_about_us
-    // http://goldenant.in/BhagtiSagar/api/v1/get_category
 
-    //http://192.168.0.106/BhagtiSagar/api/
-    //http://goldenant.in/BhaktiSagar/api/
-    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";
+   // private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
+
+    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";    //liveApp Url
     private final static String API_FOLDER = "v1/";
 
     //Base Url

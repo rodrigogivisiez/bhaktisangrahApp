@@ -2,8 +2,7 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.plusgaurav.spotifystreamer.PlayerActivityFragment">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/topLayout"
@@ -238,7 +237,8 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:layout_width="match_parent"
