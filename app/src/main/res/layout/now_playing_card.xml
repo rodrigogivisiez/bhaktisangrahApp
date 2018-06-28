@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/topContainer"
+    android:background="@color/layout_selected"
     android:layout_width="wrap_content"
     android:layout_height="55dp"
     android:layout_gravity="top">
@@ -29,7 +30,8 @@
             android:layout_gravity="top"
             android:maxHeight="5dp"
             android:progress="30"
-            android:tag="tint_accent_color" />
+            android:tag="tint_accent_color"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/title"
@@ -40,6 +42,7 @@
             android:layout_marginRight="42dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textColor="@color/white"
             android:textSize="15sp" />
 
         <TextView
@@ -51,6 +54,7 @@
             android:ellipsize="end"
             android:maxLength="20"
             android:maxLines="1"
+            android:textColor="@color/white"
             android:textSize="13sp" />
 
     </LinearLayout>

@@ -13,7 +13,7 @@
             android:id="@+id/listView_cat_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/banner_container"
+            android:layout_above="@+id/now_playing_card"
             android:cacheColorHint="#00000000"
             android:smoothScrollbar="true" />
 
@@ -27,12 +27,12 @@
         <!--ads:adUnitId="@string/bottom_banner_id">-->
         <!--</com.google.android.gms.ads.AdView>-->
 
-       <!-- <include
+        <include
             android:id="@+id/now_playing_card"
             layout="@layout/now_playing_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/banner_container"></include>-->
+            android:layout_above="@+id/banner_container"></include>
 
         <LinearLayout
             android:id="@+id/banner_container"

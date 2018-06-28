@@ -165,6 +165,9 @@ public class MasterActivity extends AppCompatActivity {
         player.playNextTrack();
     }
     public boolean isPlayerPrepared() {
+        if(player==null){
+            return false;
+        }
         return player.isPlayerPrepared();
     }
 
@@ -189,6 +192,14 @@ public class MasterActivity extends AppCompatActivity {
         return player.isMediaPlaying();
        else
            return false;
+    }
+
+    public void setRepeatMode(Boolean bool){
+        player.setRepeat(bool);
+    }
+
+    public void setShuffleMode(Boolean bool){
+        player.setShuffleMode(bool);
     }
 
     public void playSong() {

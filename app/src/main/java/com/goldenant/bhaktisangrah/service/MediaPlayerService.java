@@ -33,6 +33,7 @@ import android.util.Log;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.helpers.PlaybackStatus;
+import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 
 import java.io.IOException;
@@ -96,6 +97,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public boolean isPlayerPrepared =false;
     private NotificationManager mNotificationManager;
     private MediaPlayer mNextMediaPlayer;
+    public boolean isRepeat;
+    private Boolean isShuffle;
 
     public boolean isPlayerPrepared() {
         return isPlayerPrepared;
@@ -139,9 +142,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public void playSong() {
         try {
             //Load data from SharedPreferences
-           /* StorageUtil storage = new StorageUtil(getApplicationContext());
+            StorageUtil storage = new StorageUtil(getApplicationContext());
             audioList = storage.loadAudio();
-            audioIndex = storage.loadAudioIndex();*/
+            audioIndex = storage.loadAudioIndex();
 
             if (audioIndex != -1 && audioIndex < audioList.size()) {
                 //index is in a valid range
@@ -203,6 +206,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         //clear cached playlist
         audioList=null;
         audioIndex=-1;
+        //clear cached playlist
        // new StorageUtil(getApplicationContext()).clearCachedAudioPlaylist();
 
     }
@@ -281,6 +285,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         return isPlaying;
     }
 
+
     /**
      * Service Binder
      */
@@ -303,24 +308,43 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        //Invoked when playback of a media source has completed.
-      /*  stopMedia();
-        playNextTrack();*/
+        if(isRepeat){
+            mp.setLooping(true);
+            mp.start();
+        }
+        if(mp != null && mp.isPlaying()){
+            stopMedia();
+            stopSelf();
+            playNextTrack();
+        }
+        if(!mp.isPlaying()){
+            stopMedia();
+            stopSelf();
+        }
+       /* //Invoked when playback of a media source has completed.
+        if(mediaPlayer==null)return;
+        stopMedia();
+        stopSelf();
+        mediaPlayer=null;
+        playNextTrack();
        // removeNotification();
         //stop the service
         //stopSelf();
-       // playNextTrack();
         if (mp == mediaPlayer && mNextMediaPlayer != null) {
+            //stopMedia();
+            mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.release();
-            mediaPlayer = mNextMediaPlayer;
-            mNextMediaPlayer = null;
+            mediaPlayer=null;
+           // mediaPlayer = mNextMediaPlayer;
+           // mNextMediaPlayer = null;
             playNextTrack();
            // mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
         } else {
             //mService.get().mWakeLock.acquire(30000);
             stopMedia();
             stopSelf();
-        }
+     //   }*/
     }
 
     @Override
@@ -426,6 +450,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }*/
        if (mediaPlayer == null)
             mediaPlayer = new MediaPlayer();//new MediaPlayer instance
+         //  mediaPlayer = MediaPlayer.create(this, Uri.parse(activeAudio.getItem_file()));
 
         //Set up MediaPlayer event listeners
         mediaPlayer.setOnCompletionListener(this);
@@ -544,6 +569,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void resumeMedia() {
+        if(mediaPlayer==null){
+            playSong();
+            return;
+        }
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(resumePosition);
             mediaPlayer.start();
@@ -565,13 +594,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
 
         //Update stored index
-        // new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
+         new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
 
-        stopMedia();
+       // stopMedia();
         //reset mediaPlayer
-        mediaPlayer.reset();
+      //  mediaPlayer.reset();
         initMediaPlayer();
-        //setNextDataSource(activeAudio.getItem_file());
+      //  setNextDataSource(activeAudio.getItem_file());
     }
 
     public void skipToPrevious() {
@@ -587,8 +616,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         }
 
         //Update stored index
-        //new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
-        //setAudioIndex(audioIndex);
+        new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
+
         stopMedia();
         //reset mediaPlayer
         mediaPlayer.reset();
@@ -915,8 +944,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         public void onReceive(Context context, Intent intent) {
 
             //Get the new media index form SharedPreferences
-            //audioIndex = new StorageUtil(getApplicationContext()).loadAudioIndex();
-            //audioIndex=getAudioIndex();
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            audioList = storage.loadAudio();
+            audioIndex = storage.loadAudioIndex();
+
             if (audioIndex != -1 && audioIndex < audioList.size()) {
                 //index is in a valid range
                 activeAudio = audioList.get(audioIndex);
@@ -1013,6 +1044,21 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public void setAudioIndex(int audioIndex) {
         this.audioIndex = audioIndex;
+    }
+
+    public void setShuffleMode(Boolean bool) {
+        isShuffle=bool;
+    }
+
+    public boolean isShuffle(){
+        return isShuffle;
+    }
+    public boolean isRepeat() {
+        return isRepeat;
+    }
+
+    public void setRepeat(boolean repeat) {
+        isRepeat = repeat;
     }
 
     public SubCategoryModel getActiveAudio() {

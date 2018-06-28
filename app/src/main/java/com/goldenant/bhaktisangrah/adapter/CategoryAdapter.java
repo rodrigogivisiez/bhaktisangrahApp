@@ -28,6 +28,7 @@ import com.goldenant.bhaktisangrah.common.util.ClickGuard;
 import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 
+import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.squareup.picasso.Picasso;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.goldenant.bhaktisangrah.MainActivity.Broadcast_PLAY_NEW_AUDIO;
 
 
@@ -65,7 +67,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
     int resource;
 
-    private String fileName, imagename,file_id;
+    private String fileName, imagename, file_id;
 
     private ProgressDialog pDialog;
 
@@ -97,8 +99,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             //Get path of song name
             File myFile = new File("/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/BhaktiSagarID.txt");
 
-            if (myFile.exists())
-            {
+            if (myFile.exists()) {
                 FileInputStream fIn = new FileInputStream(myFile);
                 BufferedReader myReader = new BufferedReader(
                         new InputStreamReader(fIn));
@@ -111,7 +112,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
                 myReader.close();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
@@ -170,13 +171,19 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 mViewHolder.play.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mContext.setSongPosition(position);
-                        mContext.setSongList(mItem);
-                        if(mContext.serviceBound && mContext.isPlaying()){
+
+                        //clear cached playlist
+                        //Store Serializable audioList to SharedPreferences
+                        StorageUtil storage = new StorageUtil(getApplicationContext());
+                        storage.clearCachedAudioPlaylist();
+                        storage.storeAudio(mItem);
+                        storage.storeAudioIndex(position);
+                      /*  mContext.setSongPosition(position);
+                        mContext.setSongList(mItem);*/
+                        if (mContext.serviceBound && mContext.isPlaying()) {
                             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
                             mContext.sendBroadcast(broadcastIntent);
-                        }
-                        else if (mContext.serviceBound) {
+                        } else if (mContext.serviceBound) {
                             mContext.playSong();
                         }
                         Fragment investProgramDetail = new Streaming();
@@ -195,13 +202,18 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                     @Override
                     public void onClick(View v) {
 
-                            mContext.setSongPosition(position);
-                            mContext.setSongList(mItem);
-                        if(mContext.serviceBound && mContext.isPlaying()){
+                        //clear cached playlist
+                        //Store Serializable audioList to SharedPreferences
+                        StorageUtil storage = new StorageUtil(getApplicationContext());
+                        storage.clearCachedAudioPlaylist();
+                        storage.storeAudio(mItem);
+                        storage.storeAudioIndex(position);
+                          /*  mContext.setSongPosition(position);
+                            mContext.setSongList(mItem);*/
+                        if (mContext.serviceBound && mContext.isPlaying()) {
                             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
                             mContext.sendBroadcast(broadcastIntent);
-                        }
-                        else if (mContext.serviceBound) {
+                        } else if (mContext.serviceBound) {
                             mContext.playSong();
                         }
                         Fragment investProgramDetail = new Streaming();
@@ -221,11 +233,11 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                 mViewHolder.download.setBackgroundResource(R.drawable.download);
 
 
-                if(songsID.size() > 0){
+                if (songsID.size() > 0) {
 
-                    for(int i= 0 ; i < songsID.size() ; i ++){
+                    for (int i = 0; i < songsID.size(); i++) {
 
-                        if(mItem.get(position).getItem_id().equalsIgnoreCase(songsID.get(i))){
+                        if (mItem.get(position).getItem_id().equalsIgnoreCase(songsID.get(i))) {
 
                             mViewHolder.download.setBackgroundResource(R.drawable.download_finished);
                             mViewHolder.download.setOnClickListener(null);
@@ -418,7 +430,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                             bufferWritter.write(aBuffer);
                             bufferWritter.close();
                         }
-                    } catch (Exception e){
+                    } catch (Exception e) {
 
                         e.printStackTrace();
                     }
@@ -518,8 +530,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
     }
 
-    private void ShowAlert()
-    {
+    private void ShowAlert() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
         alertDialogBuilder.setMessage("Download successfully");
         alertDialogBuilder.setTitle("Bhakti Sagar");

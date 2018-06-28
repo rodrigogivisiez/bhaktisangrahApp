@@ -386,6 +386,10 @@ public class MusicService extends Service {
         Log.e("songs", songs.toString());
     }
 
+    public ArrayList<SubCategoryModel> getSongs() {
+        return songs;
+    }
+
     public int getSongPosition() {
         return currentSongPosition;
     }
@@ -545,6 +549,14 @@ public class MusicService extends Service {
         }
     }
 
+    public boolean isInitialized() {
+        return mPlayer.isInitialized();
+    }
+
+    public void startPlay() {
+        mPlayer.resume();
+    }
+
 
     public class MusicBinder extends Binder {
         public MusicService getService() {
@@ -617,7 +629,8 @@ public class MusicService extends Service {
                 .setStyle(
                         new android.support.v4.media.app.NotificationCompat.MediaStyle()
                                 .setMediaSession(mSession.getSessionToken())
-                                .setShowCancelButton(true))
+                                .setShowCancelButton(true)
+                                .setShowActionsInCompactView(0, 1, 2))
                 .setColor(ContextCompat.getColor(this, R.color.theme_color))
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -952,6 +965,7 @@ public class MusicService extends Service {
         }
 
         public void gotoNext(boolean b) {
+            gotoNext(b);
         }
 
         public void prev(boolean b) {
@@ -959,6 +973,12 @@ public class MusicService extends Service {
 
         public boolean isPlaying() {
             return mCurrentMediaPlayer.isPlaying();
+        }
+
+        public void resume() {
+            if (!mCurrentMediaPlayer.isPlaying()) {
+                mCurrentMediaPlayer.start();
+            }
         }
     }
 

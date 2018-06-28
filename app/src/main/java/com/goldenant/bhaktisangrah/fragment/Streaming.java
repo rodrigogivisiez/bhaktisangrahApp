@@ -259,9 +259,11 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat ON");
                     // make shuffle to false
                     isShuffle = false;
+                    mContext.setShuffleMode(isShuffle);
                     repeatButton.setBackgroundResource(R.drawable.repeat_on);
                     shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
                 }
+                mContext.setRepeatMode(isRepeat);
             }
         });
 
@@ -279,9 +281,11 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     ToastUtil.showShortToastMessage(getActivity(), "Shuffle ON");
                     // make shuffle to false
                     isRepeat = false;
+                    mContext.setRepeatMode(isRepeat);
                     shuffleButton.setBackgroundResource(R.drawable.shuffle_on);
                     repeatButton.setBackgroundResource(R.drawable.repeat_off);
                 }
+                mContext.setShuffleMode(isShuffle);
             }
         });
 
@@ -308,7 +312,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     int totalDuration = (int) mContext.getDuration();
                     int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
 
-                    progressBar.setVisibility(View.VISIBLE);
+                    //progressBar.setVisibility(View.VISIBLE);
 
                     //showWaitIndicator(true);
                     // forward or backward to certain seconds
