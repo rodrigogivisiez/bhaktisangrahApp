@@ -178,8 +178,8 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         storage.clearCachedAudioPlaylist();
                         storage.storeAudio(mItem);
                         storage.storeAudioIndex(position);
-                      /*  mContext.setSongPosition(position);
-                        mContext.setSongList(mItem);*/
+                        storage.storeMode(0);
+
                         if (mContext.serviceBound && mContext.isPlaying()) {
                             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
                             mContext.sendBroadcast(broadcastIntent);
@@ -208,6 +208,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         storage.clearCachedAudioPlaylist();
                         storage.storeAudio(mItem);
                         storage.storeAudioIndex(position);
+                        storage.storeMode(0);
                           /*  mContext.setSongPosition(position);
                             mContext.setSongList(mItem);*/
                         if (mContext.serviceBound && mContext.isPlaying()) {

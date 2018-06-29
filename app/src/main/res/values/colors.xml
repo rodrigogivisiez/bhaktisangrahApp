@@ -22,5 +22,6 @@
     <color name="text_hint">#c1c1c1</color>
     <color name="layout_normal">#0e282c</color>
     <color name="layout_selected">#091a1d</color>
+    <color name="yellow_border">#fff3a8</color>
 
 </resources>

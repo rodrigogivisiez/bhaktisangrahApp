@@ -27,13 +27,15 @@ public interface MusicStateListener {
     void restartLoader();
 
     /**
-     * Called when {PLAYLIST_CHANGED} is invoked
+     * Called when {STOP_PROGRESS} is invoked
      */
-    void onPlaylistChanged();
+    void stopProgressHandler();
 
     /**
      * Called when {META_CHANGED} is invoked
      */
     void onMetaChanged();
+
+
 
 }

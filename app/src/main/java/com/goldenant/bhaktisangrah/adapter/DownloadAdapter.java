@@ -2,6 +2,7 @@ package com.goldenant.bhaktisangrah.adapter;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,8 +20,13 @@ import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
+import com.goldenant.bhaktisangrah.helpers.StorageUtil;
+import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 
 import java.util.ArrayList;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.goldenant.bhaktisangrah.MainActivity.Broadcast_PLAY_NEW_AUDIO;
 
 /**
  * Created by Adite on 03-01-2016.
@@ -40,6 +46,7 @@ public class DownloadAdapter extends ArrayAdapter<String>
     private static String fileName;
 
     private ProgressDialog pDialog;
+    ArrayList<SubCategoryModel> songList;
 
     public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs)
     {
@@ -50,6 +57,15 @@ public class DownloadAdapter extends ArrayAdapter<String>
         mItemSongPath = listSongs;
         this.resource = resource;
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        songList=new ArrayList<>();
+        for(int i=0;i<mItem.size();i++){
+            SubCategoryModel subCategoryModel=new SubCategoryModel();
+            subCategoryModel.setItem_name(mItem.get(i));
+            subCategoryModel.setItem_image(mItemImage.get(i));
+            subCategoryModel.setItem_file(mItemSongPath.get(i));
+            subCategoryModel.setItem_description(mItem.get(i));
+            songList.add(subCategoryModel);
+        }
 
         Log.d("Adapter Call","Size: "+mItem.size());
     }
@@ -99,6 +115,17 @@ public class DownloadAdapter extends ArrayAdapter<String>
             public void onClick(View v)
             {
                 Log.d("SONG_PATH",""+mItemSongPath.get(position));
+                StorageUtil storage = new StorageUtil(getApplicationContext());
+                storage.clearCachedAudioPlaylist();
+                storage.storeAudio(songList);
+                storage.storeAudioIndex(position);
+                storage.storeMode(1);
+                if (mContext.serviceBound && mContext.isPlaying()) {
+                    Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                    mContext.sendBroadcast(broadcastIntent);
+                } else if (mContext.serviceBound) {
+                    mContext.playSong();
+                }
 
                 Fragment streaming = new Streaming();
 
@@ -108,6 +135,7 @@ public class DownloadAdapter extends ArrayAdapter<String>
                 bundle.putSerializable("item_name", mItem);
                 bundle.putSerializable("item_image", mItemImage);
                 bundle.putInt("position", position);
+                bundle.putSerializable("data", songList);
 
                 streaming.setArguments(bundle);
                 mContext.ReplaceFragement(streaming);

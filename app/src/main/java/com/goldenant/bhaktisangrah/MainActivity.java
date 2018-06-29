@@ -1,7 +1,6 @@
 package com.goldenant.bhaktisangrah;
 
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,7 +27,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -37,7 +35,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.FacebookSdk;
 import com.goldenant.bhaktisangrah.common.ui.DrawerArrowDrawable;
 import com.goldenant.bhaktisangrah.common.ui.DrawerListAdapter;
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
@@ -52,10 +49,7 @@ import com.goldenant.bhaktisangrah.fragment.Share;
 import com.goldenant.bhaktisangrah.gcm.ApplicationConstants;
 import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
-import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.goldenant.bhaktisangrah.service.MediaPlayerService;
-import com.goldenant.bhaktisangrah.service.MusicNotification;
-import com.goldenant.bhaktisangrah.service.MusicService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -115,12 +109,6 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
 
         Fabric.with(this, new Crashlytics());
-/*
-        if(playIntent==null){
-            playIntent = new Intent(getApplicationContext(), MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }*/
 
         if(playerIntent==null) {
             playerIntent = new Intent(getApplicationContext(), MediaPlayerService.class);
@@ -503,31 +491,9 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     }
 
 
-    //connect to the service
-    private ServiceConnection musicConnection = new ServiceConnection(){
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
-            //get service
-            musicSrv = binder.getService();
-            musicBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
-            // musicBound = true;
-        }
-    };
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-         /*  if (musicConnection != null) {
-            unbindService(musicConnection);
-        }
-        stopService();*/
         if (serviceBound) {
             unbindService(serviceConnection);
             //service is active
@@ -557,7 +523,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         // Update a list, probably the playlist fragment's
         filter.addAction(MediaPlayerService.REFRESH);
         // If a playlist has changed, notify us
-        filter.addAction(MediaPlayerService.PLAYLIST_CHANGED);
+        filter.addAction(MediaPlayerService.STOP_PROGRESS);
         // If there is an error playing a track
         filter.addAction(MediaPlayerService.TRACK_ERROR);
 
@@ -606,8 +572,12 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     }
 
     @Override
-    public void onPlaylistChanged() {
-//stop
+    public void stopProgressHandler() {
+        for (final MusicStateListener listener : mMusicStateListener) {
+            if (listener != null) {
+                listener.onMetaChanged();
+            }
+        }
     }
 
     @Override
@@ -639,8 +609,8 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
 //                    baseActivity.mPlayPauseProgressButton.getPlayPauseButton().updateState();
                 } else if (action.equals(MediaPlayerService.REFRESH)) {
                     baseActivity.restartLoader();
-                } else if (action.equals(MediaPlayerService.PLAYLIST_CHANGED)) {
-                    baseActivity.onPlaylistChanged();
+                } else if (action.equals(MediaPlayerService.STOP_PROGRESS)) {
+                    baseActivity.stopProgressHandler();
                 } else if (action.equals(MediaPlayerService.TRACK_ERROR)) {
                     final String errorMsg = context.getString(R.string.error_playing_track,
                             intent.getStringExtra(MediaPlayerService.TrackErrorExtra.TRACK_NAME));

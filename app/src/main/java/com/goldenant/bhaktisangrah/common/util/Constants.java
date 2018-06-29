@@ -8,8 +8,9 @@ public class Constants
 
    // private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
 
-    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";    //liveApp Url
+   private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";    //liveApp Url
     private final static String API_FOLDER = "v1/";
+  //  private final static String API_DOMAIN_CONSUMER = "http://onelinaudioplayer.com/AndroidAudioApp/api/";
 
     //Base Url
     private final static String API_BASE_URL = API_DOMAIN_CONSUMER + API_FOLDER;

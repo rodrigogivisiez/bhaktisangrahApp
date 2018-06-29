@@ -2,10 +2,14 @@ package com.goldenant.bhaktisangrah.fragment;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,6 +27,7 @@ import android.widget.TextView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.adapter.HomeAdapter;
+import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
@@ -59,13 +64,14 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
 
     private AdView adView;
 
-    private ImageView mPlayPause, mAlbumArt;
-    public static RelativeLayout topContainer;
+    private ImageView mPlayPause;
+    public RelativeLayout topContainer;
     private ProgressBar mProgress;
     private SeekBar mSeekBar;
     private int overflowcounter = 0;
     private TextView mTitle, mArtist;
     private View rootView, playPauseWrapper;
+    private CircularImageView mAlbumArt;
 
     private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
         @Override
@@ -74,13 +80,13 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
                 if (mContext.isPlaying()) {
                     mContext.pauseSong();
                     // Changing button image to play button
-                    mPlayPause.setImageResource(R.drawable.ic_action_play);
+                    mPlayPause.setImageResource(R.drawable.ic_play_arrow);
                     // }
                 } else {
                     // Resume song
                     mContext.startPlaying();
                     // Changing button image to pause button
-                    mPlayPause.setImageResource(R.drawable.pause);
+                    mPlayPause.setImageResource(R.drawable.ic_pause);
                     // }
                 }
             }
@@ -119,8 +125,9 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         // mSeekBar = (SeekBar) view.findViewById(R.id.song_progress);
         mTitle = (TextView) view.findViewById(R.id.title);
         mArtist = (TextView) view.findViewById(R.id.artist);
-        mAlbumArt = (ImageView) view.findViewById(R.id.album_art_nowplayingcard);
-        topContainer = view.findViewById(R.id.topContainer);
+        // mArtist.setMovementMethod(new ScrollingMovementMethod());
+        mAlbumArt = view.findViewById(R.id.album_art_nowplayingcard);
+        topContainer = (RelativeLayout) view.findViewById(R.id.topContainer);
 
         mContext.showDrawer();
         mContext.hideDrawerBack();
@@ -263,11 +270,12 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         StorageUtil storage = new StorageUtil(getApplicationContext());
         ArrayList<SubCategoryModel> audioList = storage.loadAudio();
         int audioIndex = storage.loadAudioIndex();
-        if(audioList==null){
-           // topContainer.setVisibility(View.GONE);
+        int mode = storage.loadMode();
+        if (audioList == null) {
+            // topContainer.setVisibility(View.GONE);
             return;
         }
-        updateView(audioList.get(audioIndex));
+        updateView(audioList.get(audioIndex), mode);
     }
 
     @Override
@@ -284,34 +292,43 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     }
 
     @Override
-    public void onPlaylistChanged() {
+    public void stopProgressHandler() {
 
     }
 
     @Override
     public void onMetaChanged() {
         Log.e("onMetaChanged", "UPDATE_VIEW");
-      //  updateView(mContext.getActiveAudio());
+        //  updateView(mContext.getActiveAudio());
         updateBottomPlayer();
     }
 
-    private void updateView(SubCategoryModel currentlyPlaying) {
+    private void updateView(SubCategoryModel currentlyPlaying, int mode) {
         if (currentlyPlaying == null) {
-           // topContainer.setVisibility(View.GONE);
+            // topContainer.setVisibility(View.GONE);
             return;
         }
-       // topContainer.setVisibility(View.VISIBLE);
+        //topContainer.setVisibility(View.VISIBLE);
         Log.e("update view", "UPDATE");
         mTitle.setText(currentlyPlaying.getItem_description());
-        Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(mAlbumArt);
         mArtist.setText(currentlyPlaying.getItem_name());
+        if (mode == 1) {
+            if (currentlyPlaying.getItem_image() != null) {
+                Bitmap bitmap = BitmapFactory.decodeFile(currentlyPlaying.getItem_image());
+                BitmapDrawable d = new BitmapDrawable(bitmap);
+                mAlbumArt.setImageBitmap(bitmap);
+            }
+        } else {
+            Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(mAlbumArt);
+        }
+
         if (mContext.isPlayerPrepared()) {
             // Changing button image to play button
             if (!mContext.isPlaying()) {
-                mPlayPause.setImageResource(R.drawable.ic_action_play);
+                mPlayPause.setImageResource(R.drawable.ic_play_arrow);
 
             } else {
-                mPlayPause.setImageResource(R.drawable.pause);
+                mPlayPause.setImageResource(R.drawable.ic_pause);
             }
         }
     }

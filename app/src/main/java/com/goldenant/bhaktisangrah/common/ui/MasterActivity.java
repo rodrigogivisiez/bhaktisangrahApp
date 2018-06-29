@@ -19,7 +19,7 @@ import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.goldenant.bhaktisangrah.service.MediaPlayerService;
-import com.goldenant.bhaktisangrah.service.MusicService;
+
 
 import java.util.ArrayList;
 
@@ -41,7 +41,6 @@ public class MasterActivity extends AppCompatActivity {
 
     public static int listScreen = 0, playScreen = 0;
 
-    public static MusicService musicSrv = null;
     public static boolean musicBound = false;
     public static Intent playIntent;
 
@@ -206,6 +205,10 @@ public class MasterActivity extends AppCompatActivity {
         player.playSong();
     }
 
+    public void setMode(int mode){ //from download=1 or Streaming=0
+        player.setMode(mode);
+    }
+
     public void startPlaying() {
         player.resumeMediaPlay();
     }
@@ -232,17 +235,6 @@ public class MasterActivity extends AppCompatActivity {
         return player.getAudioIndex();
     }
 
-    public void songPicked(View view) {
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        musicSrv.playSong();
-    }
-
-    public void stopService() {
-        stopService(playIntent);
-        musicSrv = null;
-        musicBound = false;
-        // System.exit(0);
-    }
 
 
     @Override

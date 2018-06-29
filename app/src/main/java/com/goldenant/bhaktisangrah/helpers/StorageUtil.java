@@ -60,4 +60,16 @@ public class StorageUtil {
         editor.clear();
         editor.commit();
     }
+
+    public void storeMode(int index) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("mode", index);
+        editor.apply();
+    }
+
+    public int loadMode() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        return preferences.getInt("mode", -1);//return -1 if no data found
+    }
 }

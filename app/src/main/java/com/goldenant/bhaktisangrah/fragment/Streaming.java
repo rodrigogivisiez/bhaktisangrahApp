@@ -42,6 +42,7 @@ import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.Random;
+
 import com.facebook.ads.*;
 
 import static com.goldenant.bhaktisangrah.common.util.Constants.*;
@@ -67,7 +68,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     private Handler mHandler = new Handler();
     private Utilities utils;
     private ProgressBar progressBar;
-    private AsyncRunner mTask;
+  //  private AsyncRunner mTask;
     private Boolean isPlaying;
     String imageUrl;
     private Bundle bundle;
@@ -107,7 +108,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         utils = new Utilities();
         ((MainActivity) getActivity()).setMusicStateListenerListener(this);
         MasterActivity.playScreen = MasterActivity.playScreen + 1;
-        if(MasterActivity.playScreen == 3) {
+        if (MasterActivity.playScreen == 3) {
             MasterActivity.playScreen = 0;
             loadBigAds();
         }
@@ -121,6 +122,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 ListItemFile = (ArrayList<String>) bundle.getSerializable("item_file");
                 ListItemName = (ArrayList<String>) bundle.getSerializable("item_name");
                 ListItemImage = (ArrayList<String>) bundle.getSerializable("item_image");
+                ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
                 ListPosition = bundle.getInt("position");
 
                 Log.d("ListItemImage", ListItemImage + " ");
@@ -128,12 +130,12 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
                 ListPosition = bundle.getInt("position");
 
-                Log.d("ListPosition",""+ListPosition);
+                Log.d("ListPosition", "" + ListPosition);
                 homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
 
-                if(isVisible()){
+                if (isVisible()) {
 
-                    mContext.setTitle(" "+ListItem.get(ListPosition).getItem_name());
+                    mContext.setTitle(" " + ListItem.get(ListPosition).getItem_name());
                 }
             }
         }
@@ -163,8 +165,6 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         adView.loadAd();
 
 
-
-
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,9 +192,9 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
         }*/
 
-       if(ListItem!=null || !ListItem.isEmpty()){
-           updateView(ListItem.get(ListPosition));
-       }
+        if (ListItem != null || !ListItem.isEmpty()) {
+            updateView(ListItem.get(ListPosition));
+        }
 
 
 //        new AsyncRunner().execute(ListPosition);
@@ -205,23 +205,23 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             public void onClick(View arg0) {
                 // check for already playing
 
-                if(mContext.mPlayer != null){
+                if (mContext.mPlayer != null) {
 
                     if (mContext.isPlaying()) {
-                       // if (mContext.mPlayer != null) {
-                          //  mContext.mPlayer.pause();
-                            mContext.pauseSong();
-                            // Changing button image to play button
-                            playButton.setImageResource(R.drawable.ic_action_play);
-                       // }
+                        // if (mContext.mPlayer != null) {
+                        //  mContext.mPlayer.pause();
+                        mContext.pauseSong();
+                        // Changing button image to play button
+                        playButton.setImageResource(R.drawable.ic_action_play);
+                        // }
                     } else {
                         // Resume song
-                       // if (mContext.mPlayer != null) {
-                            mContext.startPlaying();
-                            //mContext.mPlayer.start();
-                            // Changing button image to pause button
-                            playButton.setImageResource(R.drawable.pause);
-                       // }
+                        // if (mContext.mPlayer != null) {
+                        mContext.startPlaying();
+                        //mContext.mPlayer.start();
+                        // Changing button image to pause button
+                        playButton.setImageResource(R.drawable.pause);
+                        // }
                     }
                 }
             }
@@ -232,28 +232,28 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             public void onClick(View arg0) {
                 mHandler.removeCallbacks(mUpdateTimeTask);
                 mContext.setNextTrack();
-               // new AsyncRunnerNext().execute();
+                // new AsyncRunnerNext().execute();
             }
         });
 
         prevButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
+            @Override
+            public void onClick(View arg0) {
                 mHandler.removeCallbacks(mUpdateTimeTask);
                 mContext.setPreviousTrack();
-				//new AsyncRunnerPrevious().execute();
-			}
-		});
+                //new AsyncRunnerPrevious().execute();
+            }
+        });
 
         repeatButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                if(isRepeat){
+                if (isRepeat) {
                     isRepeat = false;
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat OFF");
                     repeatButton.setBackgroundResource(R.drawable.repeat_off);
-                }else{
+                } else {
                     // make repeat to true
                     isRepeat = true;
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat ON");
@@ -271,13 +271,13 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
             @Override
             public void onClick(View arg0) {
-                if(isShuffle){
+                if (isShuffle) {
                     isShuffle = false;
                     ToastUtil.showShortToastMessage(getActivity(), "Shuffle OFF");
                     shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
-                }else{
+                } else {
                     // make repeat to true
-                    isShuffle= true;
+                    isShuffle = true;
                     ToastUtil.showShortToastMessage(getActivity(), "Shuffle ON");
                     // make shuffle to false
                     isRepeat = false;
@@ -304,23 +304,23 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             @Override
             public void onStopTrackingTouch(CircularSeekBar seekBar) {
 
-               // if(mContext.mPlayer != null){
+                // if(mContext.mPlayer != null){
 
 
-                    mHandler.removeCallbacks(mUpdateTimeTask);
-                    //int totalDuration = mContext.mPlayer.getDuration();
-                    int totalDuration = (int) mContext.getDuration();
-                    int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                //int totalDuration = mContext.mPlayer.getDuration();
+                int totalDuration = (int) mContext.getDuration();
+                int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
 
-                    //progressBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
 
-                    //showWaitIndicator(true);
-                    // forward or backward to certain seconds
-                    mContext.seekTo(currentPosition);
+                //showWaitIndicator(true);
+                // forward or backward to certain seconds
+                mContext.seekTo(currentPosition);
 
-                    // update timer progress again
-                    updateProgressBar();
-             //   }
+                // update timer progress again
+                updateProgressBar();
+                //   }
             }
         });
 
@@ -329,11 +329,28 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     }
 
     private void updateView(SubCategoryModel currentlyPlaying) {
-        Log.e("update view","UPDATE");
-        Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+        progressBar.setVisibility(View.GONE);
+        Log.e("update view", "UPDATE");
         albumNameView.setText(currentlyPlaying.getItem_description());
-        Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
         trackNameView.setText(currentlyPlaying.getItem_name());
+        if (isVisible()) {
+            if (currentlyPlaying.getItem_name() != null) {
+                mContext.setTitle(" " + currentlyPlaying.getItem_name());
+            }
+        }
+        if (mode == 1) {
+            albumNameView.setText("");
+            if (currentlyPlaying.getItem_image() != null) {
+                Bitmap bitmap = BitmapFactory.decodeFile(currentlyPlaying.getItem_image());
+                BitmapDrawable d = new BitmapDrawable(bitmap);
+                backgroundImageView.setImageBitmap(bitmap);
+                trackImageView.setImageBitmap(bitmap);
+            }
+        } else if (mode == 0) {
+            Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
+        }
+
         if (mContext.isPlayerPrepared()) {
             // Changing button image to play button
             if (!mContext.isPlaying()) {
@@ -344,14 +361,13 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             }
         }
         mHandler.removeCallbacks(mUpdateTimeTask);
-        if(mContext.isPlayerPrepared()){
-            Log.e("restartLoader","UPDATE_PROGRESS");
+        if (mContext.isPlayerPrepared()) {
+            Log.e("restartLoader", "UPDATE_PROGRESS");
             updateProgressBar();
         }
     }
 
-    private void loadBigAds()
-    {
+    private void loadBigAds() {
         interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
         interstitialAd.setAdListener(new InterstitialAdListener() {
             @Override
@@ -393,36 +409,31 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     }
 
 
-    public void prepareSong(int songIndex){
+   /* public void prepareSong(int songIndex) {
 
         try {
 
 
-                stopPlaying();
+            stopPlaying();
 
-                int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
 
-                if(currentapiVersion >= android.os.Build.VERSION_CODES.LOLLIPOP)
-                {
-                    if(mode == 1)
-                    {
-                        mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex)));
-                    }else{
-                        mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
-                    }
+            if (currentapiVersion >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                if (mode == 1) {
+                    mContext.mPlayer = MediaPlayer.create(mContext, Uri.parse(ListItemFile.get(songIndex)));
+                } else {
+                    mContext.mPlayer = MediaPlayer.create(mContext, Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
                 }
-                else
-                {
-                    if(mode == 1)
-                    {
-                        mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItemFile.get(songIndex).replace(" ","%20")));
-                    }else{
-                        mContext.mPlayer = MediaPlayer.create(mContext,Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
-                    }
+            } else {
+                if (mode == 1) {
+                    mContext.mPlayer = MediaPlayer.create(mContext, Uri.parse(ListItemFile.get(songIndex).replace(" ", "%20")));
+                } else {
+                    mContext.mPlayer = MediaPlayer.create(mContext, Uri.parse(ListItem.get(songIndex).getItem_file().replace(" ", "%20")));
                 }
+            }
 //                mContext.mPlayer.prepare();
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
@@ -442,30 +453,29 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         // Play song
         try {
 //            progressBar.setVisibility(View.GONE);
-               if(mContext.mPlayer != null){
+            if (mContext.mPlayer != null) {
 
-               // mContext.mPlayer.start();
-                   mContext.playSong();
+                // mContext.mPlayer.start();
+                mContext.playSong();
                 progressBar.setVisibility(View.GONE);
 
 //                showWaitIndicator(false);
                 // Displaying Song title
 
-                if(mode == 1)
-                {
+                if (mode == 1) {
                     trackNameView.setText(ListItemName.get(songIndex));
                     albumNameView.setText("");
 
-                    if(isVisible()){
+                    if (isVisible()) {
 
-                        if(ListItemName.get(songIndex) != null){
+                        if (ListItemName.get(songIndex) != null) {
 
                             mContext.setTitle(" " + ListItemName.get(songIndex));
                         }
 
                     }
 
-                    if(ListItemName.get(songIndex) != null){
+                    if (ListItemName.get(songIndex) != null) {
 
                         Bitmap bitmap = BitmapFactory.decodeFile(ListItemImage.get(songIndex));
                         BitmapDrawable d = new BitmapDrawable(bitmap);
@@ -475,11 +485,11 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     }
 
 
-                }else{
+                } else {
                     trackNameView.setText(ListItem.get(songIndex).getItem_name());
                     albumNameView.setText(ListItem.get(songIndex).getItem_description());
 
-                    if(isVisible()){
+                    if (isVisible()) {
 
                         mContext.setTitle(" " + ListItem.get(songIndex).getItem_name());
 
@@ -504,104 +514,102 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 // Updating progress bar
                 // Media Complete...
 
-               if(mContext.mPlayer != null)
-               {
-                   mContext.mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                       @Override
-                       public void onCompletion(MediaPlayer mp) {
-                           if (isRepeat) {
+                if (mContext.mPlayer != null) {
+                    mContext.mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            if (isRepeat) {
 //                    playSong(ListPosition);
 //                            new AsyncRunner().execute(ListPosition);
-                               if (mTask != null) {
+                                if (mTask != null) {
 
-                                   mTask.cancel(true);
-                                   mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
-                               } else {
+                                    mTask.cancel(true);
+                                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                                } else {
 
-                                   mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
-                               }
-                           } else if (isShuffle) {
-                               // shuffle is on - play a random song
-                               Random rand = new Random();
+                                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                                }
+                            } else if (isShuffle) {
+                                // shuffle is on - play a random song
+                                Random rand = new Random();
 
-                               if (mode == 1) {
-                                   ListPosition = rand.nextInt((ListItemFile.size() - 1) - 0 + 1) + 0;
-                               } else {
-                                   ListPosition = rand.nextInt((ListItem.size() - 1) - 0 + 1) + 0;
-                               }
+                                if (mode == 1) {
+                                    ListPosition = rand.nextInt((ListItemFile.size() - 1) - 0 + 1) + 0;
+                                } else {
+                                    ListPosition = rand.nextInt((ListItem.size() - 1) - 0 + 1) + 0;
+                                }
 
 //                    playSong(ListPosition);
 //                            new AsyncRunner().execute(ListPosition);
-                               if (mTask != null) {
+                                if (mTask != null) {
 
-                                   mTask.cancel(true);
-                                   mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
-                               } else {
+                                    mTask.cancel(true);
+                                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                                } else {
 
-                                   mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
-                               }
-                           } else {
-                               // no repeat or shuffle ON - play next song
+                                    mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition);
+                                }
+                            } else {
+                                // no repeat or shuffle ON - play next song
 
-                               if (ListPosition < (ListItem.size() - 1)) {
+                                if (ListPosition < (ListItem.size() - 1)) {
 //                        playSong(ListPosition + 1);
 //                                new AsyncRunner().execute(ListPosition + 1);
 
-                                   if (mTask != null) {
+                                    if (mTask != null) {
 
-                                       mTask.cancel(true);
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                                   } else {
+                                        mTask.cancel(true);
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                                    } else {
 
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                                   }
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                                    }
 
-                                   ListPosition = ListPosition + 1;
-                               } else if (ListPosition < (ListItemFile.size() - 1)) {
+                                    ListPosition = ListPosition + 1;
+                                } else if (ListPosition < (ListItemFile.size() - 1)) {
 //                        playSong(ListPosition + 1);
 //                                new AsyncRunner().execute(ListPosition + 1);
-                                   if (mTask != null) {
+                                    if (mTask != null) {
 
-                                       mTask.cancel(true);
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                                   } else {
+                                        mTask.cancel(true);
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                                    } else {
 
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
-                                   }
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
+                                    }
 
-                                   ListPosition = ListPosition + 1;
-                               } else {
-                                   // play first song
+                                    ListPosition = ListPosition + 1;
+                                } else {
+                                    // play first song
 //                        playSong(0);
 //                                new AsyncRunner().execute(0);
 
-                                   if (mTask != null) {
+                                    if (mTask != null) {
 
-                                       mTask.cancel(true);
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(0);
-                                   } else {
+                                        mTask.cancel(true);
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(0);
+                                    } else {
 
-                                       mTask = (AsyncRunner) new AsyncRunner().execute(0);
-                                   }
-                                   ListPosition = 0;
-                               }
-                           }
-                       }
-                   });
-               }
-                   if(mContext.mPlayer != null)
-                   {
-                       mContext.mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                           @Override
-                           public void onSeekComplete(MediaPlayer mp) {
-                               currentDuration.setText("00:00");
-                               finalDuration.setText("00:00");
+                                        mTask = (AsyncRunner) new AsyncRunner().execute(0);
+                                    }
+                                    ListPosition = 0;
+                                }
+                            }
+                        }
+                    });
+                }
+                if (mContext.mPlayer != null) {
+                    mContext.mPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                        @Override
+                        public void onSeekComplete(MediaPlayer mp) {
+                            currentDuration.setText("00:00");
+                            finalDuration.setText("00:00");
 
-                               progressBar.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
 //                        showWaitIndicator(false);
-                           }
-                       });
-                   }
+                        }
+                    });
+                }
 
 
 //                mContext.mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener()
@@ -614,8 +622,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 //                });
 
                 updateProgressBar();
-            }
-            else {
+            } else {
                 progressBar.setVisibility(View.GONE);
 //                showWaitIndicator(false);
                 nextButton.setEnabled(true);
@@ -630,33 +637,35 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             e.printStackTrace();
         }
     }
-
+*/
     @Override
     public void restartLoader() {
         mHandler.removeCallbacks(mUpdateTimeTask);
-        Log.e("restartLoader","UPDATE_PROGRESS");
-        if(mContext.isPlaying()){
+        Log.e("restartLoader", "UPDATE_PROGRESS");
+        if (mContext.isPlaying()) {
             updateProgressBar();
         }
     }
 
     @Override
-    public void onPlaylistChanged() {
-
+    public void stopProgressHandler() {
+        Log.e("stopProgressHandler", "REMOVE_CALLBACKS");
+        mHandler.removeCallbacks(mUpdateTimeTask);
     }
 
     @Override
     public void onMetaChanged() {
-     //   updateNowplayingCard();
-      //  updateState();
-        Log.e("onMetaChanged","UPDATE_VIEW");
+        //   updateNowplayingCard();
+        //  updateState();
+        Log.e("onMetaChanged", "UPDATE_VIEW");
         updateView(mContext.getActiveAudio());
     }
 
 
-    class AsyncRunner extends AsyncTask<Integer, Void, String> {
+ /*   class AsyncRunner extends AsyncTask<Integer, Void, String> {
 
         int mId;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -678,7 +687,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-           // playSong(mId);
+            // playSong(mId);
         }
     }
 
@@ -702,7 +711,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-           /* if(ListItemFile.size() > 0)
+           *//* if(ListItemFile.size() > 0)
             {
                 if(ListPosition == ListItemFile.size() - 1)
                 {
@@ -737,7 +746,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     mTask = (AsyncRunner) new AsyncRunner().execute(ListPosition + 1);
                 }
                 ListPosition = ListPosition + 1;
-            } */
+            } *//*
         }
     }
 
@@ -760,7 +769,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-           /* if(ListItemFile.size() > 0)
+           *//* if(ListItemFile.size() > 0)
             {
                 if(ListPosition == 0)
                 {
@@ -797,7 +806,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 }
                 ListPosition = ListPosition - 1;
             }
-*/
+*//*
 
 
 //            if(ListItemFile.size() > 0)
@@ -844,32 +853,32 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 //                }
 //            }
         }
-    }
+    }*/
 
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
 
             try {
-               // if(mContext.mPlayer != null){
+                // if(mContext.mPlayer != null){
 
-                    long totalDuration = mContext.getDuration();
-                    long currentDurations = mContext.getCurrentPosition();
+                long totalDuration = mContext.getDuration();
+                long currentDurations = mContext.getCurrentPosition();
 
-                    // Displaying Total Duration time
-                    long reduse = totalDuration - currentDurations;
-                    finalDuration.setText("-" + utils.milliSecondsToTimer(reduse));
-                    // Displaying time completed playing
-                    currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
+                // Displaying Total Duration time
+                long reduse = totalDuration - currentDurations;
+                finalDuration.setText("-" + utils.milliSecondsToTimer(reduse));
+                // Displaying time completed playing
+                currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
 
-                    // Updating progress bar
-                    int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
-                    //Log.d("Progress", ""+progress);
-                    seekBarView.setProgress(progress);
+                // Updating progress bar
+                int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
+                //Log.d("Progress", ""+progress);
+                seekBarView.setProgress(progress);
 
-                    // Running this thread after 100 milliseconds
-                    mHandler.postDelayed(this, 100);
-              //  }
-            }catch (Exception e){
+                // Running this thread after 100 milliseconds
+                mHandler.postDelayed(this, 100);
+                //  }
+            } catch (Exception e) {
 
                 e.printStackTrace();
             }
@@ -883,11 +892,11 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
         try {
 
-           // if (mContext.mPlayer != null) {
-                mHandler.postDelayed(mUpdateTimeTask, 100);
-        //    }
+            // if (mContext.mPlayer != null) {
+            mHandler.postDelayed(mUpdateTimeTask, 100);
+            //    }
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
             e.printStackTrace();
 
@@ -993,7 +1002,6 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         }
         super.onDestroy();
     }
-
 
 
 }

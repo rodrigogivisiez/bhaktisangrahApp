@@ -86,12 +86,6 @@
 
         <service android:name="com.goldenant.bhaktisangrah.gcm.GCMNotificationIntentService" />
 
-        <service android:name=".service.MusicService"
-            android:exported="false">
-        <intent-filter>
-            <action android:name="com.goldenant.bhaktisangrah.action.PLAY" />
-        </intent-filter>
-        </service>
     </application>
 
 </manifest>
