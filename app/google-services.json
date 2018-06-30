@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "365298927316",
+    "firebase_url": "https://bhakti-sagar.firebaseio.com",
+    "project_id": "bhakti-sagar"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365298927316:android:74363a04b834092d",
+        "android_client_info": {
+          "package_name": "com.goldenant.bhaktisangrah"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "365298927316-bmdmgqb412h19lptnm6dmbfp66qlhj1r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.goldenant.bhaktisangrah",
+            "certificate_hash": "d751db636c33722d0dd801dc14c2274f72c0e47a"
+          }
+        },
+        {
+          "client_id": "365298927316-jj9jmtu5he3rced6s4oslngs2u10ivjq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPLuVaWJ6-zTYUzHeLP6-ex5RhbDBbEbI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "365298927316-jj9jmtu5he3rced6s4oslngs2u10ivjq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -75,6 +75,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
     private HomeModel homeModel;
     ArrayList<String> songsID = new ArrayList<String>();
     int pos;
+    private String aDataid;
 
     static class ViewHolder {
 
@@ -178,7 +179,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         storage.clearCachedAudioPlaylist();
                         storage.storeAudio(mItem);
                         storage.storeAudioIndex(position);
-                        storage.storeMode(0);
+                        mContext.setMode(0);
 
                         if (mContext.serviceBound && mContext.isPlaying()) {
                             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
@@ -415,7 +416,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                             myFileid.createNewFile();
                         }
 
-                        String aDataid = mItem.get(pos).getItem_id();
+                        aDataid = mItem.get(pos).getItem_id();
 
                         Scanner scannerid = new Scanner(myFileid);
                         List<String> listid = new ArrayList<>();
@@ -527,6 +528,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             Log.d("Path_of_file==>", "" + imagePath);
 
             ShowAlert();
+            if (aDataid != null) {
+                mContext.updateSongStatus(aDataid, 0);
+            }
+
         }
 
     }

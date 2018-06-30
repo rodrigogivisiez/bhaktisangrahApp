@@ -72,11 +72,12 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     private TextView mTitle, mArtist;
     private View rootView, playPauseWrapper;
     private CircularImageView mAlbumArt;
+    private View nowPlayingCard;
 
     private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mContext.mPlayer != null) {
+
                 if (mContext.isPlaying()) {
                     mContext.pauseSong();
                     // Changing button image to play button
@@ -91,8 +92,28 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
                 }
             }
 
+
+    };
+
+    private final View.OnClickListener playingCardClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+                if (mContext.isPlaying()) {
+                    Fragment investProgramDetail = new Streaming();
+                    StorageUtil storage = new StorageUtil(getApplicationContext());
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("mode", 44);
+                    bundle.putSerializable("data", storage.loadAudio());
+                    bundle.putInt("position",storage.loadAudioIndex());
+                    investProgramDetail.setArguments(bundle);
+                    mContext.ReplaceFragement(investProgramDetail);
+                }
+
+
         }
     };
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -117,7 +138,9 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         // Request an ad
         adView.loadAd();
 
+
         //mini player view
+        nowPlayingCard = view.findViewById(R.id.now_playing_card);
         mPlayPause = (ImageView) view.findViewById(R.id.play_pause);
         playPauseWrapper = view.findViewById(R.id.play_pause_wrapper);
         playPauseWrapper.setOnClickListener(mPlayPauseListener);
@@ -128,7 +151,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         // mArtist.setMovementMethod(new ScrollingMovementMethod());
         mAlbumArt = view.findViewById(R.id.album_art_nowplayingcard);
         topContainer = (RelativeLayout) view.findViewById(R.id.topContainer);
-
+        nowPlayingCard.setOnClickListener(playingCardClickListener);
         mContext.showDrawer();
         mContext.hideDrawerBack();
         mContext.setTitle("Categories");
@@ -272,7 +295,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         int audioIndex = storage.loadAudioIndex();
         int mode = storage.loadMode();
         if (audioList == null) {
-            // topContainer.setVisibility(View.GONE);
+            nowPlayingCard.setVisibility(View.GONE);
             return;
         }
         updateView(audioList.get(audioIndex), mode);
@@ -299,16 +322,15 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     @Override
     public void onMetaChanged() {
         Log.e("onMetaChanged", "UPDATE_VIEW");
-        //  updateView(mContext.getActiveAudio());
         updateBottomPlayer();
     }
 
     private void updateView(SubCategoryModel currentlyPlaying, int mode) {
         if (currentlyPlaying == null) {
-            // topContainer.setVisibility(View.GONE);
+            nowPlayingCard.setVisibility(View.GONE);
             return;
         }
-        //topContainer.setVisibility(View.VISIBLE);
+        nowPlayingCard.setVisibility(View.VISIBLE);
         Log.e("update view", "UPDATE");
         mTitle.setText(currentlyPlaying.getItem_description());
         mArtist.setText(currentlyPlaying.getItem_name());

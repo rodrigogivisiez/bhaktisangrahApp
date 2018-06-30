@@ -72,6 +72,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
     private TextView mTitle,mArtist;
     private View rootView,playPauseWrapper;
     private CircularImageView mAlbumArt;
+    private View nowPlayingCard;
 
     private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
         @Override
@@ -128,6 +129,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         adView.loadAd();
 
         //mini player view
+        nowPlayingCard = view.findViewById(R.id.now_playing_card);
         mPlayPause = (ImageView) view.findViewById(R.id.play_pause);
         playPauseWrapper = view.findViewById(R.id.play_pause_wrapper);
         playPauseWrapper.setOnClickListener(mPlayPauseListener);
@@ -324,7 +326,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         int audioIndex = storage.loadAudioIndex();
         int mode=storage.loadMode();
         if(audioList==null){
-            //topContainer.setVisibility(View.GONE);
+            nowPlayingCard.setVisibility(View.GONE);
             return;
         }
         updateView(audioList.get(audioIndex),mode);
@@ -359,10 +361,10 @@ public class CategoryList extends MasterFragment implements MusicStateListener
 
     private void updateView(SubCategoryModel currentlyPlaying, int mode) {
         if (currentlyPlaying == null) {
-           // topContainer.setVisibility(View.GONE);
+            nowPlayingCard.setVisibility(View.GONE);
             return;
         }
-       // topContainer.setVisibility(View.VISIBLE);
+        nowPlayingCard.setVisibility(View.VISIBLE);
         Log.e("update view","UPDATE");
         mTitle.setText(currentlyPlaying.getItem_description());
         mArtist.setText(currentlyPlaying.getItem_name());

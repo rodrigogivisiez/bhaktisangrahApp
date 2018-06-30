@@ -48,11 +48,13 @@ import com.goldenant.bhaktisangrah.fragment.Notification;
 import com.goldenant.bhaktisangrah.fragment.Share;
 import com.goldenant.bhaktisangrah.gcm.ApplicationConstants;
 import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
+import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
+import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.goldenant.bhaktisangrah.service.MediaPlayerService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -63,9 +65,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import com.crashlytics.android.Crashlytics;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import io.fabric.sdk.android.Fabric;
 
 import static android.view.Gravity.START;
+import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.goldenant.bhaktisangrah.common.util.Constants.Key_user_fcm_id;
 import static com.goldenant.bhaktisangrah.service.MediaPlayerService.NOTIFICATION_ID;
 
 public class MainActivity extends MasterActivity implements MusicStateListener {
@@ -92,7 +99,6 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     //GCM registration start
     String reg_id,register_id;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    GoogleCloudMessaging gcmObj;
     private NotificationManager mNotificationManager;
 
 
@@ -286,7 +292,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         //FOR GCM REGISTRATION
 
         if (checkPlayServices()) {
-            registerInBackground();
+            createToken();
         }
 
         if(loadPrefs() == null || !loadPrefs().equalsIgnoreCase(reg_id))
@@ -382,44 +388,6 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         return true;
     }
 
-    private void registerInBackground() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    if (gcmObj == null) {
-                        gcmObj = GoogleCloudMessaging
-                                .getInstance(MainActivity.this);
-                    }
-                    reg_id = gcmObj.register(ApplicationConstants.GOOGLE_PROJ_ID);
-
-                    savePrefs("GCM", reg_id);
-                    Log.i("GCD Registered ID. ", "" + reg_id);
-
-                } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
-                }
-                return msg;
-            }
-
-            @Override
-            protected void onPostExecute(String msg)
-            {
-                if (!TextUtils.isEmpty(reg_id))
-                {
-                }
-                else
-                {
-                    Log.d("ERROR: ", "Reg ID Creation Failed.\n\nEither you haven't enabled Internet or GCM server is busy right now. Make sure you enabled Internet and try registering again after some time."+ msg);
-//					Toast.makeText(
-//							SplashActivity.this,
-//							"Reg ID Creation Failed.\n\nEither you haven't enabled Internet or GCM server is busy right now. Make sure you enabled Internet and try registering again after some time."
-//									+ msg, Toast.LENGTH_LONG).show();
-                }
-            }
-        }.execute(null, null, null);
-    }
 
     public void savePrefs(String key, String value) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -427,7 +395,17 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         edit.putString(key, value);
         edit.commit();
     }
-
+    private void createToken() {
+        try {
+            FirebaseMessaging.getInstance().subscribeToTopic("test");
+            reg_id = FirebaseInstanceId.getInstance().getToken();
+            Log.e("refreshedToken", "" + reg_id);
+            savePrefs(Constants.Key_user_fcm_id,reg_id);
+        } catch (Exception e) {
+            Log.e("token error",e.toString());
+            e.printStackTrace();
+        }
+    }
     private void getGCMCallRequest() {
 
         NetworkRequest deliveryLocationRequest = new NetworkRequest(
@@ -443,7 +421,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         Log.d("deviceId",""+deviceId);
 
-        gcmDATA.add(new BasicNameValuePair(Constants.GCM_ID, loadPrefs()));
+        gcmDATA.add(new BasicNameValuePair(Constants.GCM_ID,loadPrefs()));
         gcmDATA.add(new BasicNameValuePair(Constants.DEVICE_ID, deviceId));
 
         return gcmDATA;
@@ -471,7 +449,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     public String loadPrefs()
     {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-        register_id = sp.getString("GCM", null);
+        register_id = sp.getString(Constants.Key_user_fcm_id, null);
 
         return register_id;
     }
@@ -516,13 +494,13 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         super.onStart();
 
         final IntentFilter filter = new IntentFilter();
-        // Play and pause changes
-        filter.addAction(MediaPlayerService.PLAYSTATE_CHANGED);
-        // Track changes
+        // Update song status
+        filter.addAction(MediaPlayerService.UPDATE_SONG_STATUS);
+        // Track changes Play and pause changes
         filter.addAction(MediaPlayerService.META_CHANGED);
-        // Update a list, probably the playlist fragment's
+        // Update progressbar
         filter.addAction(MediaPlayerService.REFRESH);
-        // If a playlist has changed, notify us
+        // Stop progressbar callbacks
         filter.addAction(MediaPlayerService.STOP_PROGRESS);
         // If there is an error playing a track
         filter.addAction(MediaPlayerService.TRACK_ERROR);
@@ -589,7 +567,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
     }
 
-    private final static class PlaybackStatus extends BroadcastReceiver {
+    private final class PlaybackStatus extends BroadcastReceiver {
 
         private final WeakReference<MainActivity> mReference;
 
@@ -605,8 +583,8 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
             if (baseActivity != null) {
                 if (action.equals(MediaPlayerService.META_CHANGED)) {
                     baseActivity.onMetaChanged();
-                } else if (action.equals(MediaPlayerService.PLAYSTATE_CHANGED)) {
-//                    baseActivity.mPlayPauseProgressButton.getPlayPauseButton().updateState();
+                } else if (action.equals(MediaPlayerService.UPDATE_SONG_STATUS)) {
+                // requestSongStatusChange();
                 } else if (action.equals(MediaPlayerService.REFRESH)) {
                     baseActivity.restartLoader();
                 } else if (action.equals(MediaPlayerService.STOP_PROGRESS)) {
@@ -618,5 +596,54 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
                 }
             }
         }
+
+        private void requestSongStatusChange() {
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            ArrayList<SubCategoryModel> audioList = storage.loadAudio();
+            int playedAudioIndex = storage.loadPlayedAudioIndex();
+            if(audioList==null){
+                return;
+            }
+            String itemId = audioList.get(playedAudioIndex).getItem_id();
+            updateSongStatus(itemId,1);
+        }
     }
+
+
+    public void updateSongStatus(String item_id,int flag)
+    {
+        NetworkRequest dishRequest = new NetworkRequest(this);
+        List<NameValuePair> carData = new ArrayList<NameValuePair>(2);
+        carData.add(new BasicNameValuePair(Constants.item_id, item_id));
+        carData.add(new BasicNameValuePair(Constants.FLAG, Integer.toString(flag)));
+        dishRequest.sendRequest(Constants.API_UPDATE_SONG_STATUS_URL,
+                carData, catCallback);
+    }
+
+    NetworkRequest.NetworkRequestCallback catCallback = new NetworkRequest.NetworkRequestCallback()
+    {
+        @Override
+        public void OnNetworkResponseReceived(JSONObject response)
+        {
+            Log.d("UPDATE_STATUS_API ", "" + response.toString());
+
+            try
+            {
+                if (response != null)
+                {
+                    JSONObject jObject = new JSONObject(response.toString());
+                    String status = jObject.getString("status");
+                    Log.e("UPDATE_STATUS_API",response.toString());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+        }
+
+        @Override
+        public void OnNetworkErrorReceived(String error) {
+
+        }
+    };
 }

@@ -35,6 +35,7 @@ public class Downloads extends MasterFragment
     ArrayList<String> songsName = new ArrayList<String>();
     ArrayList<String> songsImage = new ArrayList<String>();
     ArrayList<String> songs = new ArrayList<String>();
+    ArrayList<String> songsId = new ArrayList<String>();
 
     LinearLayout error_layout_downloads;
 
@@ -116,6 +117,24 @@ public class Downloads extends MasterFragment
             }
 
             ReaderSong.close();
+
+
+            Log.d("songs", "" + songs);
+
+            //Get path of songs
+
+            File fileSongId = new File("/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/BhaktiSagarID.txt");
+            FileInputStream fileInSongId = new FileInputStream(fileSongId);
+            BufferedReader ReaderSongId = new BufferedReader(
+                    new InputStreamReader(fileInSongId));
+            String DataRowSongId = "";
+//            String Buffer = "";
+            while ((DataRowSongId = ReaderSongId.readLine()) != null) {
+//                Buffer += DataRow + "\n";
+                songsId.add(DataRowSongId);
+            }
+
+            ReaderSongId.close();
         }
         catch (Exception e)
         {
@@ -124,7 +143,7 @@ public class Downloads extends MasterFragment
 
         if(songsName.size() > 0)
         {
-            DownloadAdapter adapter = new DownloadAdapter(mContext,R.layout.downloads_list_item,songsName,songsImage,songs);
+            DownloadAdapter adapter = new DownloadAdapter(mContext,R.layout.downloads_list_item,songsName,songsImage,songs,songsId);
             listView_downloads.setAdapter(adapter);
         }
         else
