@@ -42,13 +42,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import com.facebook.ads.*;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.squareup.picasso.Picasso;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.goldenant.bhaktisangrah.common.util.Constants.Bottom_Banner_placement_id;
+import static com.goldenant.bhaktisangrah.common.util.Constants.HOME;
 
 
 /**
@@ -62,7 +63,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
 
     ArrayList<HomeModel> CatArray = new ArrayList<HomeModel>();
 
-    private AdView adView;
+
 
     private ImageView mPlayPause;
     public RelativeLayout topContainer;
@@ -73,6 +74,8 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     private View rootView, playPauseWrapper;
     private CircularImageView mAlbumArt;
     private View nowPlayingCard;
+    private AdView mAdView;
+
 
     private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
         @Override
@@ -99,18 +102,20 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         @Override
         public void onClick(View v) {
 
-                if (mContext.isPlaying()) {
+                if (mContext.isPlaying() || mContext.isPlayerPrepared()) {
                     Fragment investProgramDetail = new Streaming();
                     StorageUtil storage = new StorageUtil(getApplicationContext());
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("mode", 44);
-                    bundle.putSerializable("data", storage.loadAudio());
-                    bundle.putInt("position",storage.loadAudioIndex());
-                    investProgramDetail.setArguments(bundle);
-                    mContext.ReplaceFragement(investProgramDetail);
+                    if(storage.loadAudio()!=null){
+                        Bundle bundle = new Bundle();
+                        bundle.putString("isFrom",HOME);
+                        bundle.putInt("mode",storage.loadMode());
+                        bundle.putSerializable("data", storage.loadAudio());
+                        bundle.putInt("position",storage.loadAudioIndex());
+                        investProgramDetail.setArguments(bundle);
+                        mContext.ReplaceFragement(investProgramDetail);
+                    }
+
                 }
-
-
         }
     };
 
@@ -129,15 +134,9 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
-        // Find the Ad Container
-        LinearLayout adContainer = view.findViewById(R.id.banner_container);
-
-        // Add the ad view to your activity layout
-        adContainer.addView(adView);
-        // Request an ad
-        adView.loadAd();
-
+        mAdView = view.findViewById(R.id.adView_home);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         //mini player view
         nowPlayingCard = view.findViewById(R.id.now_playing_card);
@@ -303,9 +302,6 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
 
     @Override
     public void onDestroy() {
-        if (adView != null) {
-            adView.destroy();
-        }
         super.onDestroy();
     }
 
@@ -332,8 +328,9 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         }
         nowPlayingCard.setVisibility(View.VISIBLE);
         Log.e("update view", "UPDATE");
-        mTitle.setText(currentlyPlaying.getItem_description());
-        mArtist.setText(currentlyPlaying.getItem_name());
+        mArtist.setText(currentlyPlaying.getItem_description());
+        mTitle.setText(currentlyPlaying.getItem_name());
+
         if (mode == 1) {
             if (currentlyPlaying.getItem_image() != null) {
                 Bitmap bitmap = BitmapFactory.decodeFile(currentlyPlaying.getItem_image());

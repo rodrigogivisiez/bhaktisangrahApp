@@ -5,9 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v8.renderscript.Allocation;
@@ -21,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -34,18 +30,19 @@ import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.common.util.Utilities;
 import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
+import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.HomeModel;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
-
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
-import java.util.Random;
 
-import com.facebook.ads.*;
-
-import static com.goldenant.bhaktisangrah.common.util.Constants.*;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Adite on 03-01-2016.
@@ -68,7 +65,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     private Handler mHandler = new Handler();
     private Utilities utils;
     private ProgressBar progressBar;
-  //  private AsyncRunner mTask;
+    //  private AsyncRunner mTask;
     private Boolean isPlaying;
     String imageUrl;
     private Bundle bundle;
@@ -92,6 +89,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     private AdView adView;
     private InterstitialAd interstitialAd;
     private SubCategoryModel currentlyPlaying;
+    private String isFrom;
 
 
     @Override
@@ -118,31 +116,18 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         if (bundle != null) {
 
             mode = bundle.getInt("mode");
-            if (mode == 1) {
-                ListItemFile = (ArrayList<String>) bundle.getSerializable("item_file");
-                ListItemName = (ArrayList<String>) bundle.getSerializable("item_name");
-                ListItemImage = (ArrayList<String>) bundle.getSerializable("item_image");
-                ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
-                ListPosition = bundle.getInt("position");
+            isFrom = bundle.getString("isFrom");
+            Log.e("mode", ":" + String.valueOf(mode));
+            Log.e("isFrom", ":" + isFrom);
 
-                Log.d("ListItemImage", ListItemImage + " ");
-            } else if (mode == 0) {
-                ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
-                ListPosition = bundle.getInt("position");
+            ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
+            ListPosition = bundle.getInt("position");
 
-                Log.d("ListPosition", "" + ListPosition);
+            Log.d("ListPosition", "" + ListPosition);
+            if (bundle.containsKey("CAT_ID")) {
                 homeModel = (HomeModel) bundle.getSerializable("CAT_ID");
-
-                if (isVisible()) {
-
-                    mContext.setTitle(" " + ListItem.get(ListPosition).getItem_name());
-                }
-            }else if (mode == 44) {   //from Home Fragment
-                ListItem = (ArrayList<SubCategoryModel>) bundle.getSerializable("data");
-                ListPosition = bundle.getInt("position");
-
-                Log.d("ListPosition", "" + ListPosition);
             }
+            mContext.setTitle(" " + ListItem.get(ListPosition).getItem_name());
         }
 
         // initialize ui elements
@@ -161,30 +146,14 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         shuffleButton = (ImageButton) rootView.findViewById(R.id.shuffleButton);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
-        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
-        // Find the Ad Container
-        LinearLayout adContainer = rootView.findViewById(R.id.banner_container);
-        // Add the ad view to your activity layout
-        adContainer.addView(adView);
-        // Request an ad
-        adView.loadAd();
-
+        final AdView mAdView = (AdView) rootView.findViewById(R.id.adView_stream);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         mContext.drawer_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mode == 1) {
-                    Downloads downloads = new Downloads();
-                    mContext.ReplaceFragement(downloads);
-                } else if (mode == 0) {
-                    CategoryList categoryList = new CategoryList();
-
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("CAT_ID", homeModel);
-                    categoryList.setArguments(bundle);
-
-                    mContext.ReplaceFragement(categoryList);
-                }
+                performBackOperation();
             }
         });
 
@@ -199,8 +168,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             @Override
             public void onClick(View arg0) {
                 // check for already playing
-
-                if (mContext.mPlayer != null) {
+                if (mContext.player != null) {
 
                     if (mContext.isPlaying()) {
                         mContext.pauseSong();
@@ -332,7 +300,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 backgroundImageView.setImageBitmap(bitmap);
                 trackImageView.setImageBitmap(bitmap);
             }
-        } else if (mode == 0) {
+        } else {
             Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
             Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
         }
@@ -354,44 +322,21 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     }
 
     private void loadBigAds() {
-        interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
-        interstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-                // Interstitial displayed callback
-            }
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId(getString(R.string.add_unit_id));
 
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                // Interstitial dismissed callback
-            }
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
 
-            @Override
-            public void onError(Ad ad, AdError adError) {
-                // Ad error callback
-
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                // Show the ad when it's done loading.
-                interstitialAd.show();
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                // Ad clicked callback
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                // Ad impression logged callback
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
             }
         });
-
-        // For auto play video ads, it's recommended to load the ad
-        // at least 30 seconds before it is shown
-        interstitialAd.loadAd();
     }
 
     @Override
@@ -411,10 +356,19 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
     @Override
     public void onMetaChanged() {
-        //   updateNowplayingCard();
-        //  updateState();
         Log.e("onMetaChanged", "UPDATE_VIEW");
-        updateView(mContext.getActiveAudio());
+        updateBottomPlayer();
+
+    }
+    private void updateBottomPlayer() {
+        StorageUtil storage = new StorageUtil(getApplicationContext());
+        ArrayList<SubCategoryModel> audioList = storage.loadAudio();
+        int audioIndex = storage.loadAudioIndex();
+        int mode=storage.loadMode();
+        if(audioList==null){
+            return;
+        }
+        updateView(audioList.get(audioIndex));
     }
 
 
@@ -422,7 +376,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         public void run() {
 
             try {
-                // if(mContext.mPlayer != null){
+                 if(mContext.isPlaying()){
 
                 long totalDuration = mContext.getDuration();
                 long currentDurations = mContext.getCurrentPosition();
@@ -440,7 +394,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
                 // Running this thread after 100 milliseconds
                 mHandler.postDelayed(this, 100);
-                //  }
+                  }
             } catch (Exception e) {
 
                 e.printStackTrace();
@@ -467,22 +421,6 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
     }
 
-  /*  public void showWaitIndicator(boolean state) {
-        showWaitIndicator(state, "");
-    }
-
-    public void showWaitIndicator(boolean state, String message) {
-        if (state) {
-            mProgressDialog = new ProgressDialog(mContext,R.style.TransparentProgressDialog);
-            mProgressDialog.setIndeterminateDrawable(getResources().getDrawable(R.drawable.progressbar));
-            mProgressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Large);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.show();
-        } else {
-            mProgressDialog.dismiss();
-        }
-    }*/
-
     @Override
     public void onResume() {
         super.onResume();
@@ -493,25 +431,33 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-
-                    if (mode == 1) {
-                        Downloads downloads = new Downloads();
-                        mContext.ReplaceFragement(downloads);
-                    } else if (mode == 0) {
-                        CategoryList categoryList = new CategoryList();
-
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("CAT_ID", homeModel);
-                        categoryList.setArguments(bundle);
-
-                        mContext.ReplaceFragement(categoryList);
-                    }
+                    performBackOperation();
                 }
                 return false;
             }
         });
     }
 
+
+    public void performBackOperation() {
+        if (isFrom.equalsIgnoreCase(Constants.DOWNLOADS)) {
+            Downloads downloads = new Downloads();
+            mContext.ReplaceFragement(downloads);
+        } else if (isFrom.equalsIgnoreCase(Constants.CATEGORY)) {
+            CategoryList categoryList = new CategoryList();
+
+            Bundle bundle = new Bundle();
+            if (homeModel != null) {
+                bundle.putSerializable("CAT_ID", homeModel);
+            }
+            categoryList.setArguments(bundle);
+
+            mContext.ReplaceFragement(categoryList);
+        } else if (isFrom.equalsIgnoreCase(Constants.HOME)) {
+            HomeFragment homeFragment = new HomeFragment();
+            mContext.ReplaceFragement(homeFragment);
+        }
+    }
 
     public class BlurTransformation implements Transformation {
 
@@ -554,17 +500,5 @@ public class Streaming extends MasterFragment implements MusicStateListener {
             return "blur";
         }
     }
-
-    @Override
-    public void onDestroy() {
-        if (adView != null) {
-            adView.destroy();
-        }
-        if (interstitialAd != null) {
-            interstitialAd.destroy();
-        }
-        super.onDestroy();
-    }
-
 
 }

@@ -33,7 +33,6 @@ public class MasterActivity extends AppCompatActivity {
     public static Typeface font;
 
     ProgressDialog mProgressDialog;
-    public MediaPlayer mPlayer;
 
     public Bundle bundle = new Bundle();
 
@@ -58,9 +57,6 @@ public class MasterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         isInternet = new InternetStatus().isInternetOn(this);
-        mPlayer = new MediaPlayer();
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
     }
 
     public void setTitle(String title) {
@@ -134,10 +130,6 @@ public class MasterActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mPlayer != null) {
-
-            mPlayer.release();
-        }
         try {
             unregisterReceiver(mPlaybackStatus);
         } catch (final Throwable e) {
@@ -148,22 +140,12 @@ public class MasterActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-
-        /*if(mPlayer != null){
-
-            if (mPlayer.isPlaying()) {
-                if (mPlayer != null) {
-                    mPlayer.pause();
-                }
-            }
-        }*/
-
     }
 
     public void setNextTrack() {
         player.playNextTrack();
     }
-    public boolean isPlayerPrepared() {
+    public static boolean isPlayerPrepared() {
         if(player==null){
             return false;
         }

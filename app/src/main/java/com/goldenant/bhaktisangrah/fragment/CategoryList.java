@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -43,7 +44,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.facebook.ads.*;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.squareup.picasso.Picasso;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -61,8 +65,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
     private String category_id;
     private Bundle bundle;
 
-    private AdView adView;
-    InterstitialAd interstitialAd;
+    InterstitialAd interstitial;
     private ImageView mPlayPause;
 
     public static RelativeLayout topContainer;
@@ -77,7 +80,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
     private final View.OnClickListener mPlayPauseListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(mContext.mPlayer != null){
+            if(mContext.player != null){
                 if (mContext.isPlaying()) {
                     mContext.pauseSong();
                     // Changing button image to play button
@@ -95,7 +98,27 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         }
     };
 
+    private final View.OnClickListener playingCardClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
 
+             if (mContext.isPlaying() || mContext.isPlayerPrepared()) {
+            Fragment investProgramDetail = new Streaming();
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            if (storage.loadAudio() != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("isFrom", CATEGORY);
+                bundle.putInt("mode", storage.loadMode());
+                bundle.putSerializable("data", storage.loadAudio());
+                bundle.putInt("position", storage.loadAudioIndex());
+                bundle.putSerializable("CAT_ID", homeModel);
+                investProgramDetail.setArguments(bundle);
+                mContext.ReplaceFragement(investProgramDetail);
+            }
+       }
+
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -118,15 +141,9 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         mContext.setTitle("Play song Or Download");
         mCategoryList = (ListView) view.findViewById(R.id.listView_cat_list);
 
-        // Laod Bottom Banner facebook Add
-        adView = new AdView(mContext, Bottom_Banner_placement_id, AdSize.BANNER_HEIGHT_50);
-        // Find the Ad Container
-        LinearLayout adContainer = view.findViewById(R.id.banner_container);
-
-        // Add the ad view to your activity layout
-        adContainer.addView(adView);
-        // Request an ad
-        adView.loadAd();
+        AdView mAdView = (AdView) view.findViewById(R.id.adView_cat);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         //mini player view
         nowPlayingCard = view.findViewById(R.id.now_playing_card);
@@ -139,6 +156,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         mArtist = (TextView) view.findViewById(R.id.artist);
         mAlbumArt =  view.findViewById(R.id.album_art_nowplayingcard);
         topContainer = view.findViewById(R.id.topContainer);
+        nowPlayingCard.setOnClickListener(playingCardClickListener);
        // mArtist.setMovementMethod(new ScrollingMovementMethod());
 
 
@@ -193,44 +211,21 @@ public class CategoryList extends MasterFragment implements MusicStateListener
 
     private void loadBigAds()
     {
-        interstitialAd = new InterstitialAd(mContext, Constants.Big_Banner_placement_id);
-        interstitialAd.setAdListener(new InterstitialAdListener() {
-            @Override
-            public void onInterstitialDisplayed(Ad ad) {
-                // Interstitial displayed callback
-            }
+        // Prepare the Interstitial Ad
+        interstitial = new InterstitialAd(mContext);
+        // Insert the Ad Unit ID
+        interstitial.setAdUnitId(getString(R.string.add_unit_id));
 
-            @Override
-            public void onInterstitialDismissed(Ad ad) {
-                // Interstitial dismissed callback
-            }
+        // Request for Ads
+        AdRequest adRequest = new AdRequest.Builder().build();
+        interstitial.loadAd(adRequest);
 
-            @Override
-            public void onError(Ad ad, AdError adError) {
-                // Ad error callback
-
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                // Show the ad when it's done loading.
-                interstitialAd.show();
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                // Ad clicked callback
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                // Ad impression logged callback
+        // Prepare an Interstitial Ad Listener
+        interstitial.setAdListener(new AdListener() {
+            public void onAdLoaded() {
+                interstitial.show();
             }
         });
-
-        // For auto play video ads, it's recommended to load the ad
-        // at least 30 seconds before it is shown
-        interstitialAd.loadAd();
     }
 
     private void getCategory()
@@ -331,17 +326,6 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         }
         updateView(audioList.get(audioIndex),mode);
     }
-    @Override
-    public void onDestroy()
-    {
-        if (adView != null) {
-            adView.destroy();
-        }
-        if (interstitialAd != null) {
-            interstitialAd.destroy();
-        }
-        super.onDestroy();
-    }
 
     @Override
     public void restartLoader() {
@@ -366,8 +350,8 @@ public class CategoryList extends MasterFragment implements MusicStateListener
         }
         nowPlayingCard.setVisibility(View.VISIBLE);
         Log.e("update view","UPDATE");
-        mTitle.setText(currentlyPlaying.getItem_description());
-        mArtist.setText(currentlyPlaying.getItem_name());
+        mArtist.setText(currentlyPlaying.getItem_description());
+        mTitle.setText(currentlyPlaying.getItem_name());
 
         if (mode == 1) {
             if (currentlyPlaying.getItem_image() != null) {

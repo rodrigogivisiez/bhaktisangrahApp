@@ -1,6 +1,7 @@
 package com.goldenant.bhaktisangrah;
 
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -52,6 +53,7 @@ import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.NavDrawerItem;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
 import com.goldenant.bhaktisangrah.service.MediaPlayerService;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
@@ -64,6 +66,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -93,11 +96,11 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     private Typeface font;
     public ImageButton drawer_back;
     public static final String Broadcast_PLAY_NEW_AUDIO = "com.goldenant.bhaktisangrah.PlayNewAudio";
-    public  Intent playerIntent;
+    public Intent playerIntent;
     TextView title;
 
     //GCM registration start
-    String reg_id,register_id;
+    String reg_id, register_id;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private NotificationManager mNotificationManager;
 
@@ -108,18 +111,19 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (android.os.Build.VERSION.SDK_INT > 9)
-        {
+        if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
 
         Fabric.with(this, new Crashlytics());
+        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+        MobileAds.initialize(this, getString(R.string.app_id));
 
-        if(playerIntent==null) {
+        if (playerIntent == null) {
             playerIntent = new Intent(getApplicationContext(), MediaPlayerService.class);
-           startService(playerIntent);
-           bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            startService(playerIntent);
+            bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
         mPlaybackStatus = new PlaybackStatus(this);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -133,7 +137,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         drawerArrowDrawable = new DrawerArrowDrawable(resources);
         drawerArrowDrawable.setStrokeColor(Color.WHITE);
         imageView.setImageDrawable(drawerArrowDrawable);
-        title =(TextView) findViewById(R.id.title_text);
+        title = (TextView) findViewById(R.id.title_text);
         title.setTypeface(font);
         title.setText("Home Page");
 
@@ -215,7 +219,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id) {
 
-                switch (position){
+                switch (position) {
                     case 0:
                         Fragment homeFragment = new HomeFragment();
                         ReplaceFragement(homeFragment);
@@ -293,35 +297,31 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
 
         if (checkPlayServices()) {
             createToken();
+            getGCMCallRequest();
         }
 
-        if(loadPrefs() == null || !loadPrefs().equalsIgnoreCase(reg_id))
-        {
+        if (loadPrefs() == null || !loadPrefs().equalsIgnoreCase(reg_id)) {
             getGCMCallRequest();
         }
         // END GCM
     }
 
 
-    static boolean isNetConnected(Context paramContext)
-    {
-        ConnectivityManager localConnectivityManager = (ConnectivityManager)paramContext.getSystemService("connectivity");
+    static boolean isNetConnected(Context paramContext) {
+        ConnectivityManager localConnectivityManager = (ConnectivityManager) paramContext.getSystemService("connectivity");
         return (localConnectivityManager.getActiveNetworkInfo() != null) && (localConnectivityManager.getActiveNetworkInfo().isAvailable()) && (localConnectivityManager.getActiveNetworkInfo().isConnected());
     }
 
-    static void rate(Context paramContext)
-    {
-        if (isNetConnected(paramContext))
-        {
+    static void rate(Context paramContext) {
+        if (isNetConnected(paramContext)) {
             paramContext.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("market://details?id=" + paramContext.getPackageName())).addFlags(268435456));
             return;
         }
         Toast.makeText(paramContext, "Please enable wifi or data from settings", Toast.LENGTH_LONG).show();
     }
-    static void share(Context paramContext)
-    {
-        if (isNetConnected(paramContext))
-        {
+
+    static void share(Context paramContext) {
+        if (isNetConnected(paramContext)) {
             String str = paramContext.getResources().getString(R.string.share);
             Intent localIntent1 = new Intent("android.intent.action.SEND");
             localIntent1.setType("text/plain");
@@ -335,16 +335,14 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         Toast.makeText(paramContext, "Please enable wifi or data from settings", Toast.LENGTH_LONG).show();
     }
 
-    public static void feedback(Context paramContext,String name,String mobile,String dis)
-    {
-        if (isNetConnected(paramContext))
-        {
-            String str = "Name: "+name+"\n"+"Mobile: "+mobile+"\n"+"Dis: "+dis;
+    public static void feedback(Context paramContext, String name, String mobile, String dis) {
+        if (isNetConnected(paramContext)) {
+            String str = "Name: " + name + "\n" + "Mobile: " + mobile + "\n" + "Dis: " + dis;
 
             Intent localIntent = new Intent("android.intent.action.SEND");
             localIntent.setType("plain/text");
             localIntent.addFlags(268435456);
-            localIntent.putExtra("android.intent.extra.EMAIL", new String[] { "goldenant.apps@gmail.com" });
+            localIntent.putExtra("android.intent.extra.EMAIL", new String[]{"goldenant.apps@gmail.com"});
             localIntent.putExtra("android.intent.extra.SUBJECT", "Feedback for Bhakti Sangrah");
             localIntent.putExtra("android.intent.extra.TEXT", str);
             paramContext.startActivity(Intent.createChooser(localIntent, "Send mail...").addFlags(268435456));
@@ -362,19 +360,14 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     }
 
     //GCM registration start
-    private boolean checkPlayServices()
-    {
+    private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil
                 .isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS)
-        {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
-            {
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            }
-            else
-            {
+            } else {
                 Toast.makeText(
                         this,
                         "This device doesn't support Play services, App will not work normally",
@@ -395,17 +388,19 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         edit.putString(key, value);
         edit.commit();
     }
+
     private void createToken() {
         try {
             FirebaseMessaging.getInstance().subscribeToTopic("test");
             reg_id = FirebaseInstanceId.getInstance().getToken();
             Log.e("refreshedToken", "" + reg_id);
-            savePrefs(Constants.Key_user_fcm_id,reg_id);
+            savePrefs(Constants.Key_user_fcm_id, reg_id);
         } catch (Exception e) {
-            Log.e("token error",e.toString());
+            Log.e("token error", e.toString());
             e.printStackTrace();
         }
     }
+
     private void getGCMCallRequest() {
 
         NetworkRequest deliveryLocationRequest = new NetworkRequest(
@@ -414,14 +409,13 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
                 getGCMData(), GCMCallback);
     }
 
-    private List<NameValuePair> getGCMData()
-    {
+    private List<NameValuePair> getGCMData() {
         List<NameValuePair> gcmDATA = new ArrayList<NameValuePair>();
 
         String deviceId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d("deviceId",""+deviceId);
+        Log.e("deviceId", "" + deviceId);
 
-        gcmDATA.add(new BasicNameValuePair(Constants.GCM_ID,loadPrefs()));
+        gcmDATA.add(new BasicNameValuePair(Constants.GCM_ID, loadPrefs()));
         gcmDATA.add(new BasicNameValuePair(Constants.DEVICE_ID, deviceId));
 
         return gcmDATA;
@@ -446,8 +440,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
     };
 
-    public String loadPrefs()
-    {
+    public String loadPrefs() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         register_id = sp.getString(Constants.Key_user_fcm_id, null);
 
@@ -463,8 +456,8 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
     }
 
-    public void showNotification(String fileImage){
-       // new MusicNotification(this,fileImage);
+    public void showNotification(String fileImage) {
+        // new MusicNotification(this,fileImage);
         //finish();
     }
 
@@ -489,6 +482,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(NOTIFICATION_ID); // Notification ID to cancel
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -508,6 +502,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         registerReceiver(mPlaybackStatus, filter);
 
     }
+
     public void setMusicStateListenerListener(final MusicStateListener status) {
         if (status == this) {
             throw new UnsupportedOperationException("Override the method, don't add a listener");
@@ -553,7 +548,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     public void stopProgressHandler() {
         for (final MusicStateListener listener : mMusicStateListener) {
             if (listener != null) {
-                listener.onMetaChanged();
+                listener.stopProgressHandler();
             }
         }
     }
@@ -584,7 +579,9 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
                 if (action.equals(MediaPlayerService.META_CHANGED)) {
                     baseActivity.onMetaChanged();
                 } else if (action.equals(MediaPlayerService.UPDATE_SONG_STATUS)) {
-                // requestSongStatusChange();
+                    if(MasterActivity.isPlayerPrepared()){
+                        requestSongStatusChange();
+                    }
                 } else if (action.equals(MediaPlayerService.REFRESH)) {
                     baseActivity.restartLoader();
                 } else if (action.equals(MediaPlayerService.STOP_PROGRESS)) {
@@ -601,7 +598,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             ArrayList<SubCategoryModel> audioList = storage.loadAudio();
             int playedAudioIndex = storage.loadPlayedAudioIndex();
-            if(audioList==null){
+            if (audioList == null || playedAudioIndex==-1) {
                 return;
             }
             String itemId = audioList.get(playedAudioIndex).getItem_id();
@@ -610,40 +607,65 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
     }
 
 
-    public void updateSongStatus(String item_id,int flag)
-    {
-        NetworkRequest dishRequest = new NetworkRequest(this);
-        List<NameValuePair> carData = new ArrayList<NameValuePair>(2);
-        carData.add(new BasicNameValuePair(Constants.item_id, item_id));
-        carData.add(new BasicNameValuePair(Constants.FLAG, Integer.toString(flag)));
-        dishRequest.sendRequest(Constants.API_UPDATE_SONG_STATUS_URL,
-                carData, catCallback);
+    public void updateSongStatus(String item_id, int flag) {
+      String  songId=item_id;
+       // new UpdateSongStatus(songId, flag).execute();
     }
 
-    NetworkRequest.NetworkRequestCallback catCallback = new NetworkRequest.NetworkRequestCallback()
-    {
-        @Override
-        public void OnNetworkResponseReceived(JSONObject response)
-        {
-            Log.d("UPDATE_STATUS_API ", "" + response.toString());
 
-            try
-            {
-                if (response != null)
-                {
-                    JSONObject jObject = new JSONObject(response.toString());
-                    String status = jObject.getString("status");
-                    Log.e("UPDATE_STATUS_API",response.toString());
+
+
+    private class UpdateSongStatus extends AsyncTask {
+
+        String songId;
+        int flag;
+
+        public UpdateSongStatus(String itemId, int i) {
+            songId = itemId;
+            flag = i;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            NetworkRequest.NetworkRequestCallback catCallback = new NetworkRequest.NetworkRequestCallback() {
+                @Override
+                public void OnNetworkResponseReceived(JSONObject response) {
+                    Log.d("UPDATE_STATUS_API ", "" + response.toString());
+
+                    try {
+                        if (response != null) {
+                            JSONObject jObject = new JSONObject(response.toString());
+                            String status = jObject.getString("status");
+                            Log.e("UPDATE_STATUS_API", response.toString());
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
 
-            }
+                @Override
+                public void OnNetworkErrorReceived(String error) {
+
+                }
+            };
+            NetworkRequest dishRequest = new NetworkRequest(MainActivity.this);
+            List<NameValuePair> carData = new ArrayList<NameValuePair>(2);
+            carData.add(new BasicNameValuePair(Constants.item_id, songId));
+            carData.add(new BasicNameValuePair(Constants.FLAG, Integer.toString(flag)));
+            dishRequest.sendRequest(Constants.API_UPDATE_SONG_STATUS_URL,
+                    carData, catCallback);
+
+
+            return null;
+
         }
 
         @Override
-        public void OnNetworkErrorReceived(String error) {
+        protected void onPreExecute() {
+            super.onPreExecute();
 
         }
-    };
+
+    }
 }

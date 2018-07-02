@@ -220,7 +220,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         audioList = null;
         audioIndex = -1;
         //clear cached playlist
-        new StorageUtil(getApplicationContext()).clearCachedAudioPlaylist();
+        // new StorageUtil(getApplicationContext()).clearCachedAudioPlaylist();
 
     }
 
@@ -281,11 +281,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public boolean isMediaPlaying() {
         boolean isPlaying = false;
+        if(mediaPlayer==null){
+            return false;
+        }
         if (mediaPlayer != null || isPlayerPrepared) {
             isPlaying = mediaPlayer.isPlaying();
         }
         return isPlaying;
     }
+
 
     public void setMode(int mode) {
         userMode = mode;
@@ -315,9 +319,9 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     @Override
     public void onCompletion(MediaPlayer mp) {
         notifyChange(STOP_PROGRESS);
-       /* playedIndex=audioIndex;
+        playedIndex=audioIndex;
         new StorageUtil(this).storePlayedAudioIndex(playedIndex);
-        notifyChange(UPDATE_SONG_STATUS);*/
+        notifyChange(UPDATE_SONG_STATUS);
         isPlayerPrepared = false;
         if (isRepeat()) {
             initMediaPlayer();
@@ -457,7 +461,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         mediaPlayer.setOnInfoListener(this);
         //Reset so that the MediaPlayer is not pointing to another data source
         mediaPlayer.reset();
-        isPlayerPrepared = false;
         //updateMetaData();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -473,6 +476,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     private void playMedia() {
+        if (mediaPlayer == null) return;
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
             updateMetaData();
@@ -485,8 +489,8 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private void stopMedia() {
         if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
-            isPlayerPrepared = false;
             notifyChange(STOP_PROGRESS);
+            isPlayerPrepared = false;
             mediaPlayer.stop();
             mediaPlayer.reset();
             mediaPlayer.release();
@@ -495,6 +499,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void pauseMedia() {
+        if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             resumePosition = mediaPlayer.getCurrentPosition();
@@ -532,9 +537,6 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         //Update stored index
         new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
 
-       /* stopMedia();
-        //reset mediaPlayer
-        mediaPlayer.reset();*/
         initMediaPlayer();
     }
 
@@ -693,13 +695,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             URL url = null;
             try {
                 {
-                    if (userMode == 0) {
+                    if (userMode == 1) { //from downloads
+                        Log.e("build notification", activeAudio.getItem_image());
+                        albumArt = BitmapFactory.decodeFile(activeAudio.getItem_image());
+                    } else if(userMode == 0){
                         url = new URL(activeAudio.getItem_image());
                         Log.e("build notification", activeAudio.getItem_image());
                         albumArt = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    } else if (userMode == 1) { //from downloads
-                        Log.e("build notification", activeAudio.getItem_image());
-                        albumArt = BitmapFactory.decodeFile(activeAudio.getItem_image());
                     }
                     if (albumArt == null) {
                         albumArt = BitmapFactory.decodeResource(getApplicationContext().getResources(),
@@ -752,13 +754,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             URL url = null;
             try {
                 {
-                    if (userMode == 0) {
+                    if (userMode == 1) { //from downloads
+                        Log.e("build notification", activeAudio.getItem_image());
+                        largeIcon = BitmapFactory.decodeFile(activeAudio.getItem_image());
+                    } else if(userMode == 0){
                         url = new URL(activeAudio.getItem_image());
                         Log.e("build notification", activeAudio.getItem_image());
                         largeIcon = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    } else if (userMode == 1) { //from downloads
-                        Log.e("build notification", activeAudio.getItem_image());
-                        largeIcon = BitmapFactory.decodeFile(activeAudio.getItem_image());
                     }
                     if (largeIcon == null) {
                         largeIcon = BitmapFactory.decodeResource(getApplicationContext().getResources(),
@@ -899,7 +901,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             StorageUtil storage = new StorageUtil(getApplicationContext());
             audioList = storage.loadAudio();
             audioIndex = storage.loadAudioIndex();
-            userMode=storage.loadMode();
+            userMode = storage.loadMode();
 
             if (audioIndex != -1 && audioIndex < audioList.size()) {
                 //index is in a valid range

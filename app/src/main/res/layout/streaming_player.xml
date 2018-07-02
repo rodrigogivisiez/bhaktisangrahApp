@@ -249,22 +249,14 @@
         android:gravity="bottom"
         android:orientation="vertical">
 
-        <!--<com.google.android.gms.ads.AdView-->
-            <!--android:id="@+id/adView_stream"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--ads:adSize="BANNER"-->
-            <!--ads:adUnitId="@string/bottom_banner_id"></com.google.android.gms.ads.AdView>-->
-
-        <LinearLayout
-            android:id="@+id/banner_container"
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView_stream"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            />
+            android:layout_centerHorizontal="true"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/bottom_banner_id"></com.google.android.gms.ads.AdView>
     </LinearLayout>
 
 </RelativeLayout>

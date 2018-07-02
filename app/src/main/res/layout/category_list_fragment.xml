@@ -17,28 +17,22 @@
             android:cacheColorHint="#00000000"
             android:smoothScrollbar="true" />
 
-        <!--<com.google.android.gms.ads.AdView-->
-        <!--android:id="@+id/adView_cat"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--ads:adSize="BANNER"-->
-        <!--ads:adUnitId="@string/bottom_banner_id">-->
-        <!--</com.google.android.gms.ads.AdView>-->
+        <com.google.android.gms.ads.AdView
+        android:id="@+id/adView_cat"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/bottom_banner_id">
+        </com.google.android.gms.ads.AdView>
 
         <include
             android:id="@+id/now_playing_card"
             layout="@layout/now_playing_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/banner_container"></include>
+            android:layout_above="@+id/adView_cat"></include>
 
-        <LinearLayout
-            android:id="@+id/banner_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical" />
     </RelativeLayout>
 </LinearLayout>

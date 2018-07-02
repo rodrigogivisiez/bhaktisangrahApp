@@ -25,6 +25,7 @@ import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.common.util.ClickGuard;
+import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 
@@ -53,6 +54,7 @@ import java.util.Scanner;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.goldenant.bhaktisangrah.MainActivity.Broadcast_PLAY_NEW_AUDIO;
+import static com.goldenant.bhaktisangrah.common.util.Constants.CATEGORY;
 
 
 /**
@@ -176,19 +178,57 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         //clear cached playlist
                         //Store Serializable audioList to SharedPreferences
                         StorageUtil storage = new StorageUtil(getApplicationContext());
-                        storage.clearCachedAudioPlaylist();
-                        storage.storeAudio(mItem);
-                        storage.storeAudioIndex(position);
-                        mContext.setMode(0);
+                        if (storage.loadAudio() != null) {
+                            ArrayList<SubCategoryModel> nowPlayingList = storage.loadAudio();
+                            SubCategoryModel currentlyPlaying = nowPlayingList.get(storage.loadAudioIndex());
+                            SubCategoryModel selectedAudio = mItem.get(position);
+                            if (selectedAudio.getItem_file().equalsIgnoreCase(currentlyPlaying.getItem_file())) {
+                                Fragment investProgramDetail = new Streaming();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("isFrom", CATEGORY);
+                                bundle.putInt("mode",0);
+                                bundle.putSerializable("data", storage.loadAudio());
+                                bundle.putInt("position", storage.loadAudioIndex());
+                                bundle.putSerializable("CAT_ID", homeModel);
+                                investProgramDetail.setArguments(bundle);
+                                storage.storeMode(0);
+                                mContext.setMode(0);
+                                mContext.ReplaceFragement(investProgramDetail);
+                                return;
+                            } else if (mContext.serviceBound && mContext.isPlaying()) {
+                                storage.clearCachedAudioPlaylist();
+                                storage.storeAudio(mItem);
+                                storage.storeAudioIndex(position);
+                                storage.storeMode(0);
+                                mContext.setMode(0);
+                                mContext.stopProgressHandler();
+                                Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                                mContext.sendBroadcast(broadcastIntent);
+                            } else if (mContext.serviceBound) {
+                                storage.clearCachedAudioPlaylist();
+                                storage.storeAudio(mItem);
+                                storage.storeAudioIndex(position);
+                                storage.storeMode(0);
+                                mContext.setMode(0);
+                                mContext.stopProgressHandler();
+                                mContext.playSong();
+                            }
 
-                        if (mContext.serviceBound && mContext.isPlaying()) {
-                            Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
-                            mContext.sendBroadcast(broadcastIntent);
                         } else if (mContext.serviceBound) {
+                            storage.clearCachedAudioPlaylist();
+                            storage.storeAudio(mItem);
+                            storage.storeAudioIndex(position);
+                            storage.storeMode(0);
+                            mContext.setMode(0);
+                            mContext.stopProgressHandler();
                             mContext.playSong();
                         }
+
+
+
                         Fragment investProgramDetail = new Streaming();
                         Bundle bundle = new Bundle();
+                        bundle.putString("isFrom", CATEGORY);
                         bundle.putInt("mode", 0);
                         bundle.putSerializable("data", mItem);
                         bundle.putInt("position", position);
@@ -206,21 +246,56 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         //clear cached playlist
                         //Store Serializable audioList to SharedPreferences
                         StorageUtil storage = new StorageUtil(getApplicationContext());
-                        storage.clearCachedAudioPlaylist();
-                        storage.storeAudio(mItem);
-                        storage.storeAudioIndex(position);
-                        storage.storeMode(0);
-                          /*  mContext.setSongPosition(position);
-                            mContext.setSongList(mItem);*/
-                        if (mContext.serviceBound && mContext.isPlaying()) {
-                            Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
-                            mContext.sendBroadcast(broadcastIntent);
+                        if (storage.loadAudio() != null) {
+                            ArrayList<SubCategoryModel> nowPlayingList = storage.loadAudio();
+                            SubCategoryModel currentlyPlaying = nowPlayingList.get(storage.loadAudioIndex());
+                            SubCategoryModel selectedAudio = mItem.get(position);
+                            if (selectedAudio.getItem_file().equalsIgnoreCase(currentlyPlaying.getItem_file())) {
+                                Fragment investProgramDetail = new Streaming();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("isFrom", CATEGORY);
+                                bundle.putInt("mode",0);
+                                bundle.putSerializable("data", storage.loadAudio());
+                                bundle.putInt("position", storage.loadAudioIndex());
+                                bundle.putSerializable("CAT_ID", homeModel);
+                                investProgramDetail.setArguments(bundle);
+                                storage.storeMode(0);
+                                mContext.stopProgressHandler();
+                                mContext.setMode(0);
+                                mContext.ReplaceFragement(investProgramDetail);
+                                return;
+                            } else if (mContext.serviceBound && mContext.isPlaying()) {
+                                storage.clearCachedAudioPlaylist();
+                                storage.storeAudio(mItem);
+                                storage.storeAudioIndex(position);
+                                storage.storeMode(0);
+                                mContext.setMode(0);
+                                mContext.stopProgressHandler();
+                                Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                                mContext.sendBroadcast(broadcastIntent);
+                            } else if (mContext.serviceBound) {
+                                storage.clearCachedAudioPlaylist();
+                                storage.storeAudio(mItem);
+                                storage.storeAudioIndex(position);
+                                storage.storeMode(0);
+                                mContext.setMode(0);
+                                mContext.stopProgressHandler();
+                                mContext.playSong();
+                            }
+
                         } else if (mContext.serviceBound) {
+                            storage.clearCachedAudioPlaylist();
+                            storage.storeAudio(mItem);
+                            storage.storeAudioIndex(position);
+                            storage.storeMode(0);
+                            mContext.setMode(0);
                             mContext.playSong();
                         }
+
+
                         Fragment investProgramDetail = new Streaming();
                         Bundle bundle = new Bundle();
-
+                        bundle.putString("isFrom", CATEGORY);
                         bundle.putInt("mode", 0);
                         bundle.putSerializable("data", mItem);
                         bundle.putInt("position", position);

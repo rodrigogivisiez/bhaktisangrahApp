@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
+import com.goldenant.bhaktisangrah.common.util.Constants;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 import com.goldenant.bhaktisangrah.helpers.StorageUtil;
 import com.goldenant.bhaktisangrah.model.SubCategoryModel;
@@ -27,12 +28,13 @@ import java.util.ArrayList;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.goldenant.bhaktisangrah.MainActivity.Broadcast_PLAY_NEW_AUDIO;
+import static com.goldenant.bhaktisangrah.common.util.Constants.CATEGORY;
+import static com.goldenant.bhaktisangrah.common.util.Constants.DOWNLOADS;
 
 /**
  * Created by Adite on 03-01-2016.
  */
-public class DownloadAdapter extends ArrayAdapter<String>
-{
+public class DownloadAdapter extends ArrayAdapter<String> {
     private LayoutInflater layoutInflater;
 
     public ArrayList<String> mItem = new ArrayList<String>();
@@ -50,19 +52,18 @@ public class DownloadAdapter extends ArrayAdapter<String>
     private ProgressDialog pDialog;
     ArrayList<SubCategoryModel> songList;
 
-    public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs, ArrayList<String> songsId)
-    {
+    public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs, ArrayList<String> songsId) {
         super(context, resource);
         mContext = context;
         this.mItem = list;
         mItemImage = listImage;
         mItemSongPath = listSongs;
         this.resource = resource;
-        mItemSongId=songsId;
+        mItemSongId = songsId;
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        songList=new ArrayList<>();
-        for(int i=0;i<mItem.size();i++){
-            SubCategoryModel subCategoryModel=new SubCategoryModel();
+        songList = new ArrayList<>();
+        for (int i = 0; i < mItem.size(); i++) {
+            SubCategoryModel subCategoryModel = new SubCategoryModel();
             subCategoryModel.setItem_name(mItem.get(i));
             subCategoryModel.setItem_image(mItemImage.get(i));
             subCategoryModel.setItem_file(mItemSongPath.get(i));
@@ -71,7 +72,7 @@ public class DownloadAdapter extends ArrayAdapter<String>
             songList.add(subCategoryModel);
         }
 
-        Log.d("Adapter Call","Size: "+mItem.size());
+        Log.d("Adapter Call", "Size: " + mItem.size());
     }
 
     public int getCount() {
@@ -83,11 +84,10 @@ public class DownloadAdapter extends ArrayAdapter<String>
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent)
-    {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View rootView = convertView;
 
-        rootView = layoutInflater.inflate(R.layout.downloads_list_item,null, true);
+        rootView = layoutInflater.inflate(R.layout.downloads_list_item, null, true);
 
         CircularImageView cat_image = (CircularImageView) rootView.findViewById(R.id.image_download);
 
@@ -100,42 +100,71 @@ public class DownloadAdapter extends ArrayAdapter<String>
         tv_title.setText(mItem.get(position));
 
         Log.d("TITLE", "" + mItem.get(position));
-        Log.d("IMAGE",""+mItemImage.get(position));
+        Log.d("IMAGE", "" + mItemImage.get(position));
 
-        try
-        {
-            Bitmap bitmap = BitmapFactory.decodeFile( mItemImage.get(position));
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(mItemImage.get(position));
 
             BitmapDrawable d = new BitmapDrawable(bitmap);
             cat_image.setImageBitmap(bitmap);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                Log.d("SONG_PATH",""+mItemSongPath.get(position));
+            public void onClick(View v) {
+                Log.d("SONG_PATH", "" + mItemSongPath.get(position));
                 StorageUtil storage = new StorageUtil(getApplicationContext());
-                storage.clearCachedAudioPlaylist();
-                storage.storeAudio(songList);
-                storage.storeAudioIndex(position);
-                storage.storeMode(1);
-                mContext.setMode(1);
-                if (mContext.serviceBound && mContext.isPlaying()) {
-                    Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
-                    mContext.sendBroadcast(broadcastIntent);
+                if (storage.loadAudio() != null) {
+                    ArrayList<SubCategoryModel> nowPlayingList = storage.loadAudio();
+                    SubCategoryModel currentlyPlaying = nowPlayingList.get(storage.loadAudioIndex());
+                    SubCategoryModel selectedAudio = songList.get(position);
+                    if (selectedAudio.getItem_file().equalsIgnoreCase(currentlyPlaying.getItem_file())) {
+                        Fragment streaming = new Streaming();
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("mode", 1);
+                        bundle.putString("isFrom", DOWNLOADS);
+                        bundle.putInt("position", position);
+                        bundle.putSerializable("data", songList);
+                        streaming.setArguments(bundle);
+                        mContext.ReplaceFragement(streaming);
+                        mContext.setMode(1);
+                        storage.storeMode(1);
+                        return;
+                    }
+                    if (mContext.serviceBound && mContext.isPlaying()) {
+                        storage.clearCachedAudioPlaylist();
+                        storage.storeAudio(songList);
+                        storage.storeAudioIndex(position);
+                        storage.storeMode(1);
+                        mContext.setMode(1);
+                        Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
+                        mContext.sendBroadcast(broadcastIntent);
+                    } else if (mContext.serviceBound) {
+                        storage.clearCachedAudioPlaylist();
+                        storage.storeAudio(songList);
+                        storage.storeAudioIndex(position);
+                        storage.storeMode(1);
+                        mContext.setMode(1);
+                        mContext.playSong();
+                    }
+
                 } else if (mContext.serviceBound) {
+                    storage.clearCachedAudioPlaylist();
+                    storage.storeAudio(songList);
+                    storage.storeAudioIndex(position);
+                    storage.storeMode(1);
+                    mContext.setMode(1);
                     mContext.playSong();
                 }
+
 
                 Fragment streaming = new Streaming();
 
                 Bundle bundle = new Bundle();
                 bundle.putInt("mode", 1);
+                bundle.putString("isFrom", DOWNLOADS);
                 bundle.putSerializable("item_file", mItemSongPath);
                 bundle.putSerializable("item_name", mItem);
                 bundle.putSerializable("item_image", mItemImage);
@@ -148,6 +177,6 @@ public class DownloadAdapter extends ArrayAdapter<String>
         });
 
 
-        return  rootView;
+        return rootView;
     }
 }

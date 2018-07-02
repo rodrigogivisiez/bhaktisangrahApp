@@ -6,9 +6,9 @@ package com.goldenant.bhaktisangrah.common.util;
 public class Constants {
 
     public static String APP_NAME = "Bhakti Sagar";
-   // private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
+  //  private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
 
-     private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";    //liveApp Url
+    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/BhaktiSagar/api/";    //liveApp Url
     private final static String API_FOLDER = "v1/";
 
 
@@ -20,7 +20,7 @@ public class Constants {
     private final static String API_GET_ITEM_BY_CAT_ID = "get_item_by_cat_id";
     private final static String API_ABOUT_US = "get_about_us";
     private final static String API_GCM_ID = "gcm_register";
-    private final static String API_UPDATE_SONG_STATUS="update_song_status";
+    private final static String API_UPDATE_SONG_STATUS = "update_song_status";
 
 
     //Whole url
@@ -45,6 +45,11 @@ public class Constants {
     public static final String DEVICE_ID = "device_id";
     public static final String Key_user_fcm_id = "Key_user_fcm_id";
     public static final String FLAG = "flag";
+
+
+    public static final String DOWNLOADS = "DOWNLOADS";
+    public static final String CATEGORY = "CATEGORY";
+    public static final String HOME = "HOME";
 
     //Common variable
     public static final String BACK_MODE = "back_mode";
