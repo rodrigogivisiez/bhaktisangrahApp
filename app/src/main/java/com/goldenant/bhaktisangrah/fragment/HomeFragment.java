@@ -102,7 +102,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         @Override
         public void onClick(View v) {
 
-                if (mContext.isPlaying() || mContext.isPlayerPrepared()) {
+              //  if (mContext.isPlaying() || mContext.isPlayerPrepared()) {
                     Fragment investProgramDetail = new Streaming();
                     StorageUtil storage = new StorageUtil(getApplicationContext());
                     if(storage.loadAudio()!=null){
@@ -115,7 +115,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
                         mContext.ReplaceFragement(investProgramDetail);
                     }
 
-                }
+              //  }
         }
     };
 

@@ -219,6 +219,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         //clear cached playlist
         audioList = null;
         audioIndex = -1;
+        new StorageUtil(getApplicationContext()).storePlayedAudioIndex(-1);
         //clear cached playlist
         // new StorageUtil(getApplicationContext()).clearCachedAudioPlaylist();
 
@@ -391,15 +392,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
                 // Lost focus for an unbounded amount of time: stop playback and release media player
-                if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
+                if (mediaPlayer.isPlaying()) stopMedia();//mediaPlayer.stop();
+               /* mediaPlayer.release();
+                mediaPlayer = null;*/
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 // Lost focus for a short time, but we have to stop
                 // playback. We don't release the media player because playback
                 // is likely to resume
-                if (mediaPlayer.isPlaying()) mediaPlayer.pause();
+                if (mediaPlayer.isPlaying()) pauseMedia();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 // Lost focus for a short time, but it's ok to keep playing
@@ -524,6 +525,10 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void skipToNext() {
+        StorageUtil storage = new StorageUtil(getApplicationContext());
+        audioList = storage.loadAudio();
+        audioIndex = storage.loadAudioIndex();
+        userMode = storage.loadMode();
 
         if (audioIndex == audioList.size() - 1) {
             //if last in playlist
@@ -537,10 +542,24 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         //Update stored index
         new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
 
+        if (mediaSessionManager == null) {
+            try {
+                initMediaSession();
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                stopSelf();
+            }
+        }
         initMediaPlayer();
     }
 
     public void skipToPrevious() {
+
+        StorageUtil storage = new StorageUtil(getApplicationContext());
+        audioList = storage.loadAudio();
+        audioIndex = storage.loadAudioIndex();
+        userMode = storage.loadMode();
 
         if (audioIndex == 0) {
             //if first in playlist
@@ -555,9 +574,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         //Update stored index
         new StorageUtil(getApplicationContext()).storeAudioIndex(audioIndex);
 
-        /*stopMedia();
-        //reset mediaPlayer
-        mediaPlayer.reset();*/
+        if (mediaSessionManager == null) {
+            try {
+                initMediaSession();
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                stopSelf();
+            }
+        }
         initMediaPlayer();
     }
 

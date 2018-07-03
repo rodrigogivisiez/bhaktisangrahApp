@@ -579,9 +579,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
                 if (action.equals(MediaPlayerService.META_CHANGED)) {
                     baseActivity.onMetaChanged();
                 } else if (action.equals(MediaPlayerService.UPDATE_SONG_STATUS)) {
-                    if(MasterActivity.isPlayerPrepared()){
                         requestSongStatusChange();
-                    }
                 } else if (action.equals(MediaPlayerService.REFRESH)) {
                     baseActivity.restartLoader();
                 } else if (action.equals(MediaPlayerService.STOP_PROGRESS)) {
@@ -598,6 +596,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             ArrayList<SubCategoryModel> audioList = storage.loadAudio();
             int playedAudioIndex = storage.loadPlayedAudioIndex();
+            Log.e("playedAudioIndex",String.valueOf(playedAudioIndex));
             if (audioList == null || playedAudioIndex==-1) {
                 return;
             }
