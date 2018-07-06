@@ -6,11 +6,12 @@
     <string name="share">share</string>
     <string name="feedback_sub">feedback_sub</string>
     <string name="exit_title">Press back key once more to exit the App.</string>
-    <string name="fb_app_id">903723256364055</string>
+    <string name="fb_app_id">903723256364055</string> // Facebook App ID
+    <string name="fabric_key">b144be32c7cf0ece11108cf2e6a3057012e27ae2</string> // Fabric Key
     <string name="error_playing_track">Error Playing Track</string>
-    <string name="app_id">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="bottom_banner_id">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="add_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="app_id">ca-app-pub-4917639294278231~9231308109</string> // Admob App Id
+    <string name="bottom_banner_id">ca-app-pub-4917639294278231/2991781032</string> // For Small Ad
+    <string name="add_unit_id">ca-app-pub-4917639294278231/8790902629</string> // For Big Add
 
 
     <string-array name="nav_drawer_title">

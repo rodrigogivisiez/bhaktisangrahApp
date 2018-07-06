@@ -301,7 +301,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
 
         if (loadPrefs() == null || !loadPrefs().equalsIgnoreCase(reg_id)) {
-            getGCMCallRequest();
+            //getGCMCallRequest();
         }
         // END GCM
     }
@@ -456,10 +456,6 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
         }
     }
 
-    public void showNotification(String fileImage) {
-        // new MusicNotification(this,fileImage);
-        //finish();
-    }
 
 
     @Override
@@ -579,7 +575,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
                 if (action.equals(MediaPlayerService.META_CHANGED)) {
                     baseActivity.onMetaChanged();
                 } else if (action.equals(MediaPlayerService.UPDATE_SONG_STATUS)) {
-                        requestSongStatusChange();
+                    if(isSongCompleted()){  requestSongStatusChange();}
                 } else if (action.equals(MediaPlayerService.REFRESH)) {
                     baseActivity.restartLoader();
                 } else if (action.equals(MediaPlayerService.STOP_PROGRESS)) {
@@ -608,7 +604,7 @@ public class MainActivity extends MasterActivity implements MusicStateListener {
 
     public void updateSongStatus(String item_id, int flag) {
       String  songId=item_id;
-       // new UpdateSongStatus(songId, flag).execute();
+        new UpdateSongStatus(songId, flag).execute();
     }
 
 

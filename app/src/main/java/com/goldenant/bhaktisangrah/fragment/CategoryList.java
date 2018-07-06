@@ -173,7 +173,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
             category_id = homeModel.getCategory_id();
         }
 
-        updateBottomPlayer();
+
 
         isInternet = new InternetStatus().isInternetOn(mContext);
 
@@ -299,6 +299,8 @@ public class CategoryList extends MasterFragment implements MusicStateListener
     public void onResume()
     {
         super.onResume();
+
+        updateBottomPlayer();
 
         getView().setFocusableInTouchMode(true);
         getView().requestFocus();

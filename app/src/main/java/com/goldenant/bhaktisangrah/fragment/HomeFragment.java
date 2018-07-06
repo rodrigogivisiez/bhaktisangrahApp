@@ -31,6 +31,7 @@ import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.common.ui.MasterActivity;
 import com.goldenant.bhaktisangrah.common.ui.MasterFragment;
 import com.goldenant.bhaktisangrah.common.util.Constants;
+import com.goldenant.bhaktisangrah.common.util.InternetStatus;
 import com.goldenant.bhaktisangrah.common.util.NetworkRequest;
 import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.helpers.MusicStateListener;
@@ -48,7 +49,6 @@ import com.google.android.gms.ads.AdView;
 import com.squareup.picasso.Picasso;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
-import static com.goldenant.bhaktisangrah.common.util.Constants.Bottom_Banner_placement_id;
 import static com.goldenant.bhaktisangrah.common.util.Constants.HOME;
 
 
@@ -169,7 +169,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
             }
         }
 
-        updateBottomPlayer();
+
         listView_category.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -248,6 +248,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
         // TODO Auto-generated method stub
         super.onResume();
 
+        updateBottomPlayer();
         getView().setFocusableInTouchMode(true);
         getView().requestFocus();
         getView().setOnKeyListener(new View.OnKeyListener() {
@@ -289,6 +290,11 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
     }
 
     private void updateBottomPlayer() {
+        boolean isNetworkAvailable = new InternetStatus().isInternetOn(mContext);
+        if (!isNetworkAvailable) {
+            nowPlayingCard.setVisibility(View.GONE);
+            return;
+        }
         StorageUtil storage = new StorageUtil(getApplicationContext());
         ArrayList<SubCategoryModel> audioList = storage.loadAudio();
         int audioIndex = storage.loadAudioIndex();

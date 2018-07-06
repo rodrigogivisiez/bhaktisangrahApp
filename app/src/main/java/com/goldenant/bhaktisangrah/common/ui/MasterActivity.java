@@ -134,7 +134,7 @@ public class MasterActivity extends AppCompatActivity {
             unregisterReceiver(mPlaybackStatus);
         } catch (final Throwable e) {
         }
-        mMusicStateListener.clear();
+
     }
 
     @Override
@@ -150,6 +150,12 @@ public class MasterActivity extends AppCompatActivity {
             return false;
         }
         return player.isPlayerPrepared();
+    }
+    public static boolean isSongCompleted() {
+        if(player==null){
+            return false;
+        }
+        return player.isSongCompleted();
     }
 
     public void setPreviousTrack() {
