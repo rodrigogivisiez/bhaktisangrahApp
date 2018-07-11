@@ -26,6 +26,8 @@ import com.goldenant.bhaktisangrah.R;
 import com.goldenant.bhaktisangrah.common.ui.CircularImageView;
 import com.goldenant.bhaktisangrah.common.util.ClickGuard;
 import com.goldenant.bhaktisangrah.common.util.Constants;
+import com.goldenant.bhaktisangrah.common.util.InternetStatus;
+import com.goldenant.bhaktisangrah.common.util.ToastUtil;
 import com.goldenant.bhaktisangrah.fragment.CategoryList;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 
@@ -186,7 +188,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 Fragment investProgramDetail = new Streaming();
                                 Bundle bundle = new Bundle();
                                 bundle.putString("isFrom", CATEGORY);
-                                bundle.putInt("mode",0);
+                                bundle.putInt("mode", 0);
                                 bundle.putSerializable("data", storage.loadAudio());
                                 bundle.putInt("position", storage.loadAudioIndex());
                                 bundle.putSerializable("CAT_ID", homeModel);
@@ -200,6 +202,9 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 storage.storeAudio(mItem);
                                 storage.storeAudioIndex(position);
                                 storage.storeMode(0);
+                                storage.storeIsPlayingFrom("Category");
+                                mContext.setShuffleMode(false);
+                                mContext.setRepeatMode(false);
                                 mContext.setMode(0);
                                 mContext.stopProgressHandler();
                                 Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
@@ -209,6 +214,9 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 storage.storeAudio(mItem);
                                 storage.storeAudioIndex(position);
                                 storage.storeMode(0);
+                                storage.storeIsPlayingFrom("Category");
+                                mContext.setShuffleMode(false);
+                                mContext.setRepeatMode(false);
                                 mContext.setMode(0);
                                 mContext.stopProgressHandler();
                                 mContext.playSong();
@@ -219,11 +227,13 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                             storage.storeAudio(mItem);
                             storage.storeAudioIndex(position);
                             storage.storeMode(0);
+                            storage.storeIsPlayingFrom("Category");
+                            mContext.setShuffleMode(false);
+                            mContext.setRepeatMode(false);
                             mContext.setMode(0);
                             mContext.stopProgressHandler();
                             mContext.playSong();
                         }
-
 
 
                         Fragment investProgramDetail = new Streaming();
@@ -254,7 +264,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 Fragment investProgramDetail = new Streaming();
                                 Bundle bundle = new Bundle();
                                 bundle.putString("isFrom", CATEGORY);
-                                bundle.putInt("mode",0);
+                                bundle.putInt("mode", 0);
                                 bundle.putSerializable("data", storage.loadAudio());
                                 bundle.putInt("position", storage.loadAudioIndex());
                                 bundle.putSerializable("CAT_ID", homeModel);
@@ -269,6 +279,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 storage.storeAudio(mItem);
                                 storage.storeAudioIndex(position);
                                 storage.storeMode(0);
+                                storage.storeIsPlayingFrom("Category");
+                                mContext.setShuffleMode(false);
+                                mContext.setRepeatMode(false);
+                                mContext.setNoOfRepeats(0);
                                 mContext.setMode(0);
                                 mContext.stopProgressHandler();
                                 Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
@@ -278,6 +292,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                                 storage.storeAudio(mItem);
                                 storage.storeAudioIndex(position);
                                 storage.storeMode(0);
+                                storage.storeIsPlayingFrom("Category");
+                                mContext.setShuffleMode(false);
+                                mContext.setRepeatMode(false);
+                                mContext.setNoOfRepeats(0);
                                 mContext.setMode(0);
                                 mContext.stopProgressHandler();
                                 mContext.playSong();
@@ -288,6 +306,10 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                             storage.storeAudio(mItem);
                             storage.storeAudioIndex(position);
                             storage.storeMode(0);
+                            storage.storeIsPlayingFrom("Category");
+                            mContext.setShuffleMode(false);
+                            mContext.setRepeatMode(false);
+                            mContext.setNoOfRepeats(0);
                             mContext.setMode(0);
                             mContext.playSong();
                         }
@@ -335,8 +357,14 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
 //                        mViewHolder.urls = mItem.get(position).getItem_file();
 //                        mViewHolder.download.setClickable(false);
+                        boolean isInternet = new InternetStatus().isInternetOn(mContext);
+                        if (isInternet) {
+                            new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
+                        } else {
+                            ToastUtil.showLongToastMessage(mContext, mContext.getString(R.string.no_internet_connection_found));
 
-                        new DownloadFileFromURL().execute(mItem.get(position).getItem_file());
+                            return;
+                        }
                     }
                 });
 
@@ -565,6 +593,39 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
                         bufferwritterSong.close();
                     }
 
+                    //Writing duration into file start
+                    try {
+                        //Write path of song name
+                        File myFileid = new File("/data/data/" + mContext.getApplicationContext()
+                                .getPackageName() + "/Bhakti sagar/BhaktiSagarDuration.txt");
+
+
+                        if (!myFileid.exists()) {
+                            myFileid.createNewFile();
+                        }
+
+                        String aDataDuration = mItem.get(pos).getDuration();
+
+                        Scanner scannerid = new Scanner(myFileid);
+                        List<String> listid = new ArrayList<>();
+                        while (scannerid.hasNextLine()) {
+                            listid.add(scannerid.nextLine());
+                        }
+
+                        if (!listid.contains(aDataDuration)) {
+                            String aBuffer = "";
+                            FileWriter fileWritter = new FileWriter(myFileid, true);
+                            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+                            aBuffer += aDataDuration + "\n";
+                            bufferWritter.write(aBuffer);
+                            bufferWritter.close();
+                        }
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+                    }
+
+
 
                 } catch (Exception e) {
                     Log.d("ERROR", "" + e.getMessage());
@@ -601,6 +662,19 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
             // setting downloaded into image view
             // my_image.setImageDrawable(Drawable.createFromPath(imagePath));
             Log.d("Path_of_file==>", "" + imagePath);
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            if (storage.loadIsPlayingFrom() != null) {
+                if (storage.loadIsPlayingFrom().equalsIgnoreCase("Download")) {
+                    SubCategoryModel currentSong = mItem.get(pos);
+                    ArrayList<SubCategoryModel> currentList = storage.loadAudio();
+                    String fileSource = "/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/mp3/" + currentSong.getDownload_name()+ ".mp3";
+                    String imageSource = "/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/images/" + currentSong.getDownload_name()+ ".jpg";
+                    currentSong.setItem_file(fileSource);
+                    currentSong.setItem_image(imageSource);
+                    currentList.add(currentSong);
+                    storage.storeAudio(currentList);
+                }
+            }
 
             ShowAlert();
             if (aDataid != null) {

@@ -12,6 +12,7 @@ public class SubCategoryModel extends MasterModel
     private String item_file;
     private String download_name;
     private String item_image;
+    private String duration;
 
     public String getItem_id() {
         return item_id;
@@ -41,6 +42,13 @@ public class SubCategoryModel extends MasterModel
         return item_file;
     }
 
+    public String getDuration() {
+        return duration;
+    }
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
     public void setItem_file(String item_file) {
         this.item_file = item_file;
     }
@@ -60,4 +68,5 @@ public class SubCategoryModel extends MasterModel
     public void setDownload_name(String download_name) {
         this.download_name = download_name;
     }
+
 }

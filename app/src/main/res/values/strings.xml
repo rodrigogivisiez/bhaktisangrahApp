@@ -11,7 +11,9 @@
     <string name="error_playing_track">Error Playing Track</string>
     <string name="app_id">ca-app-pub-4917639294278231~9231308109</string> // Admob App Id
     <string name="bottom_banner_id">ca-app-pub-4917639294278231/2991781032</string> // For Small Ad
-    <string name="add_unit_id">ca-app-pub-4917639294278231/8790902629</string> // For Big Add
+    <string name="add_unit_id">ca-app-pub-4917639294278231/8790902629</string>
+    <string name="no_internet_connection_found">No internet connection found</string>
+    // For Big Add
 
 
     <string-array name="nav_drawer_title">

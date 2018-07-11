@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.goldenant.bhaktisangrah.MainActivity;
@@ -41,6 +42,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
     public ArrayList<String> mItemImage = new ArrayList<String>();
     public ArrayList<String> mItemSongPath = new ArrayList<String>();
     public ArrayList<String> mItemSongId = new ArrayList<String>();
+    ArrayList<String> mSongsDuration = new ArrayList<String>();
 
 
     public MainActivity mContext;
@@ -52,7 +54,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
     private ProgressDialog pDialog;
     ArrayList<SubCategoryModel> songList;
 
-    public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs, ArrayList<String> songsId) {
+    public DownloadAdapter(MainActivity context, int resource, ArrayList<String> list, ArrayList<String> listImage, ArrayList<String> listSongs, ArrayList<String> songsId, ArrayList<String> songsDuration) {
         super(context, resource);
         mContext = context;
         this.mItem = list;
@@ -60,6 +62,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
         mItemSongPath = listSongs;
         this.resource = resource;
         mItemSongId = songsId;
+        mSongsDuration=songsDuration;
         layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         songList = new ArrayList<>();
         for (int i = 0; i < mItem.size(); i++) {
@@ -69,6 +72,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
             subCategoryModel.setItem_file(mItemSongPath.get(i));
             subCategoryModel.setItem_description(mItem.get(i));
             subCategoryModel.setItem_id(mItemSongId.get(i));
+            subCategoryModel.setDuration(mSongsDuration.get(i));
             songList.add(subCategoryModel);
         }
 
@@ -94,6 +98,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
         ImageButton play = (ImageButton) rootView.findViewById(R.id.play_download);
 
         TextView tv_title = (TextView) rootView.findViewById(R.id.tv_title_download);
+        LinearLayout layout_main = (LinearLayout) rootView.findViewById(R.id.layout_main);
 
         tv_title.setTypeface(mContext.getTypeFace());
 
@@ -111,7 +116,7 @@ public class DownloadAdapter extends ArrayAdapter<String> {
             ex.printStackTrace();
         }
 
-        play.setOnClickListener(new View.OnClickListener() {
+        layout_main.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("SONG_PATH", "" + mItemSongPath.get(position));
@@ -138,6 +143,10 @@ public class DownloadAdapter extends ArrayAdapter<String> {
                         storage.storeAudio(songList);
                         storage.storeAudioIndex(position);
                         storage.storeMode(1);
+                        storage.storeIsPlayingFrom("Download");
+                        mContext.setShuffleMode(false);
+                        mContext.setRepeatMode(false);
+                        mContext.setNoOfRepeats(0);
                         mContext.setMode(1);
                         Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
                         mContext.sendBroadcast(broadcastIntent);
@@ -146,6 +155,10 @@ public class DownloadAdapter extends ArrayAdapter<String> {
                         storage.storeAudio(songList);
                         storage.storeAudioIndex(position);
                         storage.storeMode(1);
+                        storage.storeIsPlayingFrom("Download");
+                        mContext.setShuffleMode(false);
+                        mContext.setRepeatMode(false);
+                        mContext.setNoOfRepeats(0);
                         mContext.setMode(1);
                         mContext.playSong();
                     }
@@ -154,7 +167,11 @@ public class DownloadAdapter extends ArrayAdapter<String> {
                     storage.clearCachedAudioPlaylist();
                     storage.storeAudio(songList);
                     storage.storeAudioIndex(position);
+                    storage.storeIsPlayingFrom("Download");
                     storage.storeMode(1);
+                    mContext.setShuffleMode(false);
+                    mContext.setRepeatMode(false);
+                    mContext.setNoOfRepeats(0);
                     mContext.setMode(1);
                     mContext.playSong();
                 }

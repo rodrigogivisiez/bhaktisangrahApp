@@ -6,7 +6,7 @@ package com.goldenant.bhaktisangrah.common.util;
 public class Constants {
 
     public static String APP_NAME = "Bhakti Sagar";
-    private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
+     private final static String API_DOMAIN_CONSUMER = "http://goldenant.in/AndroidAudioApp/api/";
 
     private final static String API_FOLDER = "v1/";
 
@@ -39,6 +39,7 @@ public class Constants {
     public static final String item_file = "item_file";
     public static final String item_image = "item_image";
     public static final String download_name = "download_name";
+    public static final String duration = "duration";
 
     public static final String GCM_ID = "gcm_id";
     public static final String DEVICE_ID = "device_id";

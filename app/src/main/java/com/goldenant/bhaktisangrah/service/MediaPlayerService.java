@@ -33,6 +33,7 @@ import android.util.Log;
 
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
+import com.goldenant.bhaktisangrah.common.util.Utilities;
 import com.goldenant.bhaktisangrah.fragment.Streaming;
 import com.goldenant.bhaktisangrah.helpers.PlaybackStatus;
 import com.goldenant.bhaktisangrah.helpers.StorageUtil;
@@ -103,6 +104,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private TelephonyManager telephonyManager;
     private Bitmap albumArt;
     private Bitmap largeIcon;
+    public int noOfRepeats,repeatCount;
 
     private NotificationManager mNotificationManager;
     private int nextAudioIndex = -1;
@@ -115,6 +117,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     private int mNotificationPostTime;
     private long mLastPlayedTime;
     private boolean isSongCompleted=false;
+    public String isFrom;
 
 
     public boolean isPlayerPrepared() {
@@ -294,7 +297,18 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     public long getDuration() {
         long duration = 0;
         if (mediaPlayer != null || isPlayerPrepared) {
-            duration = mediaPlayer.getDuration();
+           // duration = mediaPlayer.getDuration();
+            StorageUtil storage = new StorageUtil(getApplicationContext());
+            audioList = storage.loadAudio();
+            audioIndex = storage.loadAudioIndex();
+            SubCategoryModel currentSong = audioList.get(audioIndex);
+            String source = currentSong.getDuration().toString();
+            String[] tokens = source.split(":");
+            int secondsToMs = Integer.parseInt(tokens[2]) * 1000;
+            int minutesToMs = Integer.parseInt(tokens[1]) * 60000;
+            int hoursToMs = Integer.parseInt(tokens[0]) * 3600000;
+            duration = secondsToMs + minutesToMs + hoursToMs;
+           // Log.e("in milliseconds: " , String.valueOf(duration));
         }
         return duration;
     }
@@ -358,7 +372,17 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
         notifyChange(UPDATE_SONG_STATUS);
         isPlayerPrepared = false;
         if (isRepeat()) {
-            initMediaPlayer();
+            Log.e("before",String.valueOf(noOfRepeats));
+            if(noOfRepeats!=1){
+                noOfRepeats=noOfRepeats-1;
+                Log.e("after",String.valueOf(noOfRepeats));
+                initMediaPlayer();
+            }else{
+                noOfRepeats=repeatCount;
+                Log.e("updated",String.valueOf(noOfRepeats));
+                playNextTrack();
+            }
+
         } else if (isShuffle()) {
             playShuffledTracks();
         } else {
@@ -567,6 +591,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void skipToNext() {
+        noOfRepeats=repeatCount;
         StorageUtil storage = new StorageUtil(getApplicationContext());
         audioList = storage.loadAudio();
         audioIndex = storage.loadAudioIndex();
@@ -596,7 +621,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
     }
 
     public void skipToPrevious() {
-
+        noOfRepeats=repeatCount;
         StorageUtil storage = new StorageUtil(getApplicationContext());
         audioList = storage.loadAudio();
         audioIndex = storage.loadAudioIndex();
@@ -1076,6 +1101,15 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
 
     public boolean isSongCompleted(){
         return isSongCompleted;
+    }
+
+    public int getNoOfRepeats() {
+        return repeatCount;
+    }
+
+    public void setNoOfRepeats(int noOfRepeats) {
+        repeatCount=noOfRepeats;
+        this.noOfRepeats = noOfRepeats;
     }
 }
 

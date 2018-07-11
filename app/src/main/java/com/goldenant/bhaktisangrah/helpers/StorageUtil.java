@@ -88,5 +88,15 @@ public class StorageUtil {
         return preferences.getInt("PlayedAudioIndex", -1);//return -1 if no data found
     }
 
+    public void storeIsPlayingFrom(String index) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("isPlayingFrom", index);
+        editor.apply();
+    }
 
+    public String loadIsPlayingFrom() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        return preferences.getString("isPlayingFrom", null);//return null if no data found
+    }
 }

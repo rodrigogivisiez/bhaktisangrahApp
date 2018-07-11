@@ -39,6 +39,8 @@ public class Downloads extends MasterFragment
     ArrayList<String> songsImage = new ArrayList<String>();
     ArrayList<String> songs = new ArrayList<String>();
     ArrayList<String> songsId = new ArrayList<String>();
+    ArrayList<String> songsDuration = new ArrayList<String>();
+
 
     LinearLayout error_layout_downloads;
 
@@ -63,7 +65,7 @@ public class Downloads extends MasterFragment
         mContext.setTitle("Downloads");
 
         MasterActivity.playScreen = MasterActivity.playScreen + 1;
-        if(MasterActivity.playScreen == 3) {
+        if(MasterActivity.playScreen == 8) {
             MasterActivity.playScreen = 0;
             loadBigAds();
         }
@@ -138,6 +140,22 @@ public class Downloads extends MasterFragment
             }
 
             ReaderSongId.close();
+
+            //Get path of songs
+
+            File fileDuration = new File("/data/data/" + mContext.getApplicationContext().getPackageName() + "/Bhakti sagar/BhaktiSagarDuration.txt");
+            FileInputStream fileDurationStream = new FileInputStream(fileDuration);
+            BufferedReader ReaderSongDuration = new BufferedReader(
+                    new InputStreamReader(fileDurationStream));
+            String DataRowSongDuration = "";
+//            String Buffer = "";
+            while ((DataRowSongDuration = ReaderSongDuration.readLine()) != null) {
+//                Buffer += DataRow + "\n";
+                songsDuration.add(DataRowSongDuration);
+            }
+
+            ReaderSongDuration.close();
+
         }
         catch (Exception e)
         {
@@ -146,7 +164,7 @@ public class Downloads extends MasterFragment
 
         if(songsName.size() > 0)
         {
-            DownloadAdapter adapter = new DownloadAdapter(mContext,R.layout.downloads_list_item,songsName,songsImage,songs,songsId);
+            DownloadAdapter adapter = new DownloadAdapter(mContext,R.layout.downloads_list_item,songsName,songsImage,songs,songsId,songsDuration);
             listView_downloads.setAdapter(adapter);
         }
         else

@@ -273,6 +273,7 @@ public class CategoryList extends MasterFragment implements MusicStateListener
                             categoryModel.setItem_file(data.getJSONObject(i).getString(Constants.item_file));
                             categoryModel.setItem_image(data.getJSONObject(i).getString(Constants.item_image));
                             categoryModel.setDownload_name(data.getJSONObject(i).getString(Constants.download_name));
+                            categoryModel.setDuration(data.getJSONObject(i).getString(Constants.duration));
 
                             CatListItem.add(categoryModel);
                         }

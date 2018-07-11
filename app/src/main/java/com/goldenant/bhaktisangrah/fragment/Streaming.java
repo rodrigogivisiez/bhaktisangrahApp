@@ -2,24 +2,33 @@ package com.goldenant.bhaktisangrah.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.goldenant.bhaktisangrah.MainActivity;
 import com.goldenant.bhaktisangrah.R;
@@ -90,6 +99,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
     private InterstitialAd interstitialAd;
     private SubCategoryModel currentlyPlaying;
     private String isFrom;
+    private int noOfRepeats;
 
 
     @Override
@@ -106,7 +116,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         utils = new Utilities();
         ((MainActivity) getActivity()).setMusicStateListenerListener(this);
         MasterActivity.playScreen = MasterActivity.playScreen + 1;
-        if (MasterActivity.playScreen == 3) {
+        if (MasterActivity.playScreen == 8) {
             MasterActivity.playScreen = 0;
             loadBigAds();
         }
@@ -161,6 +171,13 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         if (ListItem != null || !ListItem.isEmpty()) {
             updateView(ListItem.get(ListPosition));
         }
+        if (mContext.isRepeat()) {
+            repeatButton.setBackgroundResource(R.drawable.repeat_on);
+            shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
+        } else if (mContext.isShuffle()) {
+            shuffleButton.setBackgroundResource(R.drawable.shuffle_on);
+            repeatButton.setBackgroundResource(R.drawable.repeat_off);
+        }
 
 
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -206,7 +223,8 @@ public class Streaming extends MasterFragment implements MusicStateListener {
 
             @Override
             public void onClick(View arg0) {
-                if (isRepeat) {
+                alertFormElements();
+              /*  if (isRepeat) {
                     isRepeat = false;
                     ToastUtil.showShortToastMessage(getActivity(), "Repeat OFF");
                     repeatButton.setBackgroundResource(R.drawable.repeat_off);
@@ -220,7 +238,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                     repeatButton.setBackgroundResource(R.drawable.repeat_on);
                     shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
                 }
-                mContext.setRepeatMode(isRepeat);
+                mContext.setRepeatMode(isRepeat);*/
             }
         });
 
@@ -301,7 +319,7 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 trackImageView.setImageBitmap(bitmap);
             }
         } else {
-            Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(getActivity())).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
+            Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).transform(new BlurTransformation(mContext)).placeholder(R.drawable.no_image).fit().into(backgroundImageView);
             Picasso.with(getActivity()).load(currentlyPlaying.getItem_image()).placeholder(R.drawable.no_image).fit().into(trackImageView);
         }
 
@@ -360,12 +378,13 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         updateBottomPlayer();
 
     }
+
     private void updateBottomPlayer() {
         StorageUtil storage = new StorageUtil(getApplicationContext());
         ArrayList<SubCategoryModel> audioList = storage.loadAudio();
         int audioIndex = storage.loadAudioIndex();
-        int mode=storage.loadMode();
-        if(audioList==null){
+        int mode = storage.loadMode();
+        if (audioList == null) {
             return;
         }
         updateView(audioList.get(audioIndex));
@@ -376,25 +395,25 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         public void run() {
 
             try {
-                 if(mContext.isPlaying()){
+                if (mContext.isPlaying()) {
 
-                long totalDuration = mContext.getDuration();
-                long currentDurations = mContext.getCurrentPosition();
+                    long totalDuration = mContext.getDuration();
+                    long currentDurations = mContext.getCurrentPosition();
 
-                // Displaying Total Duration time
-                long reduse = totalDuration - currentDurations;
-                finalDuration.setText("-" + utils.milliSecondsToTimer(reduse));
-                // Displaying time completed playing
-                currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
+                    // Displaying Total Duration time
+                    long reduse = totalDuration - currentDurations;
+                    finalDuration.setText("-" + utils.milliSecondsToTimer(reduse));
+                    // Displaying time completed playing
+                    currentDuration.setText("" + utils.milliSecondsToTimer(currentDurations));
 
-                // Updating progress bar
-                int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
-                //Log.d("Progress", ""+progress);
-                seekBarView.setProgress(progress);
+                    // Updating progress bar
+                    int progress = (int) (utils.getProgressPercentage(currentDurations, totalDuration));
+                    //Log.d("Progress", ""+progress);
+                    seekBarView.setProgress(progress);
 
-                // Running this thread after 100 milliseconds
-                mHandler.postDelayed(this, 100);
-                  }
+                    // Running this thread after 100 milliseconds
+                    mHandler.postDelayed(this, 100);
+                }
             } catch (Exception e) {
 
                 e.printStackTrace();
@@ -501,4 +520,103 @@ public class Streaming extends MasterFragment implements MusicStateListener {
         }
     }
 
+
+    //* Show AlertDialog with some form elements.
+
+    public void alertFormElements() {
+
+
+        // * Inflate the XML view. activity_main is in
+        // * res/layout/form_elements.xml
+
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View formElementsView = inflater.inflate(R.layout.form_elements,
+                null, false);
+
+        // You have to list down your form elements
+
+        final RadioGroup countRadioGroup = (RadioGroup) formElementsView
+                .findViewById(R.id.countRadioGroup);
+
+        RadioButton radio_3=formElementsView.findViewById(R.id.radio_3);
+        RadioButton radio_5=formElementsView.findViewById(R.id.radio_5);
+        RadioButton radio_9=formElementsView.findViewById(R.id.radio_9);
+        RadioButton radio_11=formElementsView.findViewById(R.id.radio_11);
+        RadioButton radio_108=formElementsView.findViewById(R.id.radio_108);
+
+        final EditText countEditText = (EditText) formElementsView
+                .findViewById(R.id.countEditText);
+        Button buttonOn = formElementsView.findViewById(R.id.onButton);
+        Button buttonOff = formElementsView.findViewById(R.id.offButton);
+
+        if (mContext.getNoOfRepeats() != 0) {
+            if (MasterActivity.isFromRadio) {
+                int checkValue = mContext.getNoOfRepeats();
+                switch (checkValue){
+                    case 3:radio_3.setChecked(true);break;
+                    case 5:radio_5.setChecked(true);break;
+                    case 9:radio_9.setChecked(true);break;
+                    case 11:radio_11.setChecked(true);break;
+                    case 108:radio_108.setChecked(true);break;
+                }
+            } else {
+                countEditText.setText(String.valueOf(mContext.getNoOfRepeats()));
+            }
+        }
+        // the alert dialog
+        final AlertDialog dialog = new AlertDialog.Builder(mContext).setView(formElementsView)
+                .setTitle("How many times to repeat").show();
+
+        buttonOn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String toastString = "";
+                // get selected radio button from radioGroup
+                int selectedId = countRadioGroup.getCheckedRadioButtonId();
+
+                // find the radiobutton by returned id
+                RadioButton selectedRadioButton = (RadioButton) formElementsView.findViewById(selectedId);
+                if (selectedRadioButton != null) {
+                    toastString += "Selected radio button is: " + selectedRadioButton.getTag() + "\n";
+                    ToastUtil.showLongToastMessage(mContext, toastString);
+                    noOfRepeats = Integer.parseInt(selectedRadioButton.getTag().toString());
+                    MasterActivity.isFromRadio = true;
+                } else {
+                    if (TextUtils.isEmpty(countEditText.getText())) {
+                        ToastUtil.showLongToastMessage(mContext, "Select how many times to repeat.!");
+                        return;
+                    }
+                    toastString += "Selection is: " + countEditText.getText() + "\n";
+                    ToastUtil.showLongToastMessage(mContext, toastString);
+                    noOfRepeats = Integer.parseInt(countEditText.getText().toString());
+                    MasterActivity.isFromRadio = false;
+                }
+                // make repeat to true
+                isRepeat = true;
+                ToastUtil.showShortToastMessage(getActivity(), "Repeat ON");
+                // make shuffle to false
+                isShuffle = false;
+                mContext.setShuffleMode(isShuffle);
+                repeatButton.setBackgroundResource(R.drawable.repeat_on);
+                shuffleButton.setBackgroundResource(R.drawable.shuffle_off);
+                mContext.setNoOfRepeats(noOfRepeats);
+                mContext.setRepeatMode(isRepeat);
+                dialog.cancel();
+            }
+
+        });
+        buttonOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // if (isRepeat) {
+                    isRepeat = false;
+                    ToastUtil.showShortToastMessage(getActivity(), "Repeat OFF");
+                    repeatButton.setBackgroundResource(R.drawable.repeat_off);
+                    dialog.cancel();
+              //  }
+                mContext.setNoOfRepeats(0);
+                mContext.setRepeatMode(isRepeat);
+            }
+        });
+    }
 }

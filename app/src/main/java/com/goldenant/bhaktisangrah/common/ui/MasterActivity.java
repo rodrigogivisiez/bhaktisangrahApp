@@ -48,6 +48,7 @@ public class MasterActivity extends AppCompatActivity {
     public static boolean serviceBound = false;
     public static BroadcastReceiver mPlaybackStatus;
     public static final ArrayList<MusicStateListener> mMusicStateListener = new ArrayList<>();
+    public static boolean isFromRadio=false;
 
 
     public static ArrayList<SubCategoryModel> songsList;
@@ -181,13 +182,29 @@ public class MasterActivity extends AppCompatActivity {
            return false;
     }
 
+    public void setShuffleMode(Boolean bool){
+        player.setShuffleMode(bool);
+    }
+
     public void setRepeatMode(Boolean bool){
         player.setRepeat(bool);
     }
 
-    public void setShuffleMode(Boolean bool){
-        player.setShuffleMode(bool);
+    public boolean isShuffle() {
+        return player.isShuffle();
     }
+
+    public boolean isRepeat() {
+        return player.isRepeat();
+    }
+
+    public void setNoOfRepeats(int count){
+        player.setNoOfRepeats(count);
+    }
+    public int getNoOfRepeats(){
+       return player.getNoOfRepeats();
+    }
+
 
     public void playSong() {
         player.playSong();

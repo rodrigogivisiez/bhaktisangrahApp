@@ -165,7 +165,7 @@ public class HomeFragment extends MasterFragment implements MusicStateListener {
             if (mContext.isInternet == true) {
                 getCategory();
             } else {
-                ToastUtil.showLongToastMessage(mContext, "No internet connection found");
+                ToastUtil.showLongToastMessage(mContext, getString(R.string.no_internet_connection_found));
             }
         }
 
