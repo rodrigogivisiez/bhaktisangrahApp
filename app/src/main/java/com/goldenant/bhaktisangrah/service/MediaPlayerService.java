@@ -310,6 +310,7 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             duration = secondsToMs + minutesToMs + hoursToMs;
            // Log.e("in milliseconds: " , String.valueOf(duration));
         }
+
         return duration;
     }
 
@@ -535,6 +536,13 @@ public class MediaPlayerService extends Service implements MediaPlayer.OnComplet
             e.printStackTrace();
             stopSelf();
         }
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                Log.e("MEDIAPLAYER OnErrorListener", "Can't play media.");
+                return false;
+            }
+        });
         mediaPlayer.prepareAsync();
     }
 

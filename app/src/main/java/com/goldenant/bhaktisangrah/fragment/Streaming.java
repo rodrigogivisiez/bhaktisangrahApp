@@ -293,6 +293,8 @@ public class Streaming extends MasterFragment implements MusicStateListener {
                 // update timer progress again
                 updateProgressBar();
                 //   }
+
+//                Log.e("isPlayerPrepared------------>>>>>>:" , String.valueOf(currentPosition));
             }
         });
 
