@@ -191,11 +191,17 @@ public class MasterActivity extends AppCompatActivity {
     }
 
     public boolean isShuffle() {
-        return player.isShuffle();
+        if(player!=null)
+            return player.isShuffle();
+        else
+            return false;
     }
 
     public boolean isRepeat() {
-        return player.isRepeat();
+        if(player!=null)
+            return player.isRepeat();
+        else
+            return false;
     }
 
     public void setNoOfRepeats(int count){
