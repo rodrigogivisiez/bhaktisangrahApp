@@ -428,7 +428,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
 
                 byte data[] = new byte[1024];
 
-                long total = 0;
+                double total = 0;
 
                 while ((count = input.read(data)) != -1) {
                     total += count;
@@ -643,6 +643,7 @@ public class CategoryAdapter extends ArrayAdapter<HomeModel> {
          * Updating progress bar
          */
         protected void onProgressUpdate(String... progress) {
+            super.onProgressUpdate(progress);
             // setting progress percentage
             pDialog.setProgress(Integer.parseInt(progress[0]));
         }
